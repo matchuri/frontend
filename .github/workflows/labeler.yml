@@ -1,0 +1,42 @@
+name: Frontend Auto Labeler
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Auto Labeling based on Branch Name
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchName = context.payload.pull_request.head.ref.toLowerCase();
+            const labels = [];
+
+            // 브랜치 접두사 매핑 규칙
+            if (branchName.startsWith('feat/')) labels.push('✨ feat');
+            if (branchName.startsWith('fix/') || branchName.startsWith('bug/')) labels.push('🐛 bug');
+            if (branchName.startsWith('ui/')) labels.push('💄 ui');
+            if (branchName.startsWith('ux/')) labels.push('🎯 ux');
+            if (branchName.startsWith('design/') || branchName.startsWith('responsive/')) labels.push('📱 responsive');
+            if (branchName.startsWith('a11y/')) labels.push('♿ a11y');
+            if (branchName.startsWith('style/')) labels.push('🎨 style');
+            if (branchName.startsWith('state/')) labels.push('🧠 state');
+            if (branchName.startsWith('perf/')) labels.push('⚡ performance');
+            if (branchName.startsWith('test/')) labels.push('✅ test');
+            if (branchName.startsWith('refactor/')) labels.push('♻️ refactor');
+            if (branchName.startsWith('docs/')) labels.push('📝 docs');
+            if (branchName.startsWith('chore/')) labels.push('🚚 chore');
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
