@@ -1,9 +1,9 @@
 name: 프론트엔드 버그 제보
 description: 재현 가능한 프론트엔드 버그를 제보합니다.
 title: "[Fix]"
-labels:
-  - type: bug
-  - area: frontend
+assignees:
+  - Leejaelim
+type: bug
 body:
   - type: textarea
     id: summary

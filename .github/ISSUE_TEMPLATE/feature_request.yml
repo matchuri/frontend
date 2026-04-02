@@ -1,9 +1,9 @@
 name: 프론트엔드 기능 요청
-description: 실습용 프론트엔드 기능을 제안합니다.
+description: 프론트엔드 기능을 제안합니다.
 title: "[Feat]"
-labels:
-  - type: feature
-  - area: frontend
+assignees:
+  - Leejaelim
+type: feature
 body:
   - type: textarea
     id: goal
