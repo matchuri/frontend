@@ -9,5 +9,5 @@ export const loginPageStyles = {
   loginButton: "w-full rounded-md bg-blue-500 py-2 text-white font-semibold hover:bg-blue-600 transition",
   divider: "flex items-center gap-3 text-sm text-zinc-400",
   dividerLine: "flex-1 h-px bg-zinc-300",
-  buttonGroup: "flex flex-col gap-3 font-semibold",
+  buttonGroup: "flex flex-col gap-3 text-sm font-semibold ",
 } as const;
