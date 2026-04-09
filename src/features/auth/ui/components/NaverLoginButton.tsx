@@ -10,6 +10,7 @@ export default function NaverLoginButton() {
     return (
         <button
             type="button"
+            onClick={handleNaverLogin}
             className={`${naverButtonStyles.base} ${naverButtonStyles.default}`}
         >
             Naver 계정으로 계속하기

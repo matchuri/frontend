@@ -1,10 +1,8 @@
 import { loginPageStyles } from "@/ui/styles/loginPageStyles";
-<<<<<<< HEAD
+
 import KakaoLoginButton from "@/features/auth/ui/components/KakaoLoginButton";
 import GoogleLoginButton from "@/features/auth/ui/components/GoogleLoginButton";
 import NaverLoginButton from "@/features/auth/ui/components/NaverLoginButton";
-=======
->>>>>>> cc6e055a3684db8a682f464313b57ebfeacd2aa4
 
 export default function LoginPage() {
   return (
@@ -44,16 +42,12 @@ export default function LoginPage() {
           <div className={loginPageStyles.dividerLine}></div>
         </div>
 
-<<<<<<< HEAD
         {/* 소셜 로그인 버튼 */}
         <div className={loginPageStyles.buttonGroup}>
           <GoogleLoginButton />
           <KakaoLoginButton />
           <NaverLoginButton />
         </div>
-
-=======
->>>>>>> cc6e055a3684db8a682f464313b57ebfeacd2aa4
       </div>
     </div>
   );

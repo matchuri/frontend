@@ -10,6 +10,7 @@ export default function KakaoLoginButton() {
     return (
         <button
             type="button"
+            onClick={handleKakaoLogin}
             className={`${kakaoButtonStyles.base} ${kakaoButtonStyles.default}`}
         >
             Kakao 계정으로 계속하기

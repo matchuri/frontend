@@ -10,6 +10,7 @@ export default function GoogleLoginButton() {
     return (
         <button
             type="button"
+            onClick={handleGoogleLogin}
             className={`${googleButtonStyles.base} ${googleButtonStyles.default}`}
         >
             Google 계정으로 계속하기
