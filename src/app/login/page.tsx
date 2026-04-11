@@ -1,8 +1,9 @@
 import { loginPageStyles } from "@/ui/styles/loginPageStyles";
 
-import KakaoLoginButton from "@/features/auth/ui/components/KakaoLoginButton";
-import GoogleLoginButton from "@/features/auth/ui/components/GoogleLoginButton";
-import NaverLoginButton from "@/features/auth/ui/components/NaverLoginButton";
+import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
+import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+
+const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
 export default function LoginPage() {
   return (
@@ -44,9 +45,9 @@ export default function LoginPage() {
 
         {/* 소셜 로그인 버튼 */}
         <div className={loginPageStyles.buttonGroup}>
-          <GoogleLoginButton />
-          <KakaoLoginButton />
-          <NaverLoginButton />
+          {providers.map((provider) => (
+              <SocialLoginButton key={provider} provider={provider} />
+          ))}
         </div>
       </div>
     </div>
