@@ -67,7 +67,7 @@ export function useOAuthCallback() {
                 console.log("accessToken:", response.data.accessToken);
                 console.log("member:", response.data.member);
 
-                router.replace("/");
+                router.replace("/home");
             } catch (e) {
                 console.error("exchange 실패:", e);
                 router.replace("/login?error=exchange_failed");
