@@ -4,11 +4,13 @@ import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AuthProviderMap } from "@/features/auth/domain/model/AuthProviderMap";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
-import { exchangeOAuthCode } from "@/features/auth/application/usecase/exchangeOAuthCode";
+import { useOAuthExchange } from "@/features/auth/application/hooks/useOAuthExchange";
 
 export function useOAuthCallback() {
     const router = useRouter();
     const searchParams = useSearchParams();
+
+    const { exchangeOAuthCode } = useOAuthExchange();
 
     useEffect(() => {
         const run = async () => {
@@ -73,5 +75,5 @@ export function useOAuthCallback() {
         };
 
         run();
-    }, [router, searchParams]);
+    }, [router, searchParams, exchangeOAuthCode]);
 }

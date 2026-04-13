@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { authAtom } from "@/features/auth/application/atom/authAtom";
 
