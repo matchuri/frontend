@@ -1,20 +1,17 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-    setLoading,
-    setAuthenticated,
-    clearAuth,
-    getAccessToken,
-} from "@/features/auth/application/store/authStore";
+import { useAuthAction } from "@/features/auth/application/hooks/useAuthAction";
+import { getAccessToken } from "@/features/auth/infrastructure/token/authTokenProvider";
 import { clientEnv } from "@/infrastructure/config/env";
 
 export function useAuthInit() {
+    const { setLoading, setAuthenticated, clearAuth } = useAuthAction();
+
     useEffect(() => {
         const init = async () => {
             console.log("[AuthInit] 시작");
 
-            // 이미 accessToken 있으면 skip
             const existingToken = getAccessToken();
             if (existingToken) {
                 console.log("[AuthInit] 이미 로그인 상태 → skip");
@@ -33,28 +30,24 @@ export function useAuthInit() {
                 );
 
                 if (!response.ok) {
-                    throw new Error(`refresh 실패: ${response.status}`);
+                    throw new Error("refresh 실패");
                 }
 
                 const data = await response.json();
+                const token = data.data?.accessToken;
 
-                const accessToken = data.data?.accessToken;
+                if (!token) throw new Error("accessToken 없음");
 
-                // accessToken 없으면 실패 처리
-                if (!accessToken) {
-                    throw new Error("accessToken 없음");
-                }
-
-                setAuthenticated(accessToken);
+                setAuthenticated(token);
 
                 console.log("[AuthInit] 자동 로그인 성공");
-            } catch (error) {
-                console.log("[AuthInit] 자동 로그인 실패", error);
 
+            } catch (error) {
                 clearAuth();
+                console.log("[AuthInit] 자동 로그인 실패", error);
             }
         };
 
         init();
-    }, []);
+    }, [setLoading, setAuthenticated, clearAuth]);
 }

@@ -1,9 +1,9 @@
 import { clientEnv } from "@/infrastructure/config/env";
 import {
     getAccessToken,
-    setAuthenticated,
-    clearAuth,
-} from "@/features/auth/application/store/authStore";
+    setAccessToken,
+    clearAuthState,
+} from "@/features/auth/infrastructure/token/authTokenProvider";
 
 class HttpError extends Error {
     constructor(
@@ -15,13 +15,13 @@ class HttpError extends Error {
     }
 }
 
-// refresh API 호출 (쿠키 기반)
+// refresh token API
 async function refreshAccessToken(): Promise<string> {
     const response = await fetch(
         `${clientEnv.apiBaseUrl}/api/v1/auth/refresh`,
         {
             method: "POST",
-            credentials: "include", // 쿠키 포함
+            credentials: "include",
         }
     );
 
@@ -30,7 +30,6 @@ async function refreshAccessToken(): Promise<string> {
     }
 
     const data = await response.json();
-
     return data.data.accessToken;
 }
 
@@ -56,36 +55,34 @@ async function request<T>(
         }
     );
 
+    // 401 처리
     if (response.status === 401 && !isRetry) {
         try {
-            console.log("accessToken 만료 → refresh 시도");
+            console.log("[httpClient] accessToken 만료 → refresh 시도");
 
             const newToken = await refreshAccessToken();
-            // 상태 업데이트
-            setAuthenticated(newToken);
 
-            console.log("새 accessToken 발급 완료");
+            setAccessToken(newToken);
+            console.log("[httpClient] 새 accessToken 발급 완료");
+
             return request<T>(path, options, true);
 
         } catch (error) {
-            console.error("refresh 실패 → 로그아웃", error);
-            clearAuth();
+            console.error("[httpClient] refresh 실패 → 로그아웃", error);
+            clearAuthState();
 
             throw new HttpError(401, "Unauthorized");
         }
     }
 
+    // 일반 에러 처리
     if (!response.ok) {
         throw new HttpError(response.status, response.statusText);
     }
 
+    // response 파싱
     const text = await response.text();
-
-    if (!text) {
-        return undefined as T;
-    }
-
-    return JSON.parse(text) as T;
+    return text ? JSON.parse(text) : (undefined as T);
 }
 
 export const httpClient = {
