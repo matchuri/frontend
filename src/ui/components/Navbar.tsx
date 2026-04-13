@@ -32,7 +32,7 @@ export default function Navbar() {
             {!isLoading && !isAuthenticated && (
               <Link
                 href="/login"
-                className={`${authButtonStyles.base} ${authButtonStyles.loginInactive}`}
+                className={`${authButtonStyles.base} ${authButtonStyles.login}`}
               >
                 Login
               </Link>
