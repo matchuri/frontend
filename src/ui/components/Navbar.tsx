@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { authAtom } from "@/features/auth/application/atom/authAtom";
 
@@ -12,8 +13,8 @@ import {
 export default function Navbar() {
     const auth = useAtomValue(authAtom);
 
-    const isAuthenticated = auth.status === "AUTHENTICATED";
-    const isLoading = auth.status === "LOADING";
+    const [open, setOpen] = useState(false);
+    const isAuth = auth.status === "AUTHENTICATED";
 
     return (
         <nav className={navbarStyles.nav}>
@@ -24,11 +25,8 @@ export default function Navbar() {
 
           {/* RIGHT - AUTH AREA */}
           <div className={navbarStyles.rightGroup}>
-            {/* 로딩 */}
-            {isLoading && null}
-
             {/* 게스트 */}
-            {!isLoading && !isAuthenticated && (
+            {!isAuth && (
               <Link
                 href="/login"
                 className={`${authButtonStyles.base} ${authButtonStyles.login}`}
@@ -38,11 +36,27 @@ export default function Navbar() {
             )}
 
             {/* 로그인 성공 */}
-            {!isLoading && isAuthenticated && (
-              <div
-                className={`${authButtonStyles.base} ${authButtonStyles.profile}`}
-              >
+            {isAuth && (
+              <div className="relative">
+                <button
+                    onClick={() => setOpen((prev) => !prev)}
+                    className={`${authButtonStyles.base} ${authButtonStyles.profile}`}
+                >
                 Profile
+                </button>
+
+                {open && (
+                    <div className={navbarStyles.dropdown}>
+                        <button
+                            onClick={() => {
+                                console.log("로그아웃 버튼 클릭");
+                            }}
+                            className={navbarStyles.dropdownItem}
+                        >
+                            로그아웃
+                        </button>
+                    </div>
+                )}
               </div>
             )}
           </div>
