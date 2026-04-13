@@ -2,13 +2,14 @@
 
 import { Provider } from "jotai";
 import { useAuthInit } from "@/features/auth/application/hooks/useAuthInit";
+import Navbar from "@/ui/components/Navbar";
 
 function AppContent({ children }: { children: React.ReactNode }) {
     useAuthInit();
 
     return (
         <>
-            {/* TODO: 나중에 Navbar 추가 가능 */}
+            <Navbar />
             <main>{children}</main>
         </>
     );
