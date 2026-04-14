@@ -2,6 +2,7 @@ import { loginPageStyles } from "@/ui/styles/loginPageStyles";
 
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+import Link from "next/link";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
@@ -48,6 +49,21 @@ export default function LoginPage() {
           {providers.map((provider) => (
               <SocialLoginButton key={provider} provider={provider} />
           ))}
+        </div>
+
+        {/* 하단 링크 */}
+        <div className={loginPageStyles.helperLinks}>
+          <Link href="/" className={loginPageStyles.helperLink}>
+            아이디 찾기
+          </Link>
+          <span className={loginPageStyles.separator}>|</span>
+          <Link href="/" className={loginPageStyles.helperLink}>
+            비밀번호 찾기
+          </Link>
+          <span className={loginPageStyles.separator}>|</span>
+          <Link href="/signup" className={loginPageStyles.signupLink}>
+            회원가입
+          </Link>
         </div>
       </div>
     </div>
