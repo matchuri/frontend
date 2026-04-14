@@ -10,4 +10,8 @@ export const loginPageStyles = {
   divider: "flex items-center gap-3 text-sm text-zinc-400",
   dividerLine: "flex-1 h-px bg-zinc-300",
   buttonGroup: "flex flex-col gap-3 text-sm font-semibold ",
+  helperLinks: "flex justify-center items-center gap-2 mt-4 text-sm text-gray-500",
+  helperLink: "hover:underline cursor-pointer",
+  signupLink: "text-blue-600 font-medium hover:underline cursor-pointer",
+  separator: "text-gray-300",
 } as const;
