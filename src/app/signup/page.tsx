@@ -1,17 +1,37 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import { signupPageStyles } from "@/ui/styles/signupPageStyles";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
-import { useRouter } from "next/navigation";
+import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
 export default function SignupPage() {
   const router = useRouter();
 
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
+
+  // 아이디 + 비밀번호 둘 다 입력되었을 때만 활성화
+  const canSubmit =
+    id.trim().length > 0 &&
+    password.trim().length > 0;
+
   const handleSubmit = () => {
-      router.push("/terms");
+    if (!canSubmit) return;
+
+    // 일반 회원가입 페이지 진입 시 isSocial = false
+    accountStorage.save({
+      id: id.trim(),
+      password: password.trim(),
+      isSocial: false,
+    });
+
+    router.push("/terms");
   };
 
   return (
@@ -46,20 +66,36 @@ export default function SignupPage() {
           {/* 아이디 */}
           <div className={signupPageStyles.inputGroup}>
             <label className={signupPageStyles.label}>아이디</label>
-            <input type="text" className={signupPageStyles.input} />
+            <input
+              type="text"
+              className={signupPageStyles.input}
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+            />
           </div>
 
           {/* 비밀번호 */}
           <div className={signupPageStyles.inputGroup}>
             <label className={signupPageStyles.label}>비밀번호</label>
-            <input type="password" className={signupPageStyles.input} />
+            <input
+              type="password"
+              className={signupPageStyles.input}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
 
           {/* 버튼 오른쪽 정렬 */}
           <div className="flex justify-end">
             <button
-              className={signupPageStyles.nextButton}
+              type="button"
               onClick={handleSubmit}
+              disabled={!canSubmit}
+              className={
+                canSubmit
+                  ? signupPageStyles.nextButton
+                  : `${signupPageStyles.nextButton} opacity-50 cursor-not-allowed`
+              }
             >
               계속
             </button>
