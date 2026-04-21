@@ -3,7 +3,7 @@ import type { TermGroup } from "@/features/terms/domain/model/termSection";
 export const TERMS: TermGroup[] = [
   {
     type: "TERMS_OF_SERVICE",
-    version: "2026-04-15",
+    version: "2026-04-10",
     name: "이용약관",
     required: true,
     sections: [
@@ -45,7 +45,7 @@ export const TERMS: TermGroup[] = [
   },
   {
     type: "PRIVACY_POLICY",
-    version: "2026-04-15",
+    version: "2026-04-10",
     name: "개인정보처리방침",
     required: true,
     sections: [
