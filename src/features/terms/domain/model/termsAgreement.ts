@@ -1,4 +1,4 @@
-import type { AgreementType } from "@features/terms/domain/model/termSection";
+import type { AgreementType } from "@/features/terms/domain/model/termSection";
 
 export interface TermsAgreement {
   readonly agreementType: AgreementType;
