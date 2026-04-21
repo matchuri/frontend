@@ -1,10 +1,41 @@
 "use client";
 
-import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
+import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
+import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
+import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
 
 export default function NicknamePage() {
   const router = useRouter();
+
+//   const [ready, setReady] = useState(false);
+//   const [accountId, setAccountId] = useState("");
+//   const [accountPass, setAccountPass] = useState("");
+//   const [termsType, setTermsType] = useState("");
+//   const [termsVersion, setTermsVersion] = useState("");
+
+  useEffect(() => {
+    const account = accountStorage.load();
+    const agreements = termsStorage.load();
+
+    // 이전 단계 데이터 없으면 회원가입 첫 단계로 이동
+    if (!account || !agreements || agreements.length === 0) {
+      router.replace("/signup");
+      return;
+    }
+
+    // 콘솔 확인용
+    console.log("accountStorage:", account);
+    console.log("termsStorage:", agreements);
+
+//     setAccountId(account.id);
+//     setAccountPass(account.password);
+//     setTermsType(agreements.agreementType);
+//     setTermsVersion(agreements.agreementVersion);
+
+  }, [router]);
 
   const handleSubmit = () => {
       router.push("/home/");

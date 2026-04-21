@@ -1,14 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getTerms } from "@/features/terms/domain/model/getTerms";
 import TermGroupItem from "@/features/terms/ui/components/TermGroupItem";
 import { termsPageStyles } from "@/ui/styles/termsPageStyles";
+import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
+import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
 
 export default function TermsPage() {
   const router = useRouter();
   const terms = getTerms();
+//   const [ready, setReady] = useState(false);
 
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(terms.map((t) => [t.name, false])),
@@ -30,8 +33,25 @@ export default function TermsPage() {
   };
 
   const handleSubmit = () => {
+    const agreements = terms.map((t) => ({
+      agreementType: t.type,
+      agreementVersion: t.version,
+      agreed: checkedMap[t.name],
+    }));
+
+    termsStorage.save(agreements);
     router.push("/signup/nickname/");
   };
+
+  useEffect(() => {
+    const profile = accountStorage.load();
+
+    if (!profile) {
+      router.replace("/signup");
+      return;
+    }
+
+  }, [router]);
 
   return (
     <div className={termsPageStyles.container}>
