@@ -84,17 +84,17 @@ export default function SignupPage() {
         }
 
         setIdStatus("available");
-      } catch (error) {
-        console.error(
-          "아이디 중복 확인 실패:",
-          error
-        );
+      } catch (error: unknown) {
+        console.error("아이디 중복 확인 실패:", error);
 
-        // 형식 오류
+        const apiError = error as {
+          status?: number;
+          code?: string;
+        };
+
         if (
-          error?.status === 400 &&
-          error?.code ===
-            "COMMON_INVALID_PATH_VARIABLE"
+          apiError.status === 400 &&
+          apiError.code === "COMMON_INVALID_PATH_VARIABLE"
         ) {
           setIdStatus("invalid");
           return;
