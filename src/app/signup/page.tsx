@@ -15,6 +15,10 @@ const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 // 영문/숫자/._- 허용, 1~50자
 const ID_REGEX = /^[A-Za-z0-9._-]{1,50}$/;
 
+// 비밀번호 조건: 8자 이상 100자 이하
+const PASSWORD_MIN = 8;
+const PASSWORD_MAX = 100;
+
 type IdStatus = "idle" | "invalid" | "checking" | "duplicate" | "available";
 
 export default function SignupPage() {
@@ -46,6 +50,7 @@ export default function SignupPage() {
       return;
     }
 
+    // 프론트 1차 형식검사
     if (!ID_REGEX.test(loginId)) {
       setIdStatus("invalid");
       return;
@@ -55,7 +60,7 @@ export default function SignupPage() {
     setIdStatus("checking");
   };
 
-   // 형식이 정상일 때만 자동 중복 확인
+  // 아이디 자동 중복 확인
   useEffect(() => {
     const loginId = id.trim();
 
@@ -66,17 +71,35 @@ export default function SignupPage() {
     debounceRef.current = setTimeout(async () => {
       try {
         const response = await authApi.checkLoginIdExists(loginId);
-        console.log("아이디 확인:", response);
+        console.log("아이디 조회:", response);
 
-        // TODO: 중복 확인 부분 수정해야 할 가능성 있음
-        if (!response.success) {
+        /**
+         * success = true
+         * exists = true  => 중복
+         * exists = false => 사용 가능
+         */
+        if (response.data.exists) {
           setIdStatus("duplicate");
           return;
         }
 
         setIdStatus("available");
       } catch (error) {
-        console.error("아이디 중복 확인 실패:", error);
+        console.error(
+          "아이디 중복 확인 실패:",
+          error
+        );
+
+        // 형식 오류
+        if (
+          error?.status === 400 &&
+          error?.code ===
+            "COMMON_INVALID_PATH_VARIABLE"
+        ) {
+          setIdStatus("invalid");
+          return;
+        }
+
         setIdStatus("invalid");
       }
     }, 500);
@@ -88,10 +111,15 @@ export default function SignupPage() {
     };
   }, [id, idStatus]);
 
+  // 비밀번호 유효성
+  const isPasswordValid =
+    password.length >= PASSWORD_MIN &&
+    password.length <= PASSWORD_MAX;
+
    // 계속 버튼 활성화 조건
   const canSubmit =
     idStatus === "available" &&
-    password.trim().length > 0;
+    isPasswordValid;
 
   const handleSubmit = () => {
     if (!canSubmit) return;
@@ -132,6 +160,12 @@ export default function SignupPage() {
       default:
         return "";
     }
+  };
+
+  const getPasswordMessage = () => {
+    if (!password) return "";
+    if (isPasswordValid) return "";
+    return "비밀번호는 8자 이상 100자 이하로 입력해주세요.";
   };
 
   return (
@@ -193,6 +227,12 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력하세요"
             />
+
+            {getPasswordMessage() && (
+              <p className="mt-2 text-sm text-red-500">
+                {getPasswordMessage()}
+              </p>
+            )}
           </div>
 
           {/* 버튼 */}

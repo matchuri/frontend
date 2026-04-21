@@ -10,6 +10,31 @@ interface LoginIdExistsResponse {
     error: null;
 }
 
+interface NickNameExistsResponse {
+    success: boolean;
+    data: {
+        nickname: string;
+        exists: boolean;
+    };
+    error: null;
+}
+
+interface SignupRequest {
+    loginId: string;
+    password: string;
+    nickname: string;
+    agreements: {
+        agreementType: string;
+        agreementVersion: string;
+    }[];
+}
+
+interface SignupResponse {
+    success: boolean;
+    data: null;
+    error: null;
+}
+
 export const authApi = {
     exchangeCode: (provider: string, code: string) => {
         return httpClient.post<OAuthExchangeResponse>(
@@ -24,6 +49,19 @@ export const authApi = {
     checkLoginIdExists: (loginId: string) => {
         return httpClient.get<LoginIdExistsResponse>(
           `/api/v1/members/exists/${loginId}`
+        );
+    },
+
+    checkNicknameExists: (nickName: string) => {
+        return httpClient.get<NickNameExistsResponse>(
+            `/api/v1/members/exists/nickname/${nickName}`
+        );
+    },
+
+    signup: (payload: SignupRequest) => {
+        return httpClient.post<SignupResponse>(
+            "/api/v1/members/signup",
+            payload
         );
     },
 };
