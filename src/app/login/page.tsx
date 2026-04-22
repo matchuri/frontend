@@ -1,5 +1,6 @@
-import { loginPageStyles } from "@/ui/styles/loginPageStyles";
+"use client";
 
+import { loginPageStyles } from "@/ui/styles/loginPageStyles";
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
 import Link from "next/link";
@@ -7,6 +8,11 @@ import Link from "next/link";
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
 export default function LoginPage() {
+  const handleSignupClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // 이동 막기
+    alert("준비 중인 기능입니다.");
+  };
+
   return (
     <div className={loginPageStyles.container}>
       <div className={loginPageStyles.card}>
@@ -61,9 +67,13 @@ export default function LoginPage() {
             비밀번호 찾기
           </Link>
           <span className={loginPageStyles.separator}>|</span>
-          <Link href="/signup" className={loginPageStyles.signupLink}>
+          <a
+            href="/signup"
+            onClick={handleSignupClick}
+            className={loginPageStyles.signupLink}
+          >
             회원가입
-          </Link>
+          </a>
         </div>
       </div>
     </div>
