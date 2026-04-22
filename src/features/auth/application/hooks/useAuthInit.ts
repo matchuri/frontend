@@ -6,48 +6,48 @@ import { getAccessToken } from "@/features/auth/infrastructure/token/authTokenPr
 import { clientEnv } from "@/infrastructure/config/env";
 
 export function useAuthInit() {
-    const { setLoading, setAuthenticated, clearAuth } = useAuthAction();
+  const { setAuthenticated, setLoading, clearAuth } = useAuthAction();
 
-    useEffect(() => {
-        const init = async () => {
-            console.log("[AuthInit] 시작");
+  useEffect(() => {
+    const init = async () => {
+      const existingToken = getAccessToken();
 
-            const existingToken = getAccessToken();
-            if (existingToken) {
-                console.log("[AuthInit] 이미 로그인 상태 → skip");
-                return;
-            }
+      if (existingToken) {
+        setAuthenticated(existingToken);
+        return;
+      }
 
-            setLoading();
+      setLoading();
 
-            try {
-                const response = await fetch(
-                    `${clientEnv.apiBaseUrl}/api/v1/auth/refresh`,
-                    {
-                        method: "POST",
-                        credentials: "include",
-                    }
-                );
+      try {
+        const response = await fetch(
+          `${clientEnv.apiBaseUrl}/api/v1/auth/refresh`,
+          {
+            method: "POST",
+            credentials: "include",
+          }
+        );
 
-                if (!response.ok) {
-                    throw new Error("refresh 실패");
-                }
+        if (!response.ok) {
+          clearAuth();
+          return;
+        }
 
-                const data = await response.json();
-                const token = data.data?.accessToken;
+        const data = await response.json();
+        const token = data.data?.accessToken;
 
-                if (!token) throw new Error("accessToken 없음");
+        if (!token) {
+          clearAuth();
+          return;
+        }
 
-                setAuthenticated(token);
+        setAuthenticated(token);
+      } catch (error) {
+        console.error("[네트워크 오류]", error);
+        clearAuth();
+      }
+    };
 
-                console.log("[AuthInit] 자동 로그인 성공");
-
-            } catch (error) {
-                clearAuth();
-                console.log("[AuthInit] 자동 로그인 실패", error);
-            }
-        };
-
-        init();
-    }, [setLoading, setAuthenticated, clearAuth]);
+    init();
+  }, [setAuthenticated, setLoading, clearAuth]);
 }

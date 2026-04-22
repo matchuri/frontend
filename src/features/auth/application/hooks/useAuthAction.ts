@@ -1,25 +1,24 @@
-"use client";
-
 import { useSetAtom } from "jotai";
+import { useCallback } from "react";
 import { authAtom } from "@/features/auth/application/atom/authAtom";
 
-export const useAuthAction = () => {
+export function useAuthAction() {
     const setAuth = useSetAtom(authAtom);
 
-    const setLoading = () => {
+    const setLoading = useCallback(() => {
         setAuth({ status: "LOADING" });
-    };
+    }, [setAuth]);
 
-    const setAuthenticated = (accessToken: string) => {
+    const setAuthenticated = useCallback((accessToken: string) => {
         setAuth({
-            status: "AUTHENTICATED",
-            accessToken,
+        status: "AUTHENTICATED",
+        accessToken,
         });
-    };
+    }, [setAuth]);
 
-    const clearAuth = () => {
+    const clearAuth = useCallback(() => {
         setAuth({ status: "UNAUTHENTICATED" });
-    };
+    }, [setAuth]);
 
     return { setLoading, setAuthenticated, clearAuth };
-};
+}
