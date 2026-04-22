@@ -1,12 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAtomValue } from "jotai";
-import { authAtom } from "@/features/auth/application/atom/authAtom";
+import { useRouter } from "next/navigation";
+import {
+    isAuthenticatedAtom,
+    isAuthLoadingAtom,
+} from "@/features/auth/application/selectors/authSelectors";
 
 export default function HomePage() {
-    const auth = useAtomValue(authAtom);
+    const router = useRouter();
+    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+    const isAuthLoading = useAtomValue(isAuthLoadingAtom);
 
-    if (auth.status !== "AUTHENTICATED") {
+    useEffect(() => {
+        if (!isAuthLoading && !isAuthenticated) {
+            router.replace("/login");
+        }
+    }, [isAuthLoading, isAuthenticated, router]);
+
+    if (isAuthLoading || !isAuthenticated) {
         return null;
     }
 

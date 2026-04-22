@@ -1,5 +1,7 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
-import type { OAuthExchangeResponse } from "@/features/auth/domain/model/OAuthExchangeResponse";
+import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+import type { OAuthExchangeResponse } from "@/features/auth/infrastructure/api/dto/OAuthExchangeResponse";
+import type { RefreshResponse } from "@/features/auth/infrastructure/api/dto/RefreshResponse";
 
 interface LoginIdExistsResponse {
     success: boolean;
@@ -36,32 +38,36 @@ interface SignupResponse {
 }
 
 export const authApi = {
-    exchangeCode: (provider: string, code: string) => {
+    exchangeCode(provider: AuthProvider, code: string) {
         return httpClient.post<OAuthExchangeResponse>(
             "/api/v1/auth/oauth2/exchange",
             {
                 provider,
                 code,
-            }
+            },
         );
     },
 
-    checkLoginIdExists: (loginId: string) => {
+    refresh() {
+        return httpClient.post<RefreshResponse>("/api/v1/auth/refresh");
+    },
+
+    checkLoginIdExists(loginId: string) {
         return httpClient.get<LoginIdExistsResponse>(
-          `/api/v1/members/exists/${loginId}`
+            `/api/v1/members/exists/${loginId}`,
         );
     },
 
-    checkNicknameExists: (nickName: string) => {
+    checkNicknameExists(nickname: string) {
         return httpClient.get<NickNameExistsResponse>(
-            `/api/v1/members/exists/nickname/${nickName}`
+            `/api/v1/members/exists/nickname/${nickname}`,
         );
     },
 
-    signup: (payload: SignupRequest) => {
+    signup(payload: SignupRequest) {
         return httpClient.post<SignupResponse>(
             "/api/v1/members/signup",
-            payload
+            payload,
         );
     },
-};
+} as const;

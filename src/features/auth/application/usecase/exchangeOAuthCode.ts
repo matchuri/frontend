@@ -1,29 +1,27 @@
 import { authApi } from "@/features/auth/infrastructure/api/authApi";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+import {
+    clearAuth,
+    setAuthenticated,
+    setAuthLoading,
+} from "@/features/auth/application/store/authStore";
 
 export async function exchangeOAuthCode(
     provider: AuthProvider,
     code: string,
-    actions: {
-        setLoading: () => void;
-        setAuthenticated: (token: string) => void;
-        clearAuth: () => void;
-    }
 ) {
-    actions.setLoading();
+    setAuthLoading();
 
     try {
         const response = await authApi.exchangeCode(provider, code);
         const accessToken = response.data.accessToken;
 
-        actions.setAuthenticated(accessToken);
+        setAuthenticated(accessToken);
         console.log("accessToken 저장 완료:", accessToken);
 
         return response;
     } catch (error) {
-        actions.clearAuth();
-        console.error("OAuth exchange 실패:", error);
-
+        clearAuth();
         throw error;
     }
 }
