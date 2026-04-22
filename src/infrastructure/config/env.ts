@@ -1,5 +1,5 @@
 const clientValues = {
-  apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080', //TODO: .env로 가야 함
+  apiBaseUrl: process.env.NEXT_PUBLIC_MATCHURI_BACKEND_ORIGIN,
 } as const;
 
 // 필수 값 체크 (fail-fast)
