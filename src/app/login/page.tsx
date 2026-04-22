@@ -1,63 +1,77 @@
 "use client";
 
+import { useEffect } from "react";
+import { useAtomValue } from "jotai";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { loginPageStyles } from "@/ui/styles/loginPageStyles";
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
-import Link from "next/link";
+import {
+  isAuthenticatedAtom,
+  isAuthLoadingAtom,
+} from "@/features/auth/application/selectors/authSelectors";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
 export default function LoginPage() {
-  const handleSignupClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // 이동 막기
+  const router = useRouter();
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+  const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated) {
+      router.replace("/home");
+    }
+  }, [isAuthLoading, isAuthenticated, router]);
+
+  const handleSignupClick = () => {
     alert("준비 중인 기능입니다.");
   };
+
+  if (isAuthLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p>인증 상태 확인 중...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={loginPageStyles.container}>
       <div className={loginPageStyles.card}>
-
-        {/* 타이틀 영역 */}
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex w-full flex-col gap-1">
           <h1 className={loginPageStyles.title}>로그인</h1>
         </div>
 
-        {/* 입력 폼 */}
         <div className={loginPageStyles.formGroup}>
-
-          {/* 아이디 */}
           <div className={loginPageStyles.inputGroup}>
             <label className={loginPageStyles.label}>아이디</label>
             <input type="text" className={loginPageStyles.input} />
           </div>
 
-          {/* 비밀번호 */}
           <div className={loginPageStyles.inputGroup}>
             <label className={loginPageStyles.label}>비밀번호</label>
             <input type="password" className={loginPageStyles.input} />
           </div>
 
-          {/* 로그인 버튼 */}
           <button className={loginPageStyles.loginButton}>
             로그인
           </button>
         </div>
 
-        {/* divider */}
         <div className={loginPageStyles.divider}>
-          <div className={loginPageStyles.dividerLine}></div>
+          <div className={loginPageStyles.dividerLine} />
           <span>또는</span>
-          <div className={loginPageStyles.dividerLine}></div>
+          <div className={loginPageStyles.dividerLine} />
         </div>
 
-        {/* 소셜 로그인 버튼 */}
         <div className={loginPageStyles.buttonGroup}>
           {providers.map((provider) => (
-              <SocialLoginButton key={provider} provider={provider} />
+            <SocialLoginButton key={provider} provider={provider} />
           ))}
         </div>
 
-        {/* 하단 링크 */}
         <div className={loginPageStyles.helperLinks}>
           <Link href="/" className={loginPageStyles.helperLink}>
             아이디 찾기
@@ -67,13 +81,13 @@ export default function LoginPage() {
             비밀번호 찾기
           </Link>
           <span className={loginPageStyles.separator}>|</span>
-          <a
-            href="/signup"
+          <button
+            type="button"
             onClick={handleSignupClick}
             className={loginPageStyles.signupLink}
           >
             회원가입
-          </a>
+          </button>
         </div>
       </div>
     </div>

@@ -1,9 +1,9 @@
 import { clientEnv } from "@/infrastructure/config/env";
 import {
+    clearAuth,
     getAccessToken,
-    setAccessToken,
-    clearAuthState,
-} from "@/features/auth/infrastructure/token/authTokenProvider";
+    setAuthenticated,
+} from "@/features/auth/application/store/authStore";
 
 class HttpError extends Error {
     constructor(
@@ -17,13 +17,10 @@ class HttpError extends Error {
 
 // refresh token API
 async function refreshAccessToken(): Promise<string> {
-    const response = await fetch(
-        `${clientEnv.apiBaseUrl}/api/v1/auth/refresh`,
-        {
-            method: "POST",
-            credentials: "include",
-        }
-    );
+    const response = await fetch(`${clientEnv.apiBaseUrl}/api/v1/auth/refresh`, {
+        method: "POST",
+        credentials: "include",
+    });
 
     if (!response.ok) {
         throw new Error("Refresh failed");
@@ -40,20 +37,17 @@ async function request<T>(
 ): Promise<T> {
     const accessToken = getAccessToken();
 
-    const response = await fetch(
-        `${clientEnv.apiBaseUrl}${path}`,
-        {
-            ...options,
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                ...(accessToken && {
-                    Authorization: `Bearer ${accessToken}`,
-                }),
-                ...options?.headers,
-            },
-        }
-    );
+    const response = await fetch(`${clientEnv.apiBaseUrl}${path}`, {
+        ...options,
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && {
+                Authorization: `Bearer ${accessToken}`,
+            }),
+            ...options?.headers,
+        },
+    });
 
     // 401 처리
     if (response.status === 401 && !isRetry) {
@@ -61,16 +55,13 @@ async function request<T>(
             console.log("[httpClient] accessToken 만료 → refresh 시도");
 
             const newToken = await refreshAccessToken();
-
-            setAccessToken(newToken);
+            setAuthenticated(newToken);
             console.log("[httpClient] 새 accessToken 발급 완료");
 
             return request<T>(path, options, true);
-
         } catch (error) {
-            console.error("[httpClient] refresh 실패 → 로그아웃", error);
-            clearAuthState();
-
+            console.warn("httpClient] refresh 실패 → 인증 상태 해제", error);
+            clearAuth();
             throw new HttpError(401, "Unauthorized");
         }
     }

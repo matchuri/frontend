@@ -1,26 +1,31 @@
 "use client";
 
 import { Provider, useAtomValue } from "jotai";
-import { useAuthInit } from "@/features/auth/application/hooks/useAuthInit";
-import { authAtom } from "@/features/auth/application/atom/authAtom";
+import type { ReactNode } from "react";
+
+import { jotaiStore } from "@/shared/lib/jotaiStore";
+import AuthInitializer from "@/features/auth/ui/components/AuthInitializer";
+import {
+    isAuthenticatedAtom,
+    isAuthLoadingAtom,
+} from "@/features/auth/application/selectors/authSelectors";
 
 import Navbar from "@/ui/components/Navbar";
 import Sidebar from "@/ui/components/Sidebar";
 
-function AppContent({ children }: { children: React.ReactNode }) {
-    useAuthInit();
-
-    const auth = useAtomValue(authAtom);
-    const isAuth = auth.status === "AUTHENTICATED";
+function AppContent({ children }: { children: ReactNode }) {
+    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+    const isAuthLoading = useAtomValue(isAuthLoadingAtom);
 
     return (
         <>
             <Navbar />
-            {isAuth && <Sidebar />}
+            {!isAuthLoading && isAuthenticated && <Sidebar />}
+
             <main
                 className={[
                     "h-screen overflow-y-auto",
-                    isAuth ? "ml-[280px]" : "",
+                    !isAuthLoading && isAuthenticated ? "ml-[280px]" : "",
                 ].join(" ")}
             >
             {children}
@@ -35,7 +40,8 @@ export default function AppLayout({
     children: React.ReactNode;
 }) {
     return (
-        <Provider>
+        <Provider store={jotaiStore}>
+            <AuthInitializer />
             <AppContent>{children}</AppContent>
         </Provider>
     );
