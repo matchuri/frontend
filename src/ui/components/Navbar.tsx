@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useAtomValue } from "jotai";
+import { UserRound, LogOut } from "lucide-react";
 import {
   isAuthenticatedAtom,
   isAuthLoadingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
+import { useLogout } from "@/features/auth/application/hooks/useLogout";
 
 import {
   navbarStyles,
@@ -17,6 +19,12 @@ export default function Navbar() {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const isAuthLoading = useAtomValue(isAuthLoadingAtom);
   const [open, setOpen] = useState(false);
+  const { isSubmitting, handleLogout } = useLogout();
+
+  const onClickLogout = async () => {
+    setOpen(false);
+    await handleLogout();
+  };
 
   return (
     <nav
@@ -47,19 +55,26 @@ export default function Navbar() {
         )}
 
         {!isAuthLoading && isAuthenticated && (
-          <div className="relative">
+          <div className={navbarStyles.profileWrapper}>
             <button
               type="button"
               onClick={() => setOpen((prev) => !prev)}
               className={`${authButtonStyles.base} ${authButtonStyles.profile}`}
+              aria-label="프로필 메뉴 열기"
             >
-              Profile
+              <UserRound className="h-8 w-8 text-slate-500" />
             </button>
 
             {open && (
               <div className={navbarStyles.dropdown}>
-                <button type="button" className={navbarStyles.dropdownItem}>
-                  로그아웃
+                <button
+                  type="button"
+                  onClick={onClickLogout}
+                  disabled={isSubmitting}
+                  className={navbarStyles.dropdownItem}
+                >
+                  <LogOut className="h-4 w-4 text-slate-400" />
+                  <span>{isSubmitting ? "로그아웃 중..." : "로그아웃"}</span>
                 </button>
               </div>
             )}

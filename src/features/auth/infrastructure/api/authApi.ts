@@ -2,6 +2,7 @@ import { httpClient } from "@/infrastructure/http/httpClient";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
 import type { OAuthExchangeResponse } from "@/features/auth/infrastructure/api/dto/OAuthExchangeResponse";
 import type { RefreshResponse } from "@/features/auth/infrastructure/api/dto/RefreshResponse";
+import type { LogoutResponse } from "@/features/auth/infrastructure/api/dto/LogoutResponse";
 
 interface LoginIdExistsResponse {
     success: boolean;
@@ -50,6 +51,10 @@ export const authApi = {
 
     refresh() {
         return httpClient.post<RefreshResponse>("/api/v1/auth/refresh");
+    },
+
+    logout() {
+        return httpClient.post<LogoutResponse>("/api/v1/auth/logout");
     },
 
     checkLoginIdExists(loginId: string) {
