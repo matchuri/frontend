@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
 import { loginPageStyles } from "@/ui/styles/loginPageStyles";
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+import { useLogin } from "@/features/auth/application/hooks/useLogin";
 import {
   isAuthenticatedAtom,
   isAuthLoadingAtom,
@@ -18,6 +20,17 @@ export default function LoginPage() {
   const router = useRouter();
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+
+  const {
+    loginId,
+    setLoginId,
+    password,
+    setPassword,
+    errorMessage,
+    isSubmitting,
+    isValid,
+    submit,
+  } = useLogin();
 
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
@@ -47,16 +60,35 @@ export default function LoginPage() {
         <div className={loginPageStyles.formGroup}>
           <div className={loginPageStyles.inputGroup}>
             <label className={loginPageStyles.label}>아이디</label>
-            <input type="text" className={loginPageStyles.input} />
+            <input
+              type="text"
+              value={loginId}
+              onChange={(e) => setLoginId(e.target.value)}
+              className={loginPageStyles.input}
+            />
           </div>
 
           <div className={loginPageStyles.inputGroup}>
             <label className={loginPageStyles.label}>비밀번호</label>
-            <input type="password" className={loginPageStyles.input} />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={loginPageStyles.input}
+            />
           </div>
 
-          <button className={loginPageStyles.loginButton}>
-            로그인
+          {errorMessage && (
+            <p className="text-sm text-red-500">{errorMessage}</p>
+          )}
+
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!isValid || isSubmitting}
+            className={loginPageStyles.loginButton}
+          >
+            {isSubmitting ? "로그인 중..." : "로그인"}
           </button>
         </div>
 
