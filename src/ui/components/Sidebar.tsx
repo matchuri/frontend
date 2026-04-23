@@ -18,18 +18,17 @@ import {
 
 const MENUS = [
   { href: "/home", label: "홈", icon: Home, enabled: true },
-  { href: "/personal", label: "개인 메뉴 추천", icon: User },
-  { href: "/group", label: "그룹 메뉴 추천", icon: Users },
-  { href: "/preference", label: "취향 관리", icon: UtensilsCrossed },
-  { href: "/location", label: "위치 설정", icon: MapPin },
-  { href: "/settings", label: "설정", icon: Settings },
+  { href: "/personal", label: "개인 메뉴 추천", icon: User, enabled: false },
+  { href: "/group", label: "그룹 메뉴 추천", icon: Users, enabled: false },
+  { href: "/preference", label: "취향 관리", icon: UtensilsCrossed, enabled: false },
+  { href: "/location", label: "위치 설정", icon: MapPin, enabled: false },
+  { href: "/settings", label: "설정", icon: Settings, enabled: false },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
-  const handleNotReady = (e: React.MouseEvent) => {
-    e.preventDefault(); // 라우팅 막기
+  const handleNotReady = () => {
     alert("준비중인 기능입니다.");
   };
 
@@ -46,22 +45,33 @@ export default function Sidebar() {
         {MENUS.map((menu) => {
           const active = pathname === menu.href;
           const Icon = menu.icon;
-          const isEnabled = menu.enabled;
+          const className = active
+            ? `${sidebarMenuItemStyles.base} ${sidebarMenuItemStyles.active}`
+            : `${sidebarMenuItemStyles.base} ${sidebarMenuItemStyles.inactive}`;
+
+          if (menu.enabled) {
+            return (
+              <Link
+                key={menu.href}
+                href={menu.href}
+                className={className}
+              >
+                <Icon className={sidebarMenuItemStyles.icon} />
+                <span>{menu.label}</span>
+              </Link>
+            );
+          }
 
           return (
-            <Link
+            <button
               key={menu.href}
-              href={menu.href}
-              onClick={!isEnabled ? handleNotReady : undefined}
-              className={
-                active
-                  ? `${sidebarMenuItemStyles.base} ${sidebarMenuItemStyles.active}`
-                  : `${sidebarMenuItemStyles.base} ${sidebarMenuItemStyles.inactive}`
-              }
+              type="button"
+              onClick={handleNotReady}
+              className={`${className} w-full text-left`}
             >
               <Icon className={sidebarMenuItemStyles.icon} />
               <span>{menu.label}</span>
-            </Link>
+            </button>
           );
         })}
       </nav>
