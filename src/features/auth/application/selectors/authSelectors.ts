@@ -15,3 +15,17 @@ export const accessTokenAtom = atom((get) => {
     const auth = get(authAtom);
     return auth.status === "AUTHENTICATED" ? auth.accessToken : null;
 });
+
+export const onboardingAtom = atom((get) => {
+    const auth = get(authAtom);
+    return auth.status === "AUTHENTICATED" ? auth.onboarding : null;
+});
+
+export const isOnboardingReadyAtom = atom((get) => {
+    const auth = get(authAtom);
+
+    return (
+        auth.status === "AUTHENTICATED" &&
+        auth.onboarding.nextStep === "READY"
+    );
+});
