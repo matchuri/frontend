@@ -2,22 +2,41 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useAtomValue } from "jotai";
+
 import { getTerms } from "@/features/terms/domain/model/getTerms";
 import TermGroupItem from "@/features/terms/ui/components/TermGroupItem";
 import { termsPageStyles } from "@/ui/styles/termsPageStyles";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
-import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
+
+import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
+import { useSubmitRequiredAgreements } from "@/features/auth/application/hooks/useSubmitRequiredAgreements";
+import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export default function TermsPage() {
   const router = useRouter();
   const terms = getTerms();
-//   const [ready, setReady] = useState(false);
+
+  const onboarding = useAtomValue(onboardingAtom);
+  const { submit, isSubmitting } = useSubmitRequiredAgreements();
+
+  const shouldSubmitAgreementsToServer = onboarding?.nextStep === "REQUIRED_AGREEMENTS";
 
   const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(terms.map((t) => [t.name, false])),
   );
 
+  // 소셜 온보딩인데 이미 약관 단계가 아니면 맞는 페이지로 이동
+  useEffect(() => {
+    if (!onboarding) return;
+
+    if (onboarding.nextStep !== "REQUIRED_AGREEMENTS") {
+      router.replace(getOnboardingRoute(onboarding.nextStep));
+    }
+  }, [onboarding, router]);
+
   const allChecked = terms.every((t) => checkedMap[t.name]);
+
   const requiredAllChecked = useMemo(
     () => terms.filter((t) => t.required).every((t) => checkedMap[t.name]),
     [terms, checkedMap],
@@ -32,26 +51,30 @@ export default function TermsPage() {
     setCheckedMap(Object.fromEntries(terms.map((t) => [t.name, next])));
   };
 
-  const handleSubmit = () => {
-    const agreements = terms.map((t) => ({
-      agreementType: t.type,
-      agreementVersion: t.version,
-      agreed: checkedMap[t.name],
+  const handleSubmit = async () => {
+    const agreements = terms.map((term) => ({
+      agreementType: term.type,
+      agreementVersion: term.version,
+      agreed: checkedMap[term.name],
     }));
 
-    termsStorage.save(agreements);
-    router.push("/signup/nickname/");
-  };
-
-  useEffect(() => {
-    const profile = accountStorage.load();
-
-    if (!profile) {
-      router.replace("/signup");
+    // 일반 회원가입: 서버 호출 없이 로컬에 저장
+    if (!shouldSubmitAgreementsToServer) {
+      termsStorage.save(agreements);
+      router.push("/signup/nickname");
       return;
     }
 
-  }, [router]);
+    // 소셜 온보딩: 약관 동의 정보를 서버로 제출
+    await submit(
+      agreements
+        .filter((agreement) => agreement.agreed)
+        .map((agreement) => ({
+          agreementType: agreement.agreementType,
+          agreementVersion: agreement.agreementVersion,
+        })),
+    );
+  };
 
   return (
     <div className={termsPageStyles.container}>
@@ -86,15 +109,15 @@ export default function TermsPage() {
 
         <button
           type="button"
-          disabled={!requiredAllChecked}
+          disabled={!requiredAllChecked || isSubmitting}
           onClick={handleSubmit}
           className={
-            requiredAllChecked
+            requiredAllChecked && !isSubmitting
               ? termsPageStyles.submitButton
               : termsPageStyles.submitButtonDisabled
           }
         >
-          동의하고 계속하기
+          {isSubmitting ? "처리 중..." : "동의하고 계속하기"}
         </button>
       </div>
     </div>
