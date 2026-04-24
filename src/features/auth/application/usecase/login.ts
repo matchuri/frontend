@@ -9,8 +9,9 @@ export async function login(request: LoginRequest) {
     try {
         const response = await authApi.login(request);
         const accessToken = response.data.accessToken;
+        const onboarding = response.data.onboarding;
 
-        setAuthenticated(accessToken);
+        setAuthenticated(accessToken, onboarding);
 
         return response;
     } catch (error) {
