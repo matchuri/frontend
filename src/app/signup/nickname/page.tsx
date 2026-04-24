@@ -2,13 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useAtomValue } from "jotai";
 
 import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
 import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
 import { authApi } from "@/features/auth/infrastructure/api/authApi";
 
-import type { TermsAgreement } from "@/features/terms/domain/model/termsAgreement";
+import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
+import { useSubmitMyNickname } from "@/features/auth/application/hooks/useSubmitMyNickname";
 
 type NicknameStatus =
   | "idle"
@@ -19,45 +21,55 @@ type NicknameStatus =
 
 export default function NicknamePage() {
   const router = useRouter();
+  const onboarding = useAtomValue(onboardingAtom);
 
-  // 이전 단계 데이터
-  const [accountId, setAccountId] = useState("");
-  const [accountPass, setAccountPass] = useState("");
-  const [agreements, setAgreements] = useState<TermsAgreement[]>([]);
+  const { submit: submitMyNickname, isSubmitting } = useSubmitMyNickname();
+  const isSocialOnboarding = onboarding?.nextStep === "REQUIRED_NICKNAME";
 
   // 닉네임
   const [nickname, setNickname] = useState("");
-  const [nicknameStatus, setNicknameStatus] =
-    useState<NicknameStatus>("idle");
-
-  // 가입 처리
-  const [submitting, setSubmitting] = useState(false);
+  const [nicknameStatus, setNicknameStatus] = useState<NicknameStatus>("idle");
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-   // 가입 버튼 활성화: 닉네임 사용 가능 + 제출 중 아님
-  const canSubmit =
-    nicknameStatus === "available" &&
-    !submitting;
+  // 가입 버튼 활성화: 닉네임 사용 가능 + 제출 중 아님
+  const canSubmit = nicknameStatus === "available" && !isSubmitting;
 
+  // 일반 회원가입 데이터 로딩
   useEffect(() => {
     const account = accountStorage.load();
-    const agreements = termsStorage.load();
+    const savedAgreements = termsStorage.load();
 
-    // 이전 단계 데이터 없으면 회원가입 첫 단계로 이동
-    if (!account || !agreements || agreements.length === 0) {
-      router.replace("/signup");
+    const isGeneralSignup =
+      !!account && !!savedAgreements && savedAgreements.length > 0;
+
+    // 1. 일반 회원가입 흐름
+    if (isGeneralSignup) return;
+
+    // 2. 소셜 온보딩: 닉네임 단계
+    if (onboarding?.nextStep === "REQUIRED_NICKNAME") return;
+
+    // 3. 소셜 온보딩: 약관 단계로 돌아가야 하는 상태
+    if (onboarding?.nextStep === "REQUIRED_AGREEMENTS") {
+      router.replace("/terms");
       return;
     }
 
-    // 콘솔 확인용
-    console.log("accountStorage:", account);
-    console.log("termsStorage:", agreements);
+    // 4. 소셜 온보딩 완료 상태
+    if (onboarding?.nextStep === "READY") {
+      router.replace("/home");
+      return;
+    }
 
-    setAccountId(account.id);
-    setAccountPass(account.password);
-    setAgreements(agreements);
-  }, [router]);
+    // 5. onboarding이 아직 null이면 auth 초기화/상태 반영 대기
+    if (onboarding === null) {
+      return;
+    }
+
+    // 6. 여기까지 왔으면 일반 회원가입 데이터도 없고 온보딩 상태도 맞지 않는 비정상 접근
+    router.replace("/signup");
+
+  }, [router, onboarding]);
 
    // 닉네임 입력 시 즉시 유효성 검사
   const handleChangeNickname = (value: string) => {
@@ -76,14 +88,8 @@ export default function NicknamePage() {
       return;
     }
 
-    // 최대 100자
-    if (trimmed.length > 100) {
-      setNicknameStatus("invalid");
-      return;
-    }
-
-    // 공백만 있는 값 방지
-    if (trimmed.length === 0) {
+    // 최대 100자 && 공백만 있는 값 방지
+    if (trimmed.length === 0 || trimmed.length > 100) {
       setNicknameStatus("invalid");
       return;
     }
@@ -92,7 +98,7 @@ export default function NicknamePage() {
     setNicknameStatus("checking");
   };
 
-   // 닉네임 중복 확인
+   // 닉네임 중복 검사
   useEffect(() => {
     const trimmed = nickname.trim();
 
@@ -128,13 +134,26 @@ export default function NicknamePage() {
     if (!canSubmit) return;
 
     try {
-      setSubmitting(true);
+      // 소셜 온보딩
+      if (isSocialOnboarding) {
+        await submitMyNickname(nickname.trim());
+        return;
+      }
 
+      const account = accountStorage.load();
+      const savedAgreements = termsStorage.load();
+
+      if (!account || !savedAgreements || savedAgreements.length === 0) {
+        router.replace("/signup");
+        return;
+      }
+
+      // 일반 회원가입
       const payload = {
-        loginId: accountId,
-        password: accountPass,
+        loginId: account.id,
+        password: account.password,
         nickname: nickname.trim(),
-        agreements: agreements
+        agreements: savedAgreements
           .filter((item) => item.agreed)
           .map((item) => ({
             agreementType: item.agreementType,
@@ -158,9 +177,6 @@ export default function NicknamePage() {
     } catch (error) {
       console.error("회원가입 실패:", error);
       router.push("/login");
-
-    } finally {
-      setSubmitting(false);
     }
   };
 
