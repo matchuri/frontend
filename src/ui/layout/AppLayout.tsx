@@ -8,6 +8,7 @@ import AuthInitializer from "@/features/auth/ui/components/AuthInitializer";
 import {
     isAuthenticatedAtom,
     isAuthLoadingAtom,
+    isOnboardingReadyAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 
 import Navbar from "@/ui/components/Navbar";
@@ -16,16 +17,24 @@ import Sidebar from "@/ui/components/Sidebar";
 function AppContent({ children }: { children: ReactNode }) {
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+    const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
+
+    const showMemberLayout =
+      !isAuthLoading && isAuthenticated && isOnboardingReady;
+
+    if (isAuthLoading) {
+        return null;
+    }
 
     return (
         <>
             <Navbar />
-            {!isAuthLoading && isAuthenticated && <Sidebar />}
+            {showMemberLayout && <Sidebar />}
 
             <main
                 className={[
                     "h-screen overflow-y-auto",
-                    !isAuthLoading && isAuthenticated ? "ml-[280px]" : "",
+                    showMemberLayout ? "ml-[280px]" : "",
                 ].join(" ")}
             >
             {children}
