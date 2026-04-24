@@ -18,8 +18,9 @@ export function useAuthInit() {
             try {
                 const response = await authApi.refresh();
                 const accessToken = response.data.accessToken;
+                const onboarding = response.data.onboarding;
 
-                if (!accessToken) {
+                if (!accessToken || !onboarding) {
                     if (!cancelled) {
                         clearAuth();
                     }
@@ -27,7 +28,7 @@ export function useAuthInit() {
                 }
 
                 if (!cancelled) {
-                    setAuthenticated(accessToken);
+                    setAuthenticated(accessToken, onboarding);
                 }
             } catch {
                 if (!cancelled) {

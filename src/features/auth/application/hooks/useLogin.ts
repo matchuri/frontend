@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HttpError } from "@/infrastructure/http/httpClient";
 import { login } from "@/features/auth/application/usecase/login";
+import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export function useLogin() {
     const router = useRouter();
@@ -24,12 +25,12 @@ export function useLogin() {
         setErrorMessage(null);
 
         try {
-            await login({
+            const response = await login({
                 loginId: loginId.trim(),
                 password,
             });
 
-            router.replace("/home");
+            router.replace(getOnboardingRoute(response.data.onboarding.nextStep));
         } catch (error) {
             if (error instanceof HttpError && error.status === 401) {
                 setErrorMessage("아이디 또는 비밀번호가 올바르지 않습니다.");

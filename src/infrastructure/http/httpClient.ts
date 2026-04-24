@@ -4,36 +4,67 @@ import {
     getAccessToken,
     setAuthenticated,
 } from "@/features/auth/application/store/authStore";
+import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
 
 class HttpError extends Error {
     constructor(
         public readonly status: number,
-        public readonly statusText: string
+        public readonly statusText: string,
     ) {
         super(`[httpClient] ${status} ${statusText}`);
         this.name = "HttpError";
     }
 }
 
-// refresh token API
-async function refreshAccessToken(): Promise<string> {
+interface RefreshResult {
+    accessToken: string;
+    onboarding: OnboardingState;
+}
+
+const NO_REFRESH_PATHS = [
+    "/api/v1/auth/oauth2/exchange",
+    "/api/v1/auth/login",
+    "/api/v1/auth/refresh",
+    "/api/v1/members/signup",
+];
+
+function shouldTryRefresh(path: string, isRetry: boolean) {
+    if (isRetry) return false;
+    if (NO_REFRESH_PATHS.includes(path)) return false;
+
+    return true;
+}
+
+async function refreshAccessToken(): Promise<RefreshResult> {
     const response = await fetch(`${clientEnv.apiBaseUrl}/api/v1/auth/refresh`, {
         method: "POST",
         credentials: "include",
     });
 
     if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+
+        console.error("[httpClient] refresh 실패 응답:", {
+            status: response.status,
+            statusText: response.statusText,
+            body: errorBody,
+        });
+
         throw new Error("Refresh failed");
     }
 
-    const data = await response.json();
-    return data.data.accessToken;
+    const body = await response.json();
+
+    return {
+        accessToken: body.data.accessToken,
+        onboarding: body.data.onboarding,
+    };
 }
 
 async function request<T>(
     path: string,
     options?: RequestInit,
-    isRetry = false
+    isRetry = false,
 ): Promise<T> {
     const accessToken = getAccessToken();
 
@@ -49,29 +80,34 @@ async function request<T>(
         },
     });
 
-    // 401 처리
-    if (response.status === 401 && !isRetry) {
+    if (response.status === 401 && shouldTryRefresh(path, isRetry)) {
         try {
-            console.log("[httpClient] accessToken 만료 → refresh 시도");
+            const refreshed = await refreshAccessToken();
 
-            const newToken = await refreshAccessToken();
-            setAuthenticated(newToken);
-            console.log("[httpClient] 새 accessToken 발급 완료");
+            setAuthenticated(refreshed.accessToken, refreshed.onboarding);
 
             return request<T>(path, options, true);
         } catch (error) {
-            console.warn("httpClient] refresh 실패 → 인증 상태 해제", error);
+            console.warn("[httpClient] refresh 실패 → 인증 상태 해제", error);
             clearAuth();
             throw new HttpError(401, "Unauthorized");
         }
     }
 
-    // 일반 에러 처리
     if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        //  refresh는 로그 안 찍음
+        if (path !== "/api/v1/auth/refresh") {
+            console.error("[httpClient] 요청 실패 응답:", {
+                path,
+                status: response.status,
+                statusText: response.statusText,
+                body: errorBody,
+            });
+        }
         throw new HttpError(response.status, response.statusText);
     }
 
-    // response 파싱
     const text = await response.text();
     return text ? JSON.parse(text) : (undefined as T);
 }

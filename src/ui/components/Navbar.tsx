@@ -7,6 +7,7 @@ import { UserRound, LogOut } from "lucide-react";
 import {
   isAuthenticatedAtom,
   isAuthLoadingAtom,
+  isOnboardingReadyAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 import { useLogout } from "@/features/auth/application/hooks/useLogout";
 
@@ -18,8 +19,13 @@ import {
 export default function Navbar() {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom);
   const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+  const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
+
   const [open, setOpen] = useState(false);
   const { isSubmitting, handleLogout } = useLogout();
+
+  const showAuthenticatedUI =
+    !isAuthLoading && isAuthenticated && isOnboardingReady;
 
   const onClickLogout = async () => {
     setOpen(false);
@@ -29,10 +35,10 @@ export default function Navbar() {
   return (
     <nav
       className={`${navbarStyles.nav} ${
-        !isAuthLoading && isAuthenticated ? "left-[280px]" : "left-0"
+        showAuthenticatedUI ? "left-[280px]" : "left-0"
       }`}
     >
-      {!isAuthLoading && !isAuthenticated && (
+      {!showAuthenticatedUI && (
         <Link href="/" className={navbarStyles.logo}>
           Matchuri
         </Link>
@@ -40,7 +46,7 @@ export default function Navbar() {
 
       <div
         className={
-          !isAuthLoading && isAuthenticated
+          showAuthenticatedUI
             ? navbarStyles.authRightOnly
             : navbarStyles.rightGroup
         }
@@ -54,7 +60,7 @@ export default function Navbar() {
           </Link>
         )}
 
-        {!isAuthLoading && isAuthenticated && (
+        {showAuthenticatedUI && (
           <div className={navbarStyles.profileWrapper}>
             <button
               type="button"
