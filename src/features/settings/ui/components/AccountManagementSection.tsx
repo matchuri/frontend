@@ -4,7 +4,7 @@ import { Shield, Save } from "lucide-react";
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
 interface AccountManagementSectionProps {
-    userId?: string;
+    userId?: number; // TODO: 서버에서 아이디를 받는 거 추가되면 string으로 수정 필요
     showPasswordFields: boolean;
 }
 

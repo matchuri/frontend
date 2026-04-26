@@ -1,6 +1,7 @@
 "use client";
 
 import { useAtomValue } from "jotai";
+import { useAuthGuard } from "@/features/auth/application/hooks/useAuthGuard";
 import { settingsAtom } from "@/features/settings/application/atoms/settingsAtom";
 import { isLocalLoginAtom } from "@/features/settings/application/selectors/settingsSelectors";
 import { useSettingsProfile } from "@/features/settings/application/hooks/useSettingsProfile";
@@ -9,10 +10,20 @@ import AccountManagementSection from "@/features/settings/ui/components/AccountM
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
 export default function SettingsPage() {
-    useSettingsProfile();
+    const { isAuthenticated, isAuthLoading } = useAuthGuard();
+
+    useSettingsProfile(isAuthenticated);
 
     const settingsState = useAtomValue(settingsAtom);
     const isLocalLogin = useAtomValue(isLocalLoginAtom);
+
+    if (isAuthLoading || !isAuthenticated) {
+        return (
+            <main className={settingsPageStyles.page}>
+                로그인 상태를 확인하는 중...
+            </main>
+        );
+    }
 
     if (settingsState.status === "LOADING") {
         return (
@@ -42,7 +53,7 @@ export default function SettingsPage() {
             <ProfileManagementSection nickname={profile.nickname} />
 
             <AccountManagementSection
-                userId={profile.userId}
+                userId={profile.id}
                 showPasswordFields={isLocalLogin}
             />
         </main>
