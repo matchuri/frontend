@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { User, Camera, Check } from "lucide-react";
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 import { useNicknameValidation } from "@/features/nickname/application/hooks/useNicknameValidation";
+import { updateNickname } from "@/features/settings/infrastructure/api/settingsApi";
 
 interface ProfileManagementSectionProps {
     nickname: string;
@@ -21,6 +23,33 @@ export default function ProfileManagementSection({
     } = useNicknameValidation({
         initialNickname,
     });
+
+    const [currentNickname, setCurrentNickname] = useState(initialNickname);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleNicknameSave = async () => {
+        const trimmedNickname = nickname.trim();
+
+        if (trimmedNickname === currentNickname) return;
+        if (!canSaveNickname) return;
+
+        setIsSaving(true);
+
+        try {
+            await updateNickname(trimmedNickname);
+
+            setCurrentNickname(trimmedNickname);
+            alert("닉네임이 변경되었습니다.");
+        } catch (error) {
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "닉네임 변경에 실패했습니다.",
+            );
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     return (
         <section className={settingsPageStyles.section}>
@@ -69,10 +98,15 @@ export default function ProfileManagementSection({
             <div className={settingsPageStyles.saveButtonWrapper}>
                 <button
                     type="button"
-                    disabled={!canSaveNickname}
+                    onClick={handleNicknameSave}
+                    disabled={
+                        isSaving ||
+                        nickname.trim() === currentNickname ||
+                        !canSaveNickname
+                    }
                     className={`${settingsPageStyles.saveButton} disabled:cursor-not-allowed disabled:opacity-50`}
                 >
-                    저장
+                    {isSaving ? "저장 중..." : "저장"}
                     <Check size={18} />
                 </button>
             </div>
