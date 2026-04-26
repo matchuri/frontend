@@ -8,10 +8,10 @@ export const settingsProfileAtom = atom((get) => {
 
 export const isSocialLoginAtom = atom((get) => {
     const state = get(settingsAtom);
-    return state.status === "SUCCESS" && state.data.loginType === "SOCIAL";
+    return state.status === "SUCCESS" && state.data.isSocial;
 });
 
 export const isLocalLoginAtom = atom((get) => {
     const state = get(settingsAtom);
-    return state.status === "SUCCESS" && state.data.loginType === "LOCAL";
+    return state.status === "SUCCESS" && !state.data.isSocial;
 });

@@ -5,10 +5,12 @@ import { useSetAtom } from "jotai";
 import { settingsAtom } from "@/features/settings/application/atoms/settingsAtom";
 import { fetchSettingsProfile } from "@/features/settings/infrastructure/api/settingsApi";
 
-export function useSettingsProfile() {
+export function useSettingsProfile(enabled: boolean) {
     const setSettings = useSetAtom(settingsAtom);
 
     useEffect(() => {
+        if (!enabled) return;
+
         async function loadSettingsProfile() {
             setSettings({ status: "LOADING" });
 
@@ -19,14 +21,17 @@ export function useSettingsProfile() {
                     status: "SUCCESS",
                     data: profile,
                 });
-            } catch {
+            } catch (error) {
                 setSettings({
                     status: "ERROR",
-                    message: "설정 정보를 불러오지 못했습니다.",
+                    message:
+                        error instanceof Error
+                            ? error.message
+                            : "회원 정보를 불러오지 못했습니다.",
                 });
             }
         }
 
         loadSettingsProfile();
-    }, [setSettings]);
+    }, [enabled, setSettings]);
 }

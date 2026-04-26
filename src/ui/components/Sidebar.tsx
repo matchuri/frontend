@@ -22,7 +22,7 @@ const MENUS = [
   { href: "/group", label: "그룹 메뉴 추천", icon: Users, enabled: false },
   { href: "/preference", label: "취향 관리", icon: UtensilsCrossed, enabled: false },
   { href: "/location", label: "위치 설정", icon: MapPin, enabled: false },
-  { href: "/settings", label: "설정", icon: Settings, enabled: false },
+  { href: "/settings", label: "설정", icon: Settings, enabled: true },
 ];
 
 export default function Sidebar() {
