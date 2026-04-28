@@ -3,14 +3,16 @@
 import { useCallback, useState } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 
-import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
+import { originalPreferenceAtom, preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
 import { preferenceApi } from "@/features/preference/infrastructure/api/preferenceApi";
 import { requiredPreferenceGroupMeta } from "@/features/preference/ui/config/preferenceOptions";
 import { mapUserPreferenceToUpdateRequest } from "@/features/preference/infrastructure/api/mapper/preferenceUpdateRequestMapper";
+import { isSamePreference } from "@/features/preference/application/utils/preferenceCompare";
 
 export function useSavePreference() {
     const preferenceState = useAtomValue(preferenceAtom);
-    const setPreferenceState = useSetAtom(preferenceAtom);
+    const originalPreference = useAtomValue(originalPreferenceAtom);
+    const setOriginalPreference = useSetAtom(originalPreferenceAtom);
     const [isSaving, setIsSaving] = useState(false);
 
     const validateRequiredSelections = useCallback((): boolean => {
@@ -38,16 +40,22 @@ export function useSavePreference() {
             return;
         }
 
+        if (
+            originalPreference &&
+            isSamePreference(originalPreference, preferenceState.data)
+        ) {
+            alert("변경된 취향 정보가 없습니다.");
+            return;
+        }
+
         setIsSaving(true);
 
         try {
             const request = mapUserPreferenceToUpdateRequest(preferenceState.data);
-            const response = await preferenceApi.savePreference(request);
 
-            setPreferenceState({
-                status: "SUCCESS",
-                data: response,
-            });
+            await preferenceApi.savePreference(request);
+
+            setOriginalPreference(preferenceState.data);
 
             alert("취향 정보가 저장되었습니다.");
         } catch {
@@ -55,7 +63,11 @@ export function useSavePreference() {
         } finally {
             setIsSaving(false);
         }
-    }, [preferenceState, validateRequiredSelections, setPreferenceState]);
+    }, [preferenceState,
+        originalPreference,
+        validateRequiredSelections,
+        setOriginalPreference,
+    ]);
 
     return {
         isSaving,
