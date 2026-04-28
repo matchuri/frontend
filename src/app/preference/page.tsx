@@ -19,7 +19,15 @@ export default function PreferencePage() {
     const { isAuthLoading, canAccess } = useAuthGuard();
     const { preferenceState } = usePreferenceList();
     const { togglePreference } = usePreferenceSelection();
-    const { keyword, results, search, addFood, removeFood } = useDislikedFoodSearch();
+    const {
+        keyword,
+        results,
+        isSearching,
+        searchErrorMessage,
+        search,
+        addFood,
+        removeFood
+    } = useDislikedFoodSearch();
     const { isSaving, savePreference } = useSavePreference();
 
     if (isAuthLoading || !canAccess) {
@@ -93,6 +101,8 @@ export default function PreferencePage() {
                 keyword={keyword}
                 results={results}
                 selectedFoods={preferenceState.data.dislikedFoods}
+                isSearching={isSearching}
+                searchErrorMessage={searchErrorMessage}
                 onSearch={search}
                 onSelect={addFood}
                 onRemove={removeFood}

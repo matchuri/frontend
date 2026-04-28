@@ -1,19 +1,9 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
 import type { UserPreference } from "@/features/preference/domain/model/UserPreference";
 import type { PreferenceProfileResponse } from "@/features/preference/infrastructure/api/dto/PreferenceProfileResponse";
+import type { RestrictionIngredientsResponse } from "@/features/preference/infrastructure/api/dto/RestrictionIngredientsResponse";
+import type { MenuItemsResponse } from "@/features/preference/infrastructure/api/dto/MenuItemsResponse";
 import { mapPreferenceProfileToUserPreference } from "@/features/preference/infrastructure/api/mapper/preferenceProfileMapper";
-
-const mockDislikedFoods = [
-    "땅콩",
-    "우유",
-    "계란",
-    "새우",
-    "게",
-    "밀",
-    "대두",
-    "복숭아",
-    "토마토",
-];
 
 export const preferenceApi = {
     async fetchMyPreference(): Promise<UserPreference> {
@@ -29,7 +19,25 @@ export const preferenceApi = {
     },
 
     async searchDislikedFoods(keyword: string): Promise<string[]> {
-        return mockDislikedFoods.filter((food) => food.includes(keyword));
+        const query = encodeURIComponent(keyword);
+
+        const [restrictionResponse, menuResponse] = await Promise.all([
+            httpClient.get<RestrictionIngredientsResponse>(
+                `/api/v1/restriction-ingredients?query=${query}`,
+            ),
+            httpClient.get<MenuItemsResponse>(
+                `/api/v1/menu-items?query=${query}`,
+            ),
+        ]);
+
+        if (!restrictionResponse.success || !menuResponse.success) {
+            throw new Error("알레르기/비선호 음식 검색 실패");
+        }
+
+        const restrictionNames = restrictionResponse.data.map((item) => item.name);
+        const menuNames = menuResponse.data.map((item) => item.name);
+
+        return Array.from(new Set([...restrictionNames, ...menuNames]));
     },
 
     async savePreference(preference: UserPreference): Promise<void> {

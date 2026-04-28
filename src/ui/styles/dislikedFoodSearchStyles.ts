@@ -10,6 +10,8 @@ export const dislikedFoodSearchStyles = {
   resultList:
     "absolute left-0 top-11 z-10 flex w-full flex-col overflow-hidden rounded-md border border-zinc-200 bg-white shadow-md",
   resultItem: "px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100",
+  resultMessage: "px-3 py-2 text-sm text-zinc-500",
+  errorMessage: "px-3 py-2 text-sm text-red-500",
   selectedList: "flex flex-wrap gap-2 pt-1",
   selectedTag:
     "flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700",

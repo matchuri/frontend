@@ -9,19 +9,34 @@ import { preferenceApi } from "@/features/preference/infrastructure/api/preferen
 // 비선호 음식 검색, 추가, 삭제
 export function useDislikedFoodSearch() {
     const setPreferenceState = useSetAtom(preferenceAtom);
+
     const [keyword, setKeyword] = useState("");
     const [results, setResults] = useState<string[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [searchErrorMessage, setSearchErrorMessage] = useState<string | null>(null);
 
     const search = useCallback(async (value: string) => {
         setKeyword(value);
+        setSearchErrorMessage(null);
 
-        if (value.trim().length === 0) {
+        const trimmedKeyword = value.trim();
+
+        try {
+            if (trimmedKeyword.length === 0) {
+                setResults([]);
+                return;
+            }
+
+            setIsSearching(true);
+
+            const searchedFoods = await preferenceApi.searchDislikedFoods(trimmedKeyword);
+            setResults(searchedFoods);
+        } catch {
             setResults([]);
-            return;
+            setSearchErrorMessage("검색 결과를 불러오는데 실패했습니다.");
+        } finally {
+            setIsSearching(false);
         }
-
-        const searchedFoods = await preferenceApi.searchDislikedFoods(value.trim());
-        setResults(searchedFoods);
     }, []);
 
     const addFood = useCallback(
@@ -41,6 +56,7 @@ export function useDislikedFoodSearch() {
 
             setKeyword("");
             setResults([]);
+            setSearchErrorMessage(null);
         },
         [setPreferenceState],
     );
@@ -67,6 +83,8 @@ export function useDislikedFoodSearch() {
     return {
         keyword,
         results,
+        isSearching,
+        searchErrorMessage,
         search,
         addFood,
         removeFood,
