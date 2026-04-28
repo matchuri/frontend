@@ -5,13 +5,38 @@ import { useAtomValue } from "jotai";
 
 import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
 import { preferenceApi } from "@/features/preference/infrastructure/api/preferenceApi";
+import { requiredPreferenceGroups } from "@/features/preference/ui/config/preferenceOptions";
 
 export function useSavePreference() {
     const preferenceState = useAtomValue(preferenceAtom);
     const [isSaving, setIsSaving] = useState(false);
 
+    const validateRequiredSelections = useCallback((): boolean => {
+        if (preferenceState.status !== "SUCCESS") return false;
+
+        const selections = preferenceState.data.selections;
+
+        // 필수 카테고리 검증
+        for (const group of requiredPreferenceGroups) {
+            const values = selections[group.category];
+
+            if (!values || values.length === 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }, [preferenceState]);
+
     const savePreference = useCallback(async () => {
         if (preferenceState.status !== "SUCCESS") return;
+
+        const isValid = validateRequiredSelections();
+
+        if (!isValid) {
+            alert("필수 취향 항목을 모두 선택해 주세요.");
+            return;
+        }
 
         setIsSaving(true);
 
@@ -23,7 +48,7 @@ export function useSavePreference() {
         } finally {
             setIsSaving(false);
         }
-    }, [preferenceState]);
+    }, [preferenceState, validateRequiredSelections]);
 
     return {
         isSaving,
