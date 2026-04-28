@@ -5,18 +5,20 @@ import { useSetAtom } from "jotai";
 
 import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
 import type { PreferenceCategory } from "@/features/preference/domain/model/PreferenceCategory";
+import type { PreferenceOption } from "@/features/preference/domain/model/UserPreference";
 
-// 취향 칩 선택/해제
 export function usePreferenceSelection() {
     const setPreferenceState = useSetAtom(preferenceAtom);
 
     const togglePreference = useCallback(
-        (category: PreferenceCategory, value: string) => {
+        (category: PreferenceCategory, value: PreferenceOption) => {
             setPreferenceState((prev) => {
                 if (prev.status !== "SUCCESS") return prev;
 
                 const selectedValues = prev.data.selections[category];
-                const isSelected = selectedValues.includes(value);
+                const isSelected = selectedValues.some(
+                    (item) => item.code === value.code,
+                );
 
                 return {
                     status: "SUCCESS",
@@ -25,7 +27,9 @@ export function usePreferenceSelection() {
                         selections: {
                             ...prev.data.selections,
                             [category]: isSelected
-                                ? selectedValues.filter((item) => item !== value)
+                                ? selectedValues.filter(
+                                      (item) => item.code !== value.code,
+                                  )
                                 : [...selectedValues, value],
                         },
                     },

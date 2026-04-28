@@ -1,5 +1,9 @@
 import type { PreferenceCategory } from "@/features/preference/domain/model/PreferenceCategory";
-import type { UserPreference } from "@/features/preference/domain/model/UserPreference";
+import type {
+    DislikedFood,
+    PreferenceOption,
+    UserPreference,
+} from "@/features/preference/domain/model/UserPreference";
 import type { PreferenceProfileData } from "@/features/preference/infrastructure/api/dto/PreferenceProfileResponse";
 
 const preferenceCategories: readonly PreferenceCategory[] = [
@@ -34,17 +38,38 @@ export function mapPreferenceProfileToUserPreference(
     data.attributeCategories.forEach((attribute) => {
         if (!isPreferenceCategory(attribute.categoryType)) return;
 
+        const option: PreferenceOption = {
+            id: attribute.id,
+            categoryType: attribute.categoryType,
+            code: attribute.code,
+            name: attribute.name,
+            sortOrder: attribute.sortOrder,
+        };
+
         selections[attribute.categoryType] = [
             ...selections[attribute.categoryType],
-            attribute.name,
+            option,
         ];
     });
 
+    const restrictionFoods: DislikedFood[] = data.restrictionIngredients.map(
+        (ingredient) => ({
+            id: ingredient.id,
+            code: ingredient.code,
+            name: ingredient.name,
+            type: "RESTRICTION_INGREDIENT",
+        }),
+    );
+
+    const menuFoods: DislikedFood[] = data.dislikedMenuItems.map((menuItem) => ({
+        id: menuItem.id,
+        code: menuItem.code,
+        name: menuItem.name,
+        type: "MENU_ITEM",
+    }));
+
     return {
         selections,
-        dislikedFoods: [
-            ...data.restrictionIngredients.map((ingredient) => ingredient.name),
-            ...data.dislikedMenuItems.map((menuItem) => menuItem.name),
-        ],
+        dislikedFoods: [...restrictionFoods, ...menuFoods],
     };
 }

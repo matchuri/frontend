@@ -5,7 +5,7 @@ import { useAtomValue } from "jotai";
 
 import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
 import { preferenceApi } from "@/features/preference/infrastructure/api/preferenceApi";
-import { requiredPreferenceGroups } from "@/features/preference/ui/config/preferenceOptions";
+import { requiredPreferenceGroupMeta } from "@/features/preference/ui/config/preferenceOptions";
 
 export function useSavePreference() {
     const preferenceState = useAtomValue(preferenceAtom);
@@ -17,7 +17,7 @@ export function useSavePreference() {
         const selections = preferenceState.data.selections;
 
         // 필수 카테고리 검증
-        for (const group of requiredPreferenceGroups) {
+        for (const group of requiredPreferenceGroupMeta) {
             const values = selections[group.category];
 
             if (!values || values.length === 0) {

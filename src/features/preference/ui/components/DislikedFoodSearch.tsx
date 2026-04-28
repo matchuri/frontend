@@ -1,14 +1,15 @@
+import type { DislikedFood } from "@/features/preference/domain/model/UserPreference";
 import { dislikedFoodSearchStyles } from "@/ui/styles/dislikedFoodSearchStyles";
 
 interface DislikedFoodSearchProps {
     readonly keyword: string;
-    readonly results: readonly string[];
-    readonly selectedFoods: readonly string[];
+    readonly results: readonly DislikedFood[];
+    readonly selectedFoods: readonly DislikedFood[];
     readonly isSearching: boolean;
     readonly searchErrorMessage: string | null;
     readonly onSearch: (keyword: string) => void;
-    readonly onSelect: (food: string) => void;
-    readonly onRemove: (food: string) => void;
+    readonly onSelect: (food: DislikedFood) => void;
+    readonly onRemove: (food: DislikedFood) => void;
 }
 
 export default function DislikedFoodSearch({
@@ -69,12 +70,12 @@ export default function DislikedFoodSearch({
                             !searchErrorMessage &&
                             results.map((food) => (
                                 <button
-                                    key={food}
+                                    key={`${food.type}-${food.id}`}
                                     type="button"
                                     onClick={() => onSelect(food)}
                                     className={dislikedFoodSearchStyles.resultItem}
                                 >
-                                    {food}
+                                    {food.name}
                                 </button>
                             ))}
                     </div>
@@ -85,10 +86,10 @@ export default function DislikedFoodSearch({
                 <div className={dislikedFoodSearchStyles.selectedList}>
                     {selectedFoods.map((food) => (
                         <div
-                            key={food}
+                            key={`${food.type}-${food.id}`}
                             className={dislikedFoodSearchStyles.selectedTag}
                         >
-                            <span>{food}</span>
+                            <span>{food.name}</span>
                             <button
                                 type="button"
                                 onClick={() => onRemove(food)}

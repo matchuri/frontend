@@ -5,13 +5,14 @@ import { useSetAtom } from "jotai";
 
 import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
 import { preferenceApi } from "@/features/preference/infrastructure/api/preferenceApi";
+import type { DislikedFood } from "@/features/preference/domain/model/UserPreference";
 
 // 비선호 음식 검색, 추가, 삭제
 export function useDislikedFoodSearch() {
     const setPreferenceState = useSetAtom(preferenceAtom);
 
     const [keyword, setKeyword] = useState("");
-    const [results, setResults] = useState<string[]>([]);
+    const [results, setResults] = useState<DislikedFood[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [searchErrorMessage, setSearchErrorMessage] = useState<string | null>(null);
 
@@ -21,14 +22,15 @@ export function useDislikedFoodSearch() {
 
         const trimmedKeyword = value.trim();
 
+        if (trimmedKeyword.length === 0) {
+            setResults([]);
+            setIsSearching(false);
+            return;
+        }
+
+        setIsSearching(true);
+
         try {
-            if (trimmedKeyword.length === 0) {
-                setResults([]);
-                return;
-            }
-
-            setIsSearching(true);
-
             const searchedFoods = await preferenceApi.searchDislikedFoods(trimmedKeyword);
             setResults(searchedFoods);
         } catch {
@@ -40,10 +42,15 @@ export function useDislikedFoodSearch() {
     }, []);
 
     const addFood = useCallback(
-        (food: string) => {
+        (food: DislikedFood) => {
             setPreferenceState((prev) => {
                 if (prev.status !== "SUCCESS") return prev;
-                if (prev.data.dislikedFoods.includes(food)) return prev;
+
+                const alreadySelected = prev.data.dislikedFoods.some(
+                    (item) => item.type === food.type && item.id === food.id,
+                );
+
+                if (alreadySelected) return prev;
 
                 return {
                     status: "SUCCESS",
@@ -62,7 +69,7 @@ export function useDislikedFoodSearch() {
     );
 
     const removeFood = useCallback(
-        (food: string) => {
+        (food: DislikedFood) => {
             setPreferenceState((prev) => {
                 if (prev.status !== "SUCCESS") return prev;
 
@@ -71,7 +78,7 @@ export function useDislikedFoodSearch() {
                     data: {
                         ...prev.data,
                         dislikedFoods: prev.data.dislikedFoods.filter(
-                            (item) => item !== food,
+                            (item) => !(item.type === food.type && item.id === food.id),
                         ),
                     },
                 };
