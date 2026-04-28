@@ -1,6 +1,6 @@
 import type { PreferenceCategory } from "@/features/preference/domain/model/PreferenceCategory";
 import type { UserPreference } from "@/features/preference/domain/model/UserPreference";
-import type { TasteProfileData } from "@/features/preference/infrastructure/api/dto/TasteProfileResponse";
+import type { PreferenceProfileData } from "@/features/preference/infrastructure/api/dto/PreferenceProfileResponse";
 
 const preferenceCategories: readonly PreferenceCategory[] = [
     "FLAVOR",
@@ -26,8 +26,8 @@ function isPreferenceCategory(value: string): value is PreferenceCategory {
     return preferenceCategories.includes(value as PreferenceCategory);
 }
 
-export function mapTasteProfileToUserPreference(
-    data: TasteProfileData,
+export function mapPreferenceProfileToUserPreference(
+    data: PreferenceProfileData,
 ): UserPreference {
     const selections = createEmptySelections();
 

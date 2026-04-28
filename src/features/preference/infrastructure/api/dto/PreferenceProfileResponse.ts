@@ -1,4 +1,4 @@
-export interface TasteProfileAttributeCategory {
+export interface PreferenceProfileAttributeCategory {
     readonly id: number;
     readonly categoryType: string;
     readonly code: string;
@@ -6,7 +6,7 @@ export interface TasteProfileAttributeCategory {
     readonly sortOrder: number;
 }
 
-export interface TasteProfileRestrictionIngredient {
+export interface PreferenceProfileRestrictionIngredient {
     readonly id: number;
     readonly code: string;
     readonly name: string;
@@ -14,24 +14,24 @@ export interface TasteProfileRestrictionIngredient {
     readonly sortOrder: number;
 }
 
-export interface TasteProfileDislikedMenuItem {
+export interface PreferenceProfileDislikedMenuItem {
     readonly id: number;
     readonly code: string;
     readonly name: string;
 }
 
-export interface TasteProfileData {
+export interface PreferenceProfileData {
     readonly memberId: number;
     readonly profileVersion: string;
-    readonly attributeCategories: readonly TasteProfileAttributeCategory[];
-    readonly restrictionIngredients: readonly TasteProfileRestrictionIngredient[];
-    readonly dislikedMenuItems: readonly TasteProfileDislikedMenuItem[];
+    readonly attributeCategories: readonly PreferenceProfileAttributeCategory[];
+    readonly restrictionIngredients: readonly PreferenceProfileRestrictionIngredient[];
+    readonly dislikedMenuItems: readonly PreferenceProfileDislikedMenuItem[];
     readonly updatedAt: string | null;
 }
 
-export interface TasteProfileResponse {
+export interface PreferenceProfileResponse {
     readonly success: boolean;
-    readonly data: TasteProfileData | null;
+    readonly data: PreferenceProfileData | null;
     readonly error: {
         readonly status: number;
         readonly code: string;
