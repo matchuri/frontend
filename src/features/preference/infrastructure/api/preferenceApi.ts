@@ -8,6 +8,7 @@ import type { AttributeCategoriesResponse } from "@/features/preference/infrastr
 import type { PreferenceProfileResponse } from "@/features/preference/infrastructure/api/dto/PreferenceProfileResponse";
 import type { RestrictionIngredientsResponse } from "@/features/preference/infrastructure/api/dto/RestrictionIngredientsResponse";
 import type { MenuItemsResponse } from "@/features/preference/infrastructure/api/dto/MenuItemsResponse";
+import type { PreferenceUpdateRequest } from "@/features/preference/infrastructure/api/dto/PreferenceUpdateRequest";
 
 import { mapPreferenceProfileToUserPreference } from "@/features/preference/infrastructure/api/mapper/preferenceProfileMapper";
 import { mapAttributeCategoriesToPreferenceOptions } from "@/features/preference/infrastructure/api/mapper/attributeCategoryMapper";
@@ -72,7 +73,16 @@ export const preferenceApi = {
         return [...restrictionFoods, ...menuFoods];
     },
 
-    async savePreference(preference: UserPreference): Promise<void> {
-        console.log("save preference", preference);
+    async savePreference(request: PreferenceUpdateRequest): Promise<UserPreference> {
+        const response = await httpClient.patch<PreferenceProfileResponse>(
+            "/api/v1/members/me/taste-profile",
+            request,
+        );
+
+        if (!response.success || !response.data) {
+            throw new Error(response.error?.message ?? "취향 정보 저장 실패");
+        }
+
+        return mapPreferenceProfileToUserPreference(response.data);
     },
 };
