@@ -7,6 +7,7 @@ import { useAtomValue } from "jotai";
 import {
     isAuthenticatedAtom,
     isAuthLoadingAtom,
+    isOnboardingReadyAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 
 export function useAuthGuard(redirectPath: string = "/login") {
@@ -14,6 +15,7 @@ export function useAuthGuard(redirectPath: string = "/login") {
 
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+    const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
 
     useEffect(() => {
         // 아직 인증 상태 확인 중이면 아무것도 안 함
@@ -23,10 +25,22 @@ export function useAuthGuard(redirectPath: string = "/login") {
         if (!isAuthenticated) {
             router.replace(redirectPath);
         }
-    }, [isAuthLoading, isAuthenticated, router, redirectPath]);
+
+        if (!isOnboardingReady) {
+          router.replace(redirectPath);
+        }
+    }, [
+        isAuthLoading,
+        isAuthenticated,
+        isOnboardingReady,
+        router,
+        redirectPath
+    ]);
 
     return {
         isAuthenticated,
         isAuthLoading,
+        isOnboardingReady,
+        canAccess: isAuthenticated && isOnboardingReady,
     };
 }

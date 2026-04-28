@@ -2,6 +2,7 @@
 
 import { preferencePageStyles } from "@/ui/styles/preferencePageStyles";
 
+import { useAuthGuard } from "@/features/auth/application/hooks/useAuthGuard";
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePreferenceSelection } from "@/features/preference/application/hooks/usePreferenceSelection";
 import { useDislikedFoodSearch } from "@/features/preference/application/hooks/useDislikedFoodSearch";
@@ -15,10 +16,19 @@ import {
 } from "@/features/preference/ui/config/preferenceOptions";
 
 export default function PreferencePage() {
+    const { isAuthLoading, canAccess } = useAuthGuard();
     const { preferenceState } = usePreferenceList();
     const { togglePreference } = usePreferenceSelection();
     const { keyword, results, search, addFood, removeFood } = useDislikedFoodSearch();
     const { isSaving, savePreference } = useSavePreference();
+
+    if (isAuthLoading || !canAccess) {
+        return (
+            <div className={preferencePageStyles.loadingBox}>
+                <p>인증 상태 확인 중...</p>
+            </div>
+        );
+    }
 
     if (preferenceState.status === "LOADING") {
         return (
