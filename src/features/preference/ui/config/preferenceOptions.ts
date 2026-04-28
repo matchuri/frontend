@@ -21,7 +21,7 @@ export const requiredPreferenceGroups: readonly PreferenceOptionGroup[] = [
     {
         category: "MEAL_SITUATION",
         title: "시간/상황",
-        options: ["아침", "점심", "저녁", "야식", "주말", "더운 날", "비 오는 날"],
+        options: ["아침", "점심", "저녁", "야식"],
     },
 ];
 
