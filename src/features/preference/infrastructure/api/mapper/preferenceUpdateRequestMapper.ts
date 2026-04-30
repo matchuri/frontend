@@ -5,7 +5,6 @@ export function mapUserPreferenceToUpdateRequest(
     preference: UserPreference,
 ): PreferenceUpdateRequest {
     const attributeCategoryIds = Object.entries(preference.selections)
-        .filter(([category]) => category !== "MEAL_SITUATION")
         .flatMap(([, options]) => options.map((option) => option.id));
 
     const restrictionIngredientIds = preference.dislikedFoods

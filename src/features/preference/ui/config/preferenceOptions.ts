@@ -23,10 +23,6 @@ export const requiredPreferenceGroupMeta: readonly PreferenceGroupMeta[] = [
         category: "COOKING_METHOD",
         title: "조리 방식",
     },
-    {
-        category: "MEAL_SITUATION",
-        title: "시간/상황",
-    },
 ];
 
 export const optionalPreferenceGroupMeta: readonly PreferenceGroupMeta[] = [
@@ -44,43 +40,10 @@ export const optionalPreferenceGroupMeta: readonly PreferenceGroupMeta[] = [
     },
 ];
 
-// TODO: 서버에 MEAL_SITUATION 추가되면 없애기
-const mealSituationOptions: readonly PreferenceOption[] = [
-    {
-        id: -1,
-        categoryType: "MEAL_SITUATION",
-        code: "BREAKFAST",
-        name: "아침",
-    },
-    {
-        id: -2,
-        categoryType: "MEAL_SITUATION",
-        code: "LUNCH",
-        name: "점심",
-    },
-    {
-        id: -3,
-        categoryType: "MEAL_SITUATION",
-        code: "DINNER",
-        name: "저녁",
-    },
-    {
-        id: -4,
-        categoryType: "MEAL_SITUATION",
-        code: "LATE_NIGHT",
-        name: "야식",
-    },
-];
-
 function getOptionsByCategory(
     options: readonly PreferenceOption[],
     category: PreferenceCategory,
 ): readonly PreferenceOption[] {
-    // TODO: 서버에 MEAL_SITUATION 추가되면 없애기
-    if (category === "MEAL_SITUATION") {
-        return mealSituationOptions;
-    }
-
     return options.filter((option) => option.categoryType === category);
 }
 

@@ -9,7 +9,6 @@ import type { PreferenceProfileData } from "@/features/preference/infrastructure
 const preferenceCategories: readonly PreferenceCategory[] = [
     "FLAVOR",
     "COOKING_METHOD",
-    "MEAL_SITUATION",
     "FOOD_CATEGORY",
     "TEXTURE",
     "TEMPERATURE",
@@ -19,7 +18,6 @@ function createEmptySelections(): UserPreference["selections"] {
     return {
         FLAVOR: [],
         COOKING_METHOD: [],
-        MEAL_SITUATION: [],
         FOOD_CATEGORY: [],
         TEXTURE: [],
         TEMPERATURE: [],

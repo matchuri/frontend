@@ -8,7 +8,6 @@ import type { PreferenceCategory } from "@/features/preference/domain/model/Pref
 const preferenceCategories: readonly PreferenceCategory[] = [
     "FLAVOR",
     "COOKING_METHOD",
-    "MEAL_SITUATION",
     "FOOD_CATEGORY",
     "TEXTURE",
     "TEMPERATURE",
