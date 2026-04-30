@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
 import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
-import { authApi } from "@/features/auth/infrastructure/api/authApi";
+import { signupApi } from "@/features/signup/infrastructure/api/signupApi"
 
 import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
 import { useSubmitMyNickname } from "@/features/auth/application/hooks/useSubmitMyNickname";
@@ -88,7 +88,7 @@ export default function NicknamePage() {
                     })),
             };
 
-            const response = await authApi.signup(payload);
+            const response = await signupApi.signup(payload);
 
             if (response.success) {
                 accountStorage.clear();

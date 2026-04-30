@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { existsLoginId } from "@/features/signup/infrastructure/api/signupApi";
+import { signupApi } from "@/features/signup/infrastructure/api/signupApi";
 
 type LoginIdValidationStatus =
     | "IDLE"
@@ -35,10 +35,17 @@ export function useLoginIdValidation() {
             clearTimeout(debounceRef.current);
         }
 
-        if (!trimmedLoginId) {
+        if (!nextLoginId) {
             setStatus("IDLE");
             setMessage("");
             return;
+        }
+
+        // 공백 체크
+        if (/\s/.test(nextLoginId)) {
+          setStatus("INVALID");
+          setMessage("공백을 사용할 수 없습니다.");
+          return;
         }
 
         if (!LOGIN_ID_REGEX.test(trimmedLoginId)) {
@@ -52,9 +59,10 @@ export function useLoginIdValidation() {
 
         debounceRef.current = setTimeout(async () => {
             try {
-                const exists = await existsLoginId(trimmedLoginId);
+                const response = await signupApi.checkLoginIdExists(trimmedLoginId);
+                console.log("아이디 뭐 들어와?:", response);
 
-                if (exists) {
+                if (response.data.exists) {
                     setStatus("DUPLICATED");
                     setMessage("이미 사용 중인 ID입니다.");
                     return;
