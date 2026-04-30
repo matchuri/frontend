@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { signupPageStyles } from "@/ui/styles/signupPageStyles";
@@ -10,14 +9,12 @@ import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
 import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
 import { useLoginIdValidation } from "@/features/signup/application/hooks/useLoginIdValidation";
 import { usePasswordValidation } from "@/features/signup/application/hooks/usePasswordValidation";
+import { useEmailVerification } from "@/features/emailVerification/application/hooks/useEmailVerification";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
 export default function SignupPage() {
     const router = useRouter();
-
-    const [email, setEmail] = useState("");
-    const [verificationCode, setVerificationCode] = useState("");
 
     const {
         loginId,
@@ -33,7 +30,22 @@ export default function SignupPage() {
         handlePasswordChange,
     } = usePasswordValidation();
 
-    const canSubmit = canUseLoginId && isPasswordValid;
+    const {
+        email,
+        code: verificationCode,
+        message: emailVerificationMessage,
+        isVerified: isEmailVerified,
+        canSendVerificationEmail,
+        canConfirmVerificationEmail,
+        handleEmailChange,
+        handleCodeChange,
+        sendVerificationEmail,
+        confirmVerificationEmail,
+    } = useEmailVerification({
+        purpose: "SIGNUP",
+    });
+
+    const canSubmit = canUseLoginId && isPasswordValid && isEmailVerified;
 
     const handleSubmit = () => {
         if (!canSubmit) return;
@@ -136,13 +148,19 @@ export default function SignupPage() {
                                 type="email"
                                 className={signupPageStyles.input}
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                onChange={(e) => handleEmailChange(e.target.value)}
                                 placeholder="이메일을 입력하세요"
                             />
 
                             <button
                                 type="button"
-                                className={`${signupPageStyles.nextButton} whitespace-nowrap`}
+                                onClick={sendVerificationEmail}
+                                disabled={!canSendVerificationEmail || isEmailVerified}
+                                className={
+                                    canSendVerificationEmail && !isEmailVerified
+                                        ? `${signupPageStyles.nextButton} whitespace-nowrap`
+                                        : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
+                                }
                             >
                                 인증
                             </button>
@@ -157,17 +175,34 @@ export default function SignupPage() {
                                 type="text"
                                 className={signupPageStyles.input}
                                 value={verificationCode}
-                                onChange={(e) => setVerificationCode(e.target.value)}
+                                onChange={(e) => handleCodeChange(e.target.value)}
                                 placeholder="인증 코드를 입력하세요"
+                                disabled={isEmailVerified}
                             />
 
                             <button
                                 type="button"
-                                className={`${signupPageStyles.nextButton} whitespace-nowrap`}
+                                onClick={confirmVerificationEmail}
+                                disabled={!canConfirmVerificationEmail || isEmailVerified}
+                                className={
+                                    canConfirmVerificationEmail && !isEmailVerified
+                                        ? `${signupPageStyles.nextButton} whitespace-nowrap`
+                                        : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
+                                }
                             >
                                 확인
                             </button>
                         </div>
+
+                        {emailVerificationMessage && (
+                            <p
+                                className={`mt-2 text-sm ${
+                                    isEmailVerified ? "text-blue-500" : "text-gray-500"
+                                }`}
+                            >
+                                {emailVerificationMessage}
+                            </p>
+                        )}
                     </div>
 
                     {/* 계속 버튼 */}
