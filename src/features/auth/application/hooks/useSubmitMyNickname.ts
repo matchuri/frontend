@@ -3,10 +3,8 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { authApi } from "@/features/auth/infrastructure/api/authApi";
-import {
-    updateOnboarding,
-} from "@/features/auth/application/store/authStore";
+import { onboardingApi } from "@/features/auth/infrastructure/api/onboardingApi";
+import { updateOnboarding } from "@/features/auth/application/store/authStore";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export function useSubmitMyNickname() {
@@ -20,7 +18,7 @@ export function useSubmitMyNickname() {
             setIsSubmitting(true);
 
             try {
-                const response = await authApi.updateOnboardingNickname({
+                const response = await onboardingApi.updateOnboardingNickname({
                     nickname,
                 });
 

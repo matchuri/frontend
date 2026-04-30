@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { authApi } from "@/features/auth/infrastructure/api/authApi";
+import { onboardingApi } from "@/features/auth/infrastructure/api/onboardingApi";
 import {
     setAuthenticated,
     updateOnboarding,
@@ -25,7 +25,7 @@ export function useSubmitRequiredAgreements() {
             setIsSubmitting(true);
 
             try {
-                const response = await authApi.submitRequiredAgreements({ agreements });
+                const response = await onboardingApi.submitRequiredAgreements({ agreements });
 
                 if (response.data.accessToken) {
                     setAuthenticated(response.data.accessToken, response.data.onboarding);

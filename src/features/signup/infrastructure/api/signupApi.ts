@@ -17,18 +17,35 @@ interface LoginIdExistsResponse {
     readonly error: ApiError | null;
 }
 
-export async function existsLoginId(loginId: string): Promise<boolean> {
-    const encodedLoginId = encodeURIComponent(loginId);
-
-    const response = await httpClient.get<LoginIdExistsResponse>(
-        `/api/v1/members/exists/${encodedLoginId}`,
-    );
-
-    if (!response.success) {
-        throw new Error(
-            response.error?.message || "아이디 중복 확인에 실패했습니다.",
-        );
-    }
-
-    return response.data.exists;
+interface SignupRequest {
+    readonly loginId: string;
+    readonly password: string;
+    readonly nickname: string;
+    readonly agreements: {
+        readonly agreementType: string;
+        readonly agreementVersion: string;
+    }[];
 }
+
+interface SignupResponse {
+    readonly success: boolean;
+    readonly data: null;
+    readonly error: ApiError | null;
+}
+
+export const signupApi = {
+    checkLoginIdExists(loginId: string) {
+        const encodedLoginId = encodeURIComponent(loginId);
+
+        return httpClient.get<LoginIdExistsResponse>(
+            `/api/v1/members/exists/${encodedLoginId}`,
+        );
+    },
+
+    signup(payload: SignupRequest) {
+        return httpClient.post<SignupResponse>(
+            "/api/v1/members/signup",
+            payload,
+        );
+    },
+} as const;
