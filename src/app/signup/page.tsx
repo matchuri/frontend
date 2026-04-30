@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { signupPageStyles } from "@/ui/styles/signupPageStyles";
@@ -14,6 +15,9 @@ const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
 export default function SignupPage() {
     const router = useRouter();
+
+    const [email, setEmail] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
 
     const {
         loginId,
@@ -122,6 +126,48 @@ export default function SignupPage() {
                                 {passwordMessage}
                             </p>
                         )}
+                    </div>
+
+                    <div className={signupPageStyles.inputGroup}>
+                        <label className={signupPageStyles.label}>이메일</label>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="email"
+                                className={signupPageStyles.input}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="이메일을 입력하세요"
+                            />
+
+                            <button
+                                type="button"
+                                className={`${signupPageStyles.nextButton} whitespace-nowrap`}
+                            >
+                                인증
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className={signupPageStyles.inputGroup}>
+                        <label className={signupPageStyles.label}>인증 코드</label>
+
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                className={signupPageStyles.input}
+                                value={verificationCode}
+                                onChange={(e) => setVerificationCode(e.target.value)}
+                                placeholder="인증 코드를 입력하세요"
+                            />
+
+                            <button
+                                type="button"
+                                className={`${signupPageStyles.nextButton} whitespace-nowrap`}
+                            >
+                                확인
+                            </button>
+                        </div>
                     </div>
 
                     {/* 계속 버튼 */}
