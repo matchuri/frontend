@@ -26,6 +26,8 @@ const NO_REFRESH_PATHS = [
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
     "/api/v1/members/signup",
+    "/api/v1/auth/email",
+    "/api/v1/auth/email/confirm",
 ];
 
 function shouldTryRefresh(path: string, isRetry: boolean) {

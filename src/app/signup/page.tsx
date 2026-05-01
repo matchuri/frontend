@@ -33,10 +33,19 @@ export default function SignupPage() {
     const {
         email,
         code: verificationCode,
+        status: emailVerificationStatus,
         message: emailVerificationMessage,
         emailVerificationToken,
+        remainingSeconds,
+        resendSeconds,
+        confirmAttemptCount,
+        maxConfirmAttempts,
+        resendAttemptCount,
+        maxResendAttempts,
+        hasSentVerificationEmail,
         isVerified: isEmailVerified,
         canSendVerificationEmail,
+        canResendVerificationEmail,
         canConfirmVerificationEmail,
         handleEmailChange,
         handleCodeChange,
@@ -78,6 +87,29 @@ export default function SignupPage() {
          }
 
         return "text-red-500";
+    };
+
+    const getEmailVerificationMessageColor = () => {
+        switch (emailVerificationStatus) {
+            case "VERIFIED":
+                return "text-blue-500";
+            case "ERROR":
+            case "EXPIRED":
+                return "text-red-500";
+            case "SENDING":
+            case "VERIFYING":
+            case "SENT":
+                return "text-gray-500";
+            default:
+                return "";
+        }
+    };
+
+    const formatSeconds = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remaining = seconds % 60;
+
+        return `${minutes}:${remaining.toString().padStart(2, "0")}`;
     };
 
     return (
@@ -159,19 +191,50 @@ export default function SignupPage() {
                                 placeholder="이메일을 입력하세요"
                             />
 
-                            <button
-                                type="button"
-                                onClick={sendVerificationEmail}
-                                disabled={!canSendVerificationEmail || isEmailVerified}
-                                className={
-                                    canSendVerificationEmail && !isEmailVerified
-                                        ? `${signupPageStyles.nextButton} whitespace-nowrap`
-                                        : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
-                                }
-                            >
-                                인증
-                            </button>
+                            {!hasSentVerificationEmail ? (
+                                <button
+                                    type="button"
+                                    onClick={sendVerificationEmail}
+                                    disabled={!canSendVerificationEmail || isEmailVerified}
+                                    className={
+                                        canSendVerificationEmail && !isEmailVerified
+                                            ? `${signupPageStyles.nextButton} whitespace-nowrap`
+                                            : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
+                                    }
+                                >
+                                    인증
+                                </button>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={sendVerificationEmail}
+                                    disabled={isEmailVerified}
+                                    className={
+                                        canResendVerificationEmail && !isEmailVerified
+                                            ? `${signupPageStyles.nextButton} whitespace-nowrap`
+                                            : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
+                                    }
+                                >
+                                    {isEmailVerified ? "완료" : "재발송"}
+                                </button>
+                            )}
                         </div>
+
+                        {hasSentVerificationEmail && !isEmailVerified && (
+                            <p className="mt-2 text-xs text-gray-400">
+                                인증 코드 발송 횟수 {resendAttemptCount}/{maxResendAttempts}
+                            </p>
+                        )}
+
+                        {hasSentVerificationEmail &&
+                            !isEmailVerified &&
+                            resendSeconds !== null &&
+                            resendSeconds > 0 && (
+                                <p className="mt-1 text-xs text-gray-400">
+                                    {resendSeconds}초 후 인증코드 재발송이 가능합니다.
+                                </p>
+                            )
+                        }
                     </div>
 
                     <div className={signupPageStyles.inputGroup}>
@@ -197,15 +260,25 @@ export default function SignupPage() {
                                         : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
                                 }
                             >
-                                확인
+                                {isEmailVerified ? "완료" : "확인"}
                             </button>
                         </div>
 
+                        {remainingSeconds !== null && !isEmailVerified && (
+                            <p className="mt-2 text-sm text-gray-500">
+                                인증 유효시간 {formatSeconds(remainingSeconds)}
+                            </p>
+                        )}
+
+                        {!isEmailVerified && confirmAttemptCount > 0 && (
+                            <p className="mt-1 text-xs text-gray-400">
+                                인증 시도 횟수 {confirmAttemptCount}/{maxConfirmAttempts}
+                            </p>
+                        )}
+
                         {emailVerificationMessage && (
                             <p
-                                className={`mt-2 text-sm ${
-                                    isEmailVerified ? "text-blue-500" : "text-gray-500"
-                                }`}
+                                className={`mt-2 text-sm ${getEmailVerificationMessageColor()}`}
                             >
                                 {emailVerificationMessage}
                             </p>
