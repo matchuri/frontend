@@ -3,6 +3,8 @@ const KEY = "signup_account";
 export interface AccountData {
     id: string;
     password: string;
+    email: string;
+    emailVerificationToken: string;
     isSocial?: boolean;
 }
 

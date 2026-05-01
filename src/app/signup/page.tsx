@@ -6,7 +6,7 @@ import { signupPageStyles } from "@/ui/styles/signupPageStyles";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
 
-import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
+import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
 import { useLoginIdValidation } from "@/features/signup/application/hooks/useLoginIdValidation";
 import { usePasswordValidation } from "@/features/signup/application/hooks/usePasswordValidation";
 import { useEmailVerification } from "@/features/emailVerification/application/hooks/useEmailVerification";
@@ -34,6 +34,7 @@ export default function SignupPage() {
         email,
         code: verificationCode,
         message: emailVerificationMessage,
+        emailVerificationToken,
         isVerified: isEmailVerified,
         canSendVerificationEmail,
         canConfirmVerificationEmail,
@@ -45,7 +46,11 @@ export default function SignupPage() {
         purpose: "SIGNUP",
     });
 
-    const canSubmit = canUseLoginId && isPasswordValid && isEmailVerified;
+    const canSubmit =
+        canUseLoginId &&
+        isPasswordValid &&
+        isEmailVerified &&
+        !!emailVerificationToken;
 
     const handleSubmit = () => {
         if (!canSubmit) return;
@@ -53,6 +58,8 @@ export default function SignupPage() {
         accountStorage.save({
             id: loginId.trim(),
             password: password.trim(),
+            email: email.trim(),
+            emailVerificationToken,
             isSocial: false,
         });
 
