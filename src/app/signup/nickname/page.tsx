@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 
 import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
-import { accountStorage } from "@/features/auth/infrastructure/storage/accountStorage";
+import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
 import { signupApi } from "@/features/signup/infrastructure/api/signupApi"
 
@@ -36,7 +36,11 @@ export default function NicknamePage() {
         const savedAgreements = termsStorage.load();
 
         const isGeneralSignup =
-            !!account && !!savedAgreements && savedAgreements.length > 0;
+            !!account &&
+            !!account.email &&
+            !!account.emailVerificationToken &&
+            !!savedAgreements &&
+            savedAgreements.length > 0;
 
         if (isGeneralSignup) return;
 
@@ -80,6 +84,8 @@ export default function NicknamePage() {
                 loginId: account.id,
                 password: account.password,
                 nickname: nickname.trim(),
+                email: account.email,
+                emailVerificationToken: account.emailVerificationToken,
                 agreements: savedAgreements
                     .filter((item) => item.agreed)
                     .map((item) => ({

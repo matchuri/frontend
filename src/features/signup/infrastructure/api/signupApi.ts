@@ -21,15 +21,25 @@ interface SignupRequest {
     readonly loginId: string;
     readonly password: string;
     readonly nickname: string;
+    readonly email: string;
+    readonly emailVerificationToken: string;
     readonly agreements: {
         readonly agreementType: string;
         readonly agreementVersion: string;
     }[];
 }
 
+interface SignupData {
+    readonly memberId: number;
+    readonly loginId: string;
+    readonly email: string;
+    readonly nickname: string;
+    readonly createdAt: string;
+}
+
 interface SignupResponse {
     readonly success: boolean;
-    readonly data: null;
+    readonly data: SignupData;
     readonly error: ApiError | null;
 }
 
