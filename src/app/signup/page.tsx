@@ -10,6 +10,8 @@ import { accountStorage } from "@/features/signup/infrastructure/storage/account
 import { useLoginIdValidation } from "@/features/signup/application/hooks/useLoginIdValidation";
 import { usePasswordValidation } from "@/features/signup/application/hooks/usePasswordValidation";
 import { useEmailVerification } from "@/features/emailVerification/application/hooks/useEmailVerification";
+import { useVerificationExpireTimer } from "@/features/emailVerification/application/hooks/useVerificationExpireTimer";
+import { useResendTimer } from "@/features/emailVerification/application/hooks/useResendTimer";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
@@ -47,12 +49,26 @@ export default function SignupPage() {
         canSendVerificationEmail,
         canResendVerificationEmail,
         canConfirmVerificationEmail,
+        setRemainingSeconds,
+        setResendSeconds,
+        handleExpired,
         handleEmailChange,
         handleCodeChange,
         sendVerificationEmail,
         confirmVerificationEmail,
     } = useEmailVerification({
         purpose: "SIGNUP",
+    });
+
+    const { stopVerificationTimer } = useVerificationExpireTimer({
+        remainingSeconds,
+        setRemainingSeconds,
+        onExpired: handleExpired,
+    });
+
+    useResendTimer({
+        resendSeconds,
+        setResendSeconds,
     });
 
     const canSubmit =
@@ -195,9 +211,9 @@ export default function SignupPage() {
                                 <button
                                     type="button"
                                     onClick={sendVerificationEmail}
-                                    disabled={!canSendVerificationEmail || isEmailVerified}
+                                    disabled={!canSendVerificationEmail}
                                     className={
-                                        canSendVerificationEmail && !isEmailVerified
+                                        canSendVerificationEmail
                                             ? `${signupPageStyles.nextButton} whitespace-nowrap`
                                             : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
                                     }
@@ -223,18 +239,11 @@ export default function SignupPage() {
                         {hasSentVerificationEmail && !isEmailVerified && (
                             <p className="mt-2 text-xs text-gray-400">
                                 인증 코드 발송 횟수 {resendAttemptCount}/{maxResendAttempts}
+                                {resendSeconds !== null &&
+                                    resendSeconds > 0 &&
+                                    `, 인증코드 재발송 가능 시간: ${resendSeconds}초 후`}
                             </p>
                         )}
-
-                        {hasSentVerificationEmail &&
-                            !isEmailVerified &&
-                            resendSeconds !== null &&
-                            resendSeconds > 0 && (
-                                <p className="mt-1 text-xs text-gray-400">
-                                    {resendSeconds}초 후 인증코드 재발송이 가능합니다.
-                                </p>
-                            )
-                        }
                     </div>
 
                     <div className={signupPageStyles.inputGroup}>
@@ -252,7 +261,7 @@ export default function SignupPage() {
 
                             <button
                                 type="button"
-                                onClick={confirmVerificationEmail}
+                                onClick={() => confirmVerificationEmail(stopVerificationTimer)}
                                 disabled={!canConfirmVerificationEmail || isEmailVerified}
                                 className={
                                     canConfirmVerificationEmail && !isEmailVerified
@@ -264,16 +273,20 @@ export default function SignupPage() {
                             </button>
                         </div>
 
+                        {/*
                         {remainingSeconds !== null && !isEmailVerified && (
                             <p className="mt-2 text-sm text-gray-500">
                                 인증 유효시간 {formatSeconds(remainingSeconds)}
                             </p>
                         )}
+                        */}
 
-                        {!isEmailVerified && confirmAttemptCount > 0 && (
-                            <p className="mt-1 text-xs text-gray-400">
-                                인증 시도 횟수 {confirmAttemptCount}/{maxConfirmAttempts}
-                            </p>
+                        {!isEmailVerified && (
+                            <p className="mt-2 text-xs text-gray-400">
+                                인증 시도 {confirmAttemptCount}/{maxConfirmAttempts}
+                                {remainingSeconds !== null &&
+                                    `, 인증 유효시간 ${formatSeconds(remainingSeconds)}`}
+                          </p>
                         )}
 
                         {emailVerificationMessage && (
