@@ -30,6 +30,11 @@ const NO_REFRESH_PATHS = [
     "/api/v1/auth/email/confirm",
 ];
 
+const SILENT_ERROR_LOG_PATHS = [
+    "/api/v1/auth/refresh",
+    "/api/v1/auth/email/confirm",
+];
+
 function shouldTryRefresh(path: string, isRetry: boolean) {
     if (isRetry) return false;
     if (NO_REFRESH_PATHS.includes(path)) return false;
@@ -99,7 +104,7 @@ async function request<T>(
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         //  refresh는 로그 안 찍음
-        if (path !== "/api/v1/auth/refresh") {
+        if (!SILENT_ERROR_LOG_PATHS.includes(path)) {
             console.error("[httpClient] 요청 실패 응답:", {
                 path,
                 status: response.status,
