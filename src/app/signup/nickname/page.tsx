@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 
 import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
@@ -12,10 +11,13 @@ import { signupApi } from "@/features/signup/infrastructure/api/signupApi"
 import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
 import { useSubmitMyNickname } from "@/features/auth/application/hooks/useSubmitMyNickname";
 import { useNicknameValidation } from "@/features/nickname/application/hooks/useNicknameValidation";
+import { useSignupNicknameGuard } from "@/features/signup/application/hooks/useSignupNicknameGuard"; // ✅ 추가
 
 export default function NicknamePage() {
     const router = useRouter();
     const onboarding = useAtomValue(onboardingAtom);
+
+    useSignupNicknameGuard();
 
     const { submit: submitMyNickname, isSubmitting } = useSubmitMyNickname();
     const isSocialOnboarding = onboarding?.nextStep === "REQUIRED_NICKNAME";
@@ -30,38 +32,6 @@ export default function NicknamePage() {
     } = useNicknameValidation();
 
     const canSubmit = canSaveNickname && !isSubmitting;
-
-    useEffect(() => {
-        const account = accountStorage.load();
-        const savedAgreements = termsStorage.load();
-
-        const isGeneralSignup =
-            !!account &&
-            !!account.email &&
-            !!account.emailVerificationToken &&
-            !!savedAgreements &&
-            savedAgreements.length > 0;
-
-        if (isGeneralSignup) return;
-
-        if (onboarding?.nextStep === "REQUIRED_NICKNAME") return;
-
-        if (onboarding?.nextStep === "REQUIRED_AGREEMENTS") {
-            router.replace("/terms");
-            return;
-        }
-
-        if (onboarding?.nextStep === "READY") {
-            router.replace("/home");
-            return;
-        }
-
-        if (onboarding === null) {
-            return;
-        }
-
-        router.replace("/signup");
-    }, [router, onboarding]);
 
     const handleSubmit = async () => {
         if (!canSubmit) return;
