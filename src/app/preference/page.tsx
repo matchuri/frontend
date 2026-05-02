@@ -2,7 +2,7 @@
 
 import { preferencePageStyles } from "@/ui/styles/preferencePageStyles";
 
-import { useAuthGuard } from "@/features/auth/application/hooks/useAuthGuard";
+import { useAuthGuard } from "@/features/routeGuard/application/hooks/useAuthGuard";
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePreferenceOptionList } from "@/features/preference/application/hooks/usePreferenceOptionList";
 import { usePreferenceSelection } from "@/features/preference/application/hooks/usePreferenceSelection";

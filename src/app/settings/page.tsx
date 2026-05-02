@@ -1,7 +1,7 @@
 "use client";
 
 import { useAtomValue } from "jotai";
-import { useAuthGuard } from "@/features/auth/application/hooks/useAuthGuard";
+import { useAuthGuard } from "@/features/routeGuard/application/hooks/useAuthGuard";
 import { settingsAtom } from "@/features/settings/application/atoms/settingsAtom";
 import { isLocalLoginAtom } from "@/features/settings/application/selectors/settingsSelectors";
 import { useSettingsProfile } from "@/features/settings/application/hooks/useSettingsProfile";

@@ -1,25 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { useAtomValue } from "jotai";
-import { useRouter } from "next/navigation";
-import {
-    isAuthenticatedAtom,
-    isAuthLoadingAtom,
-} from "@/features/auth/application/selectors/authSelectors";
+import { useHomeGuard } from "@/features/routeGuard/application/hooks/useHomeGuard";
 
 export default function HomePage() {
-    const router = useRouter();
-    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
-    const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+    const { canAccess } = useHomeGuard();
 
-    useEffect(() => {
-        if (!isAuthLoading && !isAuthenticated) {
-            router.replace("/");
-        }
-    }, [isAuthLoading, isAuthenticated, router]);
-
-    if (isAuthLoading || !isAuthenticated) {
+    if (!canAccess) {
         return null;
     }
 
