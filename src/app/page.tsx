@@ -1,25 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { useAtomValue } from "jotai";
-import { useRouter } from "next/navigation";
-import {
-    isAuthenticatedAtom,
-    isAuthLoadingAtom,
-} from "@/features/auth/application/selectors/authSelectors";
+import { useRootRedirectGuard } from "@/features/routeGuard/application/hooks/useRootRedirectGuard";
 
 export default function Home() {
-    const router = useRouter();
-    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
-    const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+    const { shouldShowPublicHome } = useRootRedirectGuard();
 
-    useEffect(() => {
-        if (!isAuthLoading && isAuthenticated) {
-        router.replace("/home");
-        }
-    }, [isAuthLoading, isAuthenticated, router]);
-
-    if (isAuthLoading || isAuthenticated) {
+    if (!shouldShowPublicHome) {
         return null;
     }
 
