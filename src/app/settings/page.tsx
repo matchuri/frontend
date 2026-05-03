@@ -54,6 +54,7 @@ export default function SettingsPage() {
 
             <AccountManagementSection
                 userId={profile.id}
+                email={profile.email}
                 showPasswordFields={isLocalLogin}
             />
         </main>

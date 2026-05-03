@@ -5,11 +5,13 @@ import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
 interface AccountManagementSectionProps {
     userId?: number; // TODO: 서버에서 아이디를 받는 거 추가되면 string으로 수정 필요
+    email?: string;
     showPasswordFields: boolean;
 }
 
 export default function AccountManagementSection({
     userId,
+    email,
     showPasswordFields,
 }: AccountManagementSectionProps) {
     return (
@@ -27,6 +29,13 @@ export default function AccountManagementSection({
                                 USER ID
                             </p>
                             <p>{userId}</p>
+                        </div>
+
+                        <div className={`${settingsPageStyles.disabledInput} mb-4`}>
+                            <p className="mb-2 text-xs font-semibold uppercase">
+                                EMAIL
+                            </p>
+                            <p>{email}</p>
                         </div>
 
                         <label className={settingsPageStyles.label}>
