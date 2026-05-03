@@ -10,14 +10,14 @@ import AccountManagementSection from "@/features/settings/ui/components/AccountM
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
 export default function SettingsPage() {
-    const { isAuthenticated, isAuthLoading } = useAuthGuard();
+    const { isAuthLoading, canAccess } = useAuthGuard();
 
-    useSettingsProfile(isAuthenticated);
+    useSettingsProfile(canAccess);
 
     const settingsState = useAtomValue(settingsAtom);
     const isLocalLogin = useAtomValue(isLocalLoginAtom);
 
-    if (isAuthLoading || !isAuthenticated) {
+    if (isAuthLoading || !canAccess) {
         return (
             <main className={settingsPageStyles.page}>
                 로그인 상태를 확인하는 중...
