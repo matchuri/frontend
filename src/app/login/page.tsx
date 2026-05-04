@@ -105,7 +105,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className={loginPageStyles.helperLinks}>
-                    <Link href="/" className={loginPageStyles.helperLink}>
+                    <Link href="/auth/find-id" className={loginPageStyles.helperLink}>
                         아이디 찾기
                     </Link>
                     <span className={loginPageStyles.separator}>|</span>
