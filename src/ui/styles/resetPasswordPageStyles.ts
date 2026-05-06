@@ -9,6 +9,7 @@ export const resetPasswordPageStyles = {
     button:
         "mt-4 flex h-14 items-center justify-center rounded-xl bg-slate-500 text-base font-semibold text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50",
     timerText: "text-sm text-slate-500",
+    message: "mt-2 text-sm text-red-500",
     resultBox: "mt-24 flex flex-col items-center text-center",
     resultLabel: "text-xl font-medium text-slate-950",
     resultButton: "mt-14 flex h-14 w-full items-center justify-center rounded-xl bg-slate-600 text-base font-semibold text-white hover:bg-slate-700",

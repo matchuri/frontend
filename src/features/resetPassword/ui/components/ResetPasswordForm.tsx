@@ -3,6 +3,7 @@
 import { useAtomValue } from "jotai";
 import { resetPasswordAtom } from "@/features/resetPassword/application/atoms/resetPasswordAtom";
 import { useResetPassword } from "@/features/resetPassword/application/hooks/useResetPassword";
+import { useVerificationExpireTimer } from "@/features/emailVerification/application/hooks/useVerificationExpireTimer";
 import ResetPasswordAccountInput from "@/features/resetPassword/ui/components/ResetPasswordAccountInput";
 import ResetPasswordCodeInput from "@/features/resetPassword/ui/components/ResetPasswordCodeInput";
 import ResetPasswordNewPasswordInput from "@/features/resetPassword/ui/components/ResetPasswordNewPasswordInput";
@@ -11,6 +12,12 @@ import ResetPasswordComplete from "@/features/resetPassword/ui/components/ResetP
 export default function ResetPasswordForm() {
     const state = useAtomValue(resetPasswordAtom);
     const resetPassword = useResetPassword();
+
+    useVerificationExpireTimer({
+        remainingSeconds: resetPassword.remainingSeconds,
+        setRemainingSeconds: resetPassword.setRemainingSeconds,
+        onExpired: resetPassword.handleExpired,
+    });
 
     if (state.status === "CODE_INPUT") {
         return <ResetPasswordCodeInput {...resetPassword} />;

@@ -5,6 +5,7 @@ interface ConfirmEmailVerificationParams {
     readonly email: string;
     readonly purpose: EmailVerificationPurpose;
     readonly code: string;
+    readonly loginId?: string;
 }
 
 type ConfirmEmailVerificationResult =
@@ -21,12 +22,14 @@ export async function confirmEmailVerification({
     email,
     purpose,
     code,
+    loginId,
 }: ConfirmEmailVerificationParams): Promise<ConfirmEmailVerificationResult> {
     try {
         const response = await emailVerificationApi.confirmVerificationEmail({
             email,
             purpose,
             code,
+            loginId,
         });
 
         if (!response.success || !response.data.verified) {

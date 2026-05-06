@@ -5,6 +5,8 @@ import { resetPasswordPageStyles } from "@/ui/styles/resetPasswordPageStyles";
 interface ResetPasswordAccountInputProps {
     readonly loginId: string;
     readonly email: string;
+    readonly message: string | null;
+    readonly isLoading: boolean;
     readonly canRequestVerification: boolean;
     readonly setLoginId: (loginId: string) => void;
     readonly setEmail: (email: string) => void;
@@ -14,6 +16,8 @@ interface ResetPasswordAccountInputProps {
 export default function ResetPasswordAccountInput({
     loginId,
     email,
+    message,
+    isLoading,
     canRequestVerification,
     setLoginId,
     setEmail,
@@ -25,7 +29,9 @@ export default function ResetPasswordAccountInput({
                 가입한 아이디와 이메일을 입력하세요
             </p>
 
-            <label className={resetPasswordPageStyles.label}>아이디</label>
+            <label className={`${resetPasswordPageStyles.label} mt-8`}>
+                아이디
+            </label>
             <input
                 type="text"
                 value={loginId}
@@ -41,13 +47,17 @@ export default function ResetPasswordAccountInput({
                 className={resetPasswordPageStyles.input}
             />
 
+            {message && (
+                <p className={resetPasswordPageStyles.message}>{message}</p>
+            )}
+
             <button
                 type="button"
                 onClick={handleRequestVerification}
-                disabled={!canRequestVerification}
+                disabled={!canRequestVerification || isLoading}
                 className={resetPasswordPageStyles.button}
             >
-                비밀번호 찾기
+                {isLoading ? "발송 중..." : "비밀번호 찾기"}
             </button>
         </div>
     );
