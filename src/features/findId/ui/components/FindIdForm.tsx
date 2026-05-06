@@ -1,22 +1,50 @@
 "use client";
 
-import { findIdPageStyles } from "@/ui/styles/findIdPageStyles";
+import { useAtomValue } from "jotai";
+import { findIdAtom } from "@/features/findId/application/atoms/findIdAtom";
+import { useFindId } from "@/features/findId/application/hooks/useFindId";
+import FindIdEmailInput from "@/features/findId/ui/components/FindIdEmailInput";
+import FindIdCodeInput from "@/features/findId/ui/components/FindIdCodeInput";
+import FindIdResult from "@/features/findId/ui/components/FindIdResult";
 
 export default function FindIdForm() {
-    return (
-        <div className={findIdPageStyles.form}>
-            <label className={findIdPageStyles.label}>이메일</label>
-            <input
-                type="email"
-                className={findIdPageStyles.input}
-            />
+    const state = useAtomValue(findIdAtom);
 
-            <button
-                type="button"
-                className={findIdPageStyles.button}
-            >
-                아이디 찾기
-            </button>
-        </div>
+    const {
+        email,
+        code,
+        isLoading,
+        setEmail,
+        setCode,
+        handleSendCode,
+        handleFindId,
+    } = useFindId();
+
+    if (state.status === "CODE_INPUT") {
+        return (
+            <FindIdCodeInput
+                code={code}
+                isLoading={isLoading}
+                onCodeChange={setCode}
+                onSubmit={handleFindId}
+            />
+        );
+    }
+
+    if (
+        state.status === "FOUND" ||
+        state.status === "NOT_FOUND" ||
+        state.status === "ERROR"
+    ) {
+        return <FindIdResult result={state} />;
+    }
+
+    return (
+        <FindIdEmailInput
+            email={email}
+            isLoading={isLoading}
+            onEmailChange={setEmail}
+            onSubmit={handleSendCode}
+        />
     );
 }

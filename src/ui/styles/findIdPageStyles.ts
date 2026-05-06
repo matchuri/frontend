@@ -1,12 +1,18 @@
 export const findIdPageStyles = {
-    page: "min-h-screen bg-slate-100 flex flex-col items-center justify-center pt-28",
-    brand: "mb-12 flex items-center gap-3 text-2xl font-bold text-slate-800",
-    brandIcon: "text-blue-500",
-    card: "w-full max-w-[560px] min-h-[560px] rounded-xl bg-white px-14 py-12",
-    title: "text-4xl font-bold text-black",
-    description: "mt-3 text-base text-black",
-    form: "mt-28 flex flex-col gap-3",
-    label: "text-base font-semibold text-black",
-    input: "h-14 rounded-xl border border-slate-300 px-4 text-base outline-none focus:border-slate-500",
-    button: "mt-10 h-14 rounded-xl bg-slate-500 text-base font-semibold text-white hover:bg-slate-600",
-};
+    page: "min-h-screen bg-slate-100 flex items-center justify-center px-4",
+    card: "w-full max-w-[560px] min-h-[680px] rounded-2xl bg-white px-14 py-12 shadow-sm",
+    title: "text-4xl font-bold text-slate-950",
+    description: "mt-3 text-base text-slate-700",
+    form: "mt-24 flex flex-col",
+    label: "mb-3 text-base font-semibold text-slate-950",
+    input: "h-14 rounded-xl border border-slate-300 px-4 text-base text-zinc-900 outline-none focus:border-slate-500",
+    button:
+        "mt-10 flex h-14 items-center justify-center rounded-xl bg-slate-500 text-base font-semibold text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50",
+    resultBox: "mt-24 flex flex-col items-center text-center",
+    resultLabel: "text-xl font-semibold text-slate-950",
+    resultValue: "mt-8 text-3xl font-bold text-slate-950",
+    resultButtonGroup: "mt-14 flex w-full flex-col gap-3",
+    resultButton: "flex h-14 items-center justify-center rounded-xl bg-slate-600 text-base font-semibold text-white hover:bg-slate-700",
+    secondaryResultButton:
+        "flex h-14 items-center justify-center rounded-xl border border-slate-300 bg-white text-base font-semibold text-slate-700 hover:bg-slate-50",
+} as const;

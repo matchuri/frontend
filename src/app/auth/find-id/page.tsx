@@ -8,10 +8,6 @@ export default function FindIdPage() {
         <main className={findIdPageStyles.page}>
             <section className={findIdPageStyles.card}>
                 <h1 className={findIdPageStyles.title}>아이디 찾기</h1>
-                <p className={findIdPageStyles.description}>
-                    가입 시 사용한 이메일을 입력하세요
-                </p>
-
                 <FindIdForm />
             </section>
         </main>
