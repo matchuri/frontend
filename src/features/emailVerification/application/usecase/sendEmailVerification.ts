@@ -4,6 +4,7 @@ import type { EmailVerificationPurpose } from "@/features/emailVerification/doma
 interface SendEmailVerificationParams {
     readonly email: string;
     readonly purpose: EmailVerificationPurpose;
+    readonly loginId?: string;
 }
 
 type SendEmailVerificationResult =
@@ -19,11 +20,13 @@ type SendEmailVerificationResult =
 export async function sendEmailVerification({
     email,
     purpose,
+    loginId,
 }: SendEmailVerificationParams): Promise<SendEmailVerificationResult> {
     try {
         const response = await emailVerificationApi.sendVerificationEmail({
             email,
             purpose,
+            loginId,
         });
 
         if (!response.success) {

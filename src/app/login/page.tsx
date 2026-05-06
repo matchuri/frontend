@@ -109,7 +109,7 @@ export default function LoginPage() {
                         아이디 찾기
                     </Link>
                     <span className={loginPageStyles.separator}>|</span>
-                    <Link href="/" className={loginPageStyles.helperLink}>
+                    <Link href="/auth/find-password" className={loginPageStyles.helperLink}>
                         비밀번호 찾기
                     </Link>
                     <span className={loginPageStyles.separator}>|</span>
