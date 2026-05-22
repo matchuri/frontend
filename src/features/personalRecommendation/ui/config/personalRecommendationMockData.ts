@@ -4,6 +4,10 @@ export const personalRecommendationLocationMock = {
 
 export const personalRecommendationHistoryMock: readonly {
     id: number;
-    menuName: string;
-    recommendedAt: string;
-}[] = [];
+    recommendedDate: string;
+}[] = [
+//     {
+//         id: 1,
+//         recommendedDate: "2026.05.22",
+//     },
+];
