@@ -7,7 +7,6 @@ import {
   User,
   Users,
   UtensilsCrossed,
-  MapPin,
   Settings,
 } from "lucide-react";
 
@@ -18,10 +17,9 @@ import {
 
 const MENUS = [
   { href: "/home", label: "홈", icon: Home, enabled: true },
-  { href: "/personal", label: "개인 메뉴 추천", icon: User, enabled: false },
+  { href: "/personal-recommendation", label: "개인 메뉴 추천", icon: User, enabled: true },
   { href: "/group", label: "그룹 메뉴 추천", icon: Users, enabled: false },
   { href: "/preference", label: "취향 관리", icon: UtensilsCrossed, enabled: true },
-  { href: "/location", label: "위치 설정", icon: MapPin, enabled: false },
   { href: "/settings", label: "설정", icon: Settings, enabled: true },
 ];
 
