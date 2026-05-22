@@ -1,7 +1,13 @@
 import { Heart } from "lucide-react";
 import { personalRecommendationPageStyles } from "@/ui/styles/personalRecommendationPageStyles";
 
-export default function PersonalRecommendationPreferenceCard() {
+interface PersonalRecommendationPreferenceCardProps {
+    readonly onClickEdit: () => void;
+}
+
+export default function PersonalRecommendationPreferenceCard({
+    onClickEdit,
+}: PersonalRecommendationPreferenceCardProps) {
     return (
         <section className={personalRecommendationPageStyles.preferenceCard}>
             <div className={personalRecommendationPageStyles.preferenceIconBox}>
@@ -16,6 +22,7 @@ export default function PersonalRecommendationPreferenceCard() {
 
             <button
                 type="button"
+                onClick={onClickEdit}
                 className={personalRecommendationPageStyles.smallButton}
             >
                 취향 수정하기
