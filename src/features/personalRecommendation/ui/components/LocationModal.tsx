@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { locationModalStyles } from "@/ui/styles/locationModalStyles";
+import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 
 interface LocationModalProps {
     readonly isOpen: boolean;
@@ -66,9 +67,14 @@ export default function LocationModal({
                     </div>
 
                     <div className={locationModalStyles.mapContainer}>
-                        <div className={locationModalStyles.emptyMapArea}>
-                            지도 영역
-                        </div>
+                        <KakaoMapView
+                            centerLatitude={37.497942}
+                            centerLongitude={127.027621}
+                            level={4}
+                            onCenterChanged={(center) => {
+                                console.log("지도 중심 좌표:", center);
+                            }}
+                        />
 
                         <div className={locationModalStyles.centerPin}>
                             <MapPin size={54} fill="currentColor" />
