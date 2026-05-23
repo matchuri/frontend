@@ -3,11 +3,14 @@
 import { useState } from "react";
 
 import { personalRecommendationPageStyles } from "@/ui/styles/personalRecommendationPageStyles";
+
 import PersonalRecommendationHero from "@/features/personalRecommendation/ui/components/PersonalRecommendationHero";
 import PersonalRecommendationLocationCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationLocationCard";
 import PersonalRecommendationPreferenceCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationPreferenceCard";
 import PersonalRecommendationHistoryPanel from "@/features/personalRecommendation/ui/components/PersonalRecommendationHistoryPanel";
+import LocationModal from "@/features/personalRecommendation/ui/components/LocationModal";
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
+
 import {
     personalRecommendationLocationMock,
     personalRecommendationHistoryMock,
@@ -15,6 +18,7 @@ import {
 
 export default function PersonalRecommendationPage() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
     return (
         <>
@@ -35,7 +39,11 @@ export default function PersonalRecommendationPage() {
 
                             <div className={personalRecommendationPageStyles.cardGrid}>
                                 <PersonalRecommendationLocationCard
-                                    address={personalRecommendationLocationMock.address}
+                                    address={personalRecommendationLocationMock.address
+                                    }
+                                    onClickEdit={() =>
+                                        setIsLocationModalOpen(true)
+                                    }
                                 />
 
                                 <PersonalRecommendationPreferenceCard
@@ -52,6 +60,12 @@ export default function PersonalRecommendationPage() {
                     </div>
                 </div>
             </main>
+
+            <LocationModal
+                isOpen={isLocationModalOpen}
+                onClose={() => setIsLocationModalOpen(false)}
+                address={personalRecommendationLocationMock.address}
+            />
 
             <PreferenceModal
                 isOpen={isPreferenceModalOpen}
