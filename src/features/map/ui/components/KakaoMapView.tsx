@@ -5,27 +5,68 @@ import { useEffect, useRef } from "react";
 import { clientEnv } from "@/infrastructure/config/env";
 import { loadKakaoMapScript } from "@/shared/lib/kakaoMap/loadKakaoMapScript";
 import { kakaoMapViewStyles } from "@/ui/styles/kakaoMapViewStyles";
-
-interface KakaoMapCenter {
-    readonly latitude: number;
-    readonly longitude: number;
-}
+import type { KakaoMapChangeValue } from "@/features/map/domain/model/KakaoMapChangeValue";
+import { getAddressFromCenter } from "@/features/map/application/utils/kakaoGeocoder";
 
 interface KakaoMapViewProps {
-    readonly centerLatitude: number; // 초기 중심 위도
-    readonly centerLongitude: number; // 초기 중심 경도
-    readonly level?: number; // 지도 줌 레벨
-    readonly onCenterChanged?: (center: KakaoMapCenter) => void;
+    readonly centerLatitude: number;
+    readonly centerLongitude: number;
+    readonly level?: number;
+    readonly searchKeyword?: string;
+    readonly onCenterChanged?: (center: KakaoMapChangeValue) => void;
+    readonly onAddressChanged?: (address: string) => void;
+    readonly onSearchFailed?: () => void;
+}
+
+function createMapChangeValue(map: kakao.maps.Map): KakaoMapChangeValue {
+    const center = map.getCenter();
+    const bounds = map.getBounds();
+    const southWest = bounds.getSouthWest();
+    const northEast = bounds.getNorthEast();
+
+    return {
+        latitude: center.getLat(),
+        longitude: center.getLng(),
+
+        level: map.getLevel(),
+
+        southWestLatitude: southWest.getLat(),
+        southWestLongitude: southWest.getLng(),
+
+        northEastLatitude: northEast.getLat(),
+        northEastLongitude: northEast.getLng(),
+    };
 }
 
 export default function KakaoMapView({
     centerLatitude,
     centerLongitude,
     level = 4,
+    searchKeyword,
     onCenterChanged,
+    onAddressChanged,
+    onSearchFailed,
 }: KakaoMapViewProps) {
-    const mapContainerRef = useRef<HTMLDivElement | null>(null); // 지도 DOM div를 참조
-    const mapRef = useRef<kakao.maps.Map | null>(null); // 생성된 카카오 지도 객체를 저장
+    const mapContainerRef = useRef<HTMLDivElement | null>(null);
+    const mapRef = useRef<kakao.maps.Map | null>(null);
+    const geocoderRef = useRef<kakao.maps.services.Geocoder | null>(null);
+    const placesRef = useRef<kakao.maps.services.Places | null>(null);
+
+    const onCenterChangedRef = useRef(onCenterChanged);
+    const onAddressChangedRef = useRef(onAddressChanged);
+    const onSearchFailedRef = useRef(onSearchFailed);
+
+    useEffect(() => {
+        onCenterChangedRef.current = onCenterChanged;
+    }, [onCenterChanged]);
+
+    useEffect(() => {
+        onAddressChangedRef.current = onAddressChanged;
+    }, [onAddressChanged]);
+
+    useEffect(() => {
+        onSearchFailedRef.current = onSearchFailed;
+    }, [onSearchFailed]);
 
     useEffect(() => {
         if (!mapContainerRef.current) return;
@@ -49,20 +90,39 @@ export default function KakaoMapView({
                 level,
             });
 
+            const geocoder = new window.kakao.maps.services.Geocoder();
+            const places = new window.kakao.maps.services.Places();
+
             mapRef.current = map;
+            geocoderRef.current = geocoder;
+            placesRef.current = places;
 
-            window.kakao.maps.event.addListener(map, "dragend", () => {
-                const nextCenter = map.getCenter();
+            const notifyMapChanged = () => {
+                onCenterChangedRef.current?.(createMapChangeValue(map));
 
-                onCenterChanged?.({
-                    latitude: nextCenter.getLat(),
-                    longitude: nextCenter.getLng(),
-                });
-            });
+                getAddressFromCenter(
+                    map,
+                    geocoder,
+                    onAddressChangedRef.current,
+                );
+            };
+
+            window.kakao.maps.event.addListener(
+                map,
+                "dragend",
+                notifyMapChanged,
+            );
+
+            window.kakao.maps.event.addListener(
+                map,
+                "zoom_changed",
+                notifyMapChanged,
+            );
 
             setTimeout(() => {
                 map.relayout();
                 map.setCenter(center);
+                notifyMapChanged();
             }, 0);
         }
 
@@ -73,7 +133,51 @@ export default function KakaoMapView({
         return () => {
             cancelled = true;
         };
-    }, [centerLatitude, centerLongitude, level, onCenterChanged]);
+    }, [centerLatitude, centerLongitude, level]);
+
+    useEffect(() => {
+        const keyword = searchKeyword?.trim();
+
+        if (
+            !keyword ||
+            !mapRef.current ||
+            !placesRef.current ||
+            !window.kakao?.maps
+        ) {
+            return;
+        }
+
+        placesRef.current.keywordSearch(keyword, (result, status) => {
+            if (status !== window.kakao?.maps.services.Status.OK || !result[0]) {
+                onSearchFailedRef.current?.();
+                return;
+            }
+
+            const searchedPlace = result[0];
+            const latitude = Number(searchedPlace.y);
+            const longitude = Number(searchedPlace.x);
+
+            const nextCenter = new window.kakao.maps.LatLng(
+                latitude,
+                longitude,
+            );
+
+            mapRef.current?.setCenter(nextCenter);
+
+            const nextAddress =
+                searchedPlace.road_address_name ||
+                searchedPlace.address_name ||
+                searchedPlace.place_name;
+
+            onAddressChangedRef.current?.(nextAddress);
+
+            if (mapRef.current) {
+                onCenterChangedRef.current?.(
+                    createMapChangeValue(mapRef.current),
+                );
+            }
+        });
+    }, [searchKeyword]);
 
     return <div ref={mapContainerRef} className={kakaoMapViewStyles.container} />;
 }

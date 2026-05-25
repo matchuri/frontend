@@ -8,17 +8,21 @@ import PersonalRecommendationHero from "@/features/personalRecommendation/ui/com
 import PersonalRecommendationLocationCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationLocationCard";
 import PersonalRecommendationPreferenceCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationPreferenceCard";
 import PersonalRecommendationHistoryPanel from "@/features/personalRecommendation/ui/components/PersonalRecommendationHistoryPanel";
-import LocationModal from "@/features/personalRecommendation/ui/components/LocationModal";
+import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
-import {
-    personalRecommendationLocationMock,
-    personalRecommendationHistoryMock,
-} from "@/features/personalRecommendation/ui/config/personalRecommendationMockData";
+import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
+import {personalRecommendationHistoryMock} from "@/features/personalRecommendation/ui/config/personalRecommendationMockData";
+
+const PERSONAL_RECOMMENDATION_LOCATION_KEY = "personal-recommendation-location";
 
 export default function PersonalRecommendationPage() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+
+    const { location, saveLocation } = useLocationSetting(
+            PERSONAL_RECOMMENDATION_LOCATION_KEY,
+    );
 
     return (
         <>
@@ -39,7 +43,9 @@ export default function PersonalRecommendationPage() {
 
                             <div className={personalRecommendationPageStyles.cardGrid}>
                                 <PersonalRecommendationLocationCard
-                                    address={personalRecommendationLocationMock.address
+                                    address={
+                                        location?.address ??
+                                        "설정된 위치가 없습니다."
                                     }
                                     onClickEdit={() =>
                                         setIsLocationModalOpen(true)
@@ -64,7 +70,11 @@ export default function PersonalRecommendationPage() {
             <LocationModal
                 isOpen={isLocationModalOpen}
                 onClose={() => setIsLocationModalOpen(false)}
-                address={personalRecommendationLocationMock.address}
+                initialLocation={location}
+                onSave={(nextLocation) => {
+                    saveLocation(nextLocation);
+                    setIsLocationModalOpen(false);
+                }}
             />
 
             <PreferenceModal

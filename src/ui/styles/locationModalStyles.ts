@@ -17,6 +17,8 @@ export const locationModalStyles = {
         "absolute left-1/2 top-8 z-20 flex h-16 w-[620px] -translate-x-1/2 items-center gap-3 rounded-2xl bg-white px-6 shadow-xl",
     searchInput:
         "w-full text-base font-medium text-zinc-700 outline-none placeholder:text-zinc-400",
+    searchErrorMessage:
+        "absolute left-6 top-[72px] text-xs font-semibold text-red-500",
     locationButton:
         "flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-600",
     mapContainer:
