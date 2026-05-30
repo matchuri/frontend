@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
 import {
     Check,
     ChevronLeft,
@@ -12,6 +12,8 @@ import {
 
 import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+import { defaultLocationSetting } from "@/features/locationSetting/ui/config/defaultLocationSetting";
+import { useLocationSearch } from "@/features/locationSetting/application/hooks/useLocationSearch";
 import { locationModalStyles } from "@/ui/styles/locationModalStyles";
 
 interface LocationModalProps {
@@ -21,31 +23,22 @@ interface LocationModalProps {
     readonly onSave: (location: LocationSetting) => void;
 }
 
-const DEFAULT_LOCATION: LocationSetting = {
-    address: "서울특별시 강남구 강남대로 396",
-
-    latitude: 37.497942,
-    longitude: 127.027621,
-
-    level: 4,
-
-    southWestLatitude: 37.4900,
-    southWestLongitude: 127.0200,
-
-    northEastLatitude: 37.5050,
-    northEastLongitude: 127.0400,
-};
-
 export default function LocationModal({
     isOpen,
     onClose,
     initialLocation,
     onSave,
 }: LocationModalProps) {
-    const baseLocation = initialLocation ?? DEFAULT_LOCATION;
+    const baseLocation = initialLocation ?? defaultLocationSetting;
 
-    const [inputKeyword, setInputKeyword] = useState("");
-    const [searchKeyword, setSearchKeyword] = useState("");
+    const {
+        inputKeyword,
+        setInputKeyword,
+        searchKeyword,
+        searchErrorMessage,
+        submitSearch,
+        handleSearchFailed,
+    } = useLocationSearch();
 
     const [selectedAddress, setSelectedAddress] = useState(
         baseLocation.address,
@@ -64,25 +57,7 @@ export default function LocationModal({
         northEastLongitude: baseLocation.northEastLongitude,
     });
 
-    const [searchErrorMessage, setSearchErrorMessage] = useState<string | null>(
-        null,
-    );
-
     if (!isOpen) return null;
-
-    const handleSubmitSearch = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        const keyword = inputKeyword.trim();
-
-        if (!keyword) {
-            setSearchErrorMessage("검색어를 입력해 주세요.");
-            return;
-        }
-
-        setSearchErrorMessage(null);
-        setSearchKeyword(keyword);
-    };
 
     const handleSave = () => {
         onSave({
@@ -124,7 +99,7 @@ export default function LocationModal({
 
                 <div className={locationModalStyles.mapSection}>
                     <form
-                        onSubmit={handleSubmitSearch}
+                        onSubmit={submitSearch}
                         className={locationModalStyles.searchBar}
                     >
                         <Search size={20} />
@@ -178,11 +153,7 @@ export default function LocationModal({
                                 });
                             }}
                             onAddressChanged={setSelectedAddress}
-                            onSearchFailed={() => {
-                                setSearchErrorMessage(
-                                    "검색 결과를 찾을 수 없습니다.",
-                                );
-                            }}
+                            onSearchFailed={handleSearchFailed}
                         />
 
                         <div className={locationModalStyles.centerPin}>
