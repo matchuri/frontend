@@ -5,6 +5,7 @@ import {
     setAuthenticated,
 } from "@/features/auth/application/store/authStore";
 import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
+import type { LoginMember } from "@/features/auth/domain/model/LoginMember";
 
 class HttpError extends Error {
     constructor(
@@ -19,6 +20,7 @@ class HttpError extends Error {
 interface RefreshResult {
     accessToken: string;
     onboarding: OnboardingState;
+    member: LoginMember;
 }
 
 const NO_REFRESH_PATHS = [
@@ -65,6 +67,7 @@ async function refreshAccessToken(): Promise<RefreshResult> {
     return {
         accessToken: body.data.accessToken,
         onboarding: body.data.onboarding,
+        member: body.data.member,
     };
 }
 
@@ -91,7 +94,7 @@ async function request<T>(
         try {
             const refreshed = await refreshAccessToken();
 
-            setAuthenticated(refreshed.accessToken, refreshed.onboarding);
+            setAuthenticated(refreshed.accessToken, refreshed.onboarding, refreshed.member,);
 
             return request<T>(path, options, true);
         } catch (error) {
