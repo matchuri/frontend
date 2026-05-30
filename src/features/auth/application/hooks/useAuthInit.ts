@@ -19,6 +19,7 @@ export function useAuthInit() {
                 const response = await authApi.refresh();
                 const accessToken = response.data.accessToken;
                 const onboarding = response.data.onboarding;
+                const member = response.data.member;
 
                 if (!accessToken || !onboarding) {
                     if (!cancelled) {
@@ -28,7 +29,7 @@ export function useAuthInit() {
                 }
 
                 if (!cancelled) {
-                    setAuthenticated(accessToken, onboarding);
+                    setAuthenticated(accessToken, onboarding, member);
                 }
             } catch {
                 if (!cancelled) {

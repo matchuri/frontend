@@ -29,3 +29,8 @@ export const isOnboardingReadyAtom = atom((get) => {
         auth.onboarding.nextStep === "READY"
     );
 });
+
+export const memberAtom = atom((get) => {
+    const auth = get(authAtom);
+    return auth.status === "AUTHENTICATED" ? auth.member : null;
+});

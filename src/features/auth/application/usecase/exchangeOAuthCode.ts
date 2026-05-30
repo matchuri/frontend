@@ -19,7 +19,12 @@ export async function exchangeOAuthCode(
         const accessToken = response.data.accessToken;
         const onboarding = response.data.onboarding;
 
-        setAuthenticated(accessToken, onboarding);
+        setAuthenticated(
+            accessToken,
+            onboarding,
+            response.data.member,
+        );
+
         console.log("accessToken 저장 완료:", accessToken);
         console.log("onboarding:", onboarding);
 

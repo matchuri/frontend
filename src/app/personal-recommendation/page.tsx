@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useAtomValue } from "jotai";
+import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import { personalRecommendationPageStyles } from "@/ui/styles/personalRecommendationPageStyles";
 
@@ -13,6 +15,7 @@ import PreferenceModal from "@/features/preference/ui/components/PreferenceModal
 
 import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
 import {personalRecommendationHistoryMock} from "@/features/personalRecommendation/ui/config/personalRecommendationMockData";
+import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
 
 const PERSONAL_RECOMMENDATION_LOCATION_KEY = "personal-recommendation-location";
 
@@ -20,9 +23,18 @@ export default function PersonalRecommendationPage() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
-    const { location, saveLocation } = useLocationSetting(
-            PERSONAL_RECOMMENDATION_LOCATION_KEY,
+    const member = useAtomValue(memberAtom);
+
+    const storageKey = createLocationStorageKey(
+        PERSONAL_RECOMMENDATION_LOCATION_KEY,
+        member?.id ?? "unknown",
     );
+
+    const { location, saveLocation } = useLocationSetting(storageKey);
+
+    if (!member) {
+        return null;
+    }
 
     return (
         <>

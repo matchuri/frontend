@@ -11,7 +11,11 @@ export async function login(request: LoginRequest) {
         const accessToken = response.data.accessToken;
         const onboarding = response.data.onboarding;
 
-        setAuthenticated(accessToken, onboarding);
+        setAuthenticated(
+            accessToken,
+            onboarding,
+            response.data.member,
+        );
 
         return response;
     } catch (error) {

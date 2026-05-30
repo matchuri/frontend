@@ -2,4 +2,5 @@
 export interface LoginMember {
     readonly id: number;
     readonly role: string;
+    readonly nickname: string;
 }
