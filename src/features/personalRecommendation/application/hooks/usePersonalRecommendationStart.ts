@@ -12,6 +12,14 @@ interface UsePersonalRecommendationStartParams {
     readonly hasPreference: boolean;
 }
 
+const MIN_LOADING_TIME_MS = 2000;
+
+function wait(ms: number) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 export function usePersonalRecommendationStart({
     location,
     hasPreference,
@@ -35,7 +43,10 @@ export function usePersonalRecommendationStart({
         setRecommendationState({ status: "LOADING" });
 
         try {
-            const recommendation = await personalRecommendationApi.createRecommendation();
+            const [recommendation] = await Promise.all([
+                personalRecommendationApi.createRecommendation(),
+                wait(MIN_LOADING_TIME_MS),
+            ]);
 
             setRecommendationState({
                 status: "SUCCESS",

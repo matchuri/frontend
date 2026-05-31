@@ -10,6 +10,7 @@ import PersonalRecommendationLocationCard from "@/features/personalRecommendatio
 import PersonalRecommendationPreferenceCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationPreferenceCard";
 import PersonalRecommendationHistoryPanel from "@/features/personalRecommendation/ui/components/PersonalRecommendationHistoryPanel";
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
+import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
 
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
@@ -19,6 +20,7 @@ import { createLocationStorageKey } from "@/features/locationSetting/application
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePersonalRecommendationStart } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationStart";
 import { hasRequiredPreference } from "@/features/personalRecommendation/domain/validator/hasRequiredPreference";
+import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import { personalRecommendationHistoryMock } from "@/features/personalRecommendation/ui/config/personalRecommendationMockData";
@@ -39,6 +41,10 @@ export default function PersonalRecommendationPage() {
     const { location, saveLocation } = useLocationSetting(locationStorageKey);
     const { preferenceState } = usePreferenceList();
 
+    const isRecommendationLoading = useAtomValue(
+        isPersonalRecommendationLoadingAtom,
+    );
+
     const hasPreference =
         preferenceState.status === "SUCCESS" &&
         hasRequiredPreference(preferenceState.data);
@@ -55,6 +61,10 @@ export default function PersonalRecommendationPage() {
 
     if (!member) {
         return null;
+    }
+
+    if (isRecommendationLoading) {
+        return <PersonalRecommendationLoadingView />;
     }
 
     return (
