@@ -2,10 +2,12 @@ import { personalRecommendationPageStyles } from "@/ui/styles/personalRecommenda
 
 interface PersonalRecommendationHeroProps {
     readonly onStart: () => void;
+    readonly isStarting: boolean;
 }
 
 export default function PersonalRecommendationHero({
     onStart,
+    isStarting,
 }: PersonalRecommendationHeroProps) {
     return (
         <section className={personalRecommendationPageStyles.heroCard}>
@@ -22,9 +24,10 @@ export default function PersonalRecommendationHero({
             <button
                 type="button"
                 onClick={onStart}
+                disabled={isStarting}
                 className={personalRecommendationPageStyles.primaryButton}
             >
-                메뉴 추천 시작하기
+                {isStarting ? "추천 요청 중..." : "메뉴 추천 시작하기"}
             </button>
         </section>
     );

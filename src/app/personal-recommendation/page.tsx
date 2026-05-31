@@ -43,11 +43,15 @@ export default function PersonalRecommendationPage() {
         preferenceState.status === "SUCCESS" &&
         hasRequiredPreference(preferenceState.data);
 
-    const { isAlertModalOpen, startRecommendation, closeAlertModal } =
-        usePersonalRecommendationStart({
-            location,
-            hasPreference,
-        });
+    const {
+        isAlertModalOpen,
+        isCreating,
+        startRecommendation,
+        closeAlertModal
+    } = usePersonalRecommendationStart({
+        location,
+        hasPreference,
+    });
 
     if (!member) {
         return null;
@@ -71,6 +75,7 @@ export default function PersonalRecommendationPage() {
                         <div className={personalRecommendationPageStyles.mainColumn}>
                             <PersonalRecommendationHero
                                 onStart={startRecommendation}
+                                isStarting={isCreating}
                             />
 
                             <div className={personalRecommendationPageStyles.cardGrid}>

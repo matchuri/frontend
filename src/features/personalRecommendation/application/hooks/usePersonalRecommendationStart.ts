@@ -1,7 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useSetAtom } from "jotai";
+
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+import { personalRecommendationAtom } from "@/features/personalRecommendation/application/atoms/personalRecommendationAtom";
+import { personalRecommendationApi } from "@/features/personalRecommendation/infrastructure/api/personalRecommendationApi";
 
 interface UsePersonalRecommendationStartParams {
     readonly location: LocationSetting | null;
@@ -12,19 +16,55 @@ export function usePersonalRecommendationStart({
     location,
     hasPreference,
 }: UsePersonalRecommendationStartParams) {
+    const setRecommendationState = useSetAtom(personalRecommendationAtom);
+
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
 
     const canStartRecommendation = hasPreference && location !== null;
 
-    const startRecommendation = () => {
+    const startRecommendation = useCallback(async () => {
+        if (isCreating) return;
+
         if (!canStartRecommendation) {
             setIsAlertModalOpen(true);
             return;
         }
 
-        // TODO: 추천 API 호출/로딩 화면 이동 연결
-        console.log("메뉴 추천 시작 가능");
-    };
+        setIsCreating(true);
+        setRecommendationState({ status: "LOADING" });
+
+        try {
+            const recommendation = await personalRecommendationApi.createRecommendation();
+
+            setRecommendationState({
+                status: "SUCCESS",
+                data: recommendation,
+            });
+
+            console.log("개인 메뉴 추천 요청 성공:", recommendation);
+        } catch (error) {
+            setRecommendationState({
+                status: "ERROR",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "개인 메뉴 추천 요청에 실패했습니다.",
+            });
+
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "개인 메뉴 추천 요청에 실패했습니다.",
+            );
+        } finally {
+            setIsCreating(false);
+        }
+    }, [
+        isCreating,
+        canStartRecommendation,
+        setRecommendationState,
+    ]);
 
     const closeAlertModal = () => {
         setIsAlertModalOpen(false);
@@ -33,6 +73,7 @@ export function usePersonalRecommendationStart({
     return {
         canStartRecommendation,
         isAlertModalOpen,
+        isCreating,
         startRecommendation,
         closeAlertModal,
     };
