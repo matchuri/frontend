@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useSetAtom } from "jotai";
+import { useRouter } from "next/navigation";
 
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 import { personalRecommendationAtom } from "@/features/personalRecommendation/application/atoms/personalRecommendationAtom";
@@ -24,6 +25,8 @@ export function usePersonalRecommendationStart({
     location,
     hasPreference,
 }: UsePersonalRecommendationStartParams) {
+    const router = useRouter();
+
     const setRecommendationState = useSetAtom(personalRecommendationAtom);
 
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
@@ -53,7 +56,7 @@ export function usePersonalRecommendationStart({
                 data: recommendation,
             });
 
-            console.log("개인 메뉴 추천 요청 성공:", recommendation);
+            router.push("/personal-recommendation/result");
         } catch (error) {
             setRecommendationState({
                 status: "ERROR",
@@ -75,6 +78,7 @@ export function usePersonalRecommendationStart({
         isCreating,
         canStartRecommendation,
         setRecommendationState,
+        router,
     ]);
 
     const closeAlertModal = () => {

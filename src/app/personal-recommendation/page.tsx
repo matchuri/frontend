@@ -60,7 +60,11 @@ export default function PersonalRecommendationPage() {
     });
 
     if (!member) {
-        return null;
+        return (
+            <main className={personalRecommendationPageStyles.container}>
+                <p>회원 정보를 불러오는 중...</p>
+            </main>
+        );
     }
 
     if (isRecommendationLoading) {
