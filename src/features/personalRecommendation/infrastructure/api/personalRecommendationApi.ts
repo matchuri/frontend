@@ -4,7 +4,9 @@ import type { PersonalRecommendationHistory } from "@/features/personalRecommend
 import type { CreatePersonalRecommendationResponse } from "@/features/personalRecommendation/infrastructure/api/dto/CreatePersonalRecommendationResponse";
 import type { SelectPersonalRecommendationCandidateResponse } from "@/features/personalRecommendation/infrastructure/api/dto/SelectPersonalRecommendationCandidateResponse";
 import type { PersonalRecommendationHistoryResponse } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationHistoryResponse";
+import type { PersonalRecommendationDetailResponse } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationDetailResponse";
 
+import { mapPersonalRecommendationDetail } from "@/features/personalRecommendation/infrastructure/api/mapper/personalRecommendationDetailMapper";
 import { mapPersonalRecommendation } from "@/features/personalRecommendation/infrastructure/api/mapper/personalRecommendationMapper";
 
 interface CreatePersonalRecommendationRequest {
@@ -68,5 +70,20 @@ export const personalRecommendationApi = {
             requestedAt: item.requestedAt,
             closedAt: item.closedAt,
         }));
+    },
+
+    async fetchRecommendationDetail(requestId: number) {
+        const response =
+            await httpClient.get<PersonalRecommendationDetailResponse>(
+                `/api/v1/personal/recommendations/${requestId}`,
+            );
+
+        if (!response.success || !response.data) {
+            throw new Error(
+                response.error?.message ?? "개인 메뉴 추천 상세 조회에 실패했습니다.",
+            );
+        }
+
+        return mapPersonalRecommendationDetail(response.data);
     },
 };

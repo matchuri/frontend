@@ -19,10 +19,12 @@ import { useLocationSetting } from "@/features/locationSetting/application/hooks
 import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePersonalRecommendationStart } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationStart";
+import { usePersonalRecommendationHistories } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationHistories";
+import { usePersonalRecommendationResultNavigation } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationResultNavigation";
+
 import { hasRequiredPreference } from "@/features/personalRecommendation/domain/validator/hasRequiredPreference";
 import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
-import { usePersonalRecommendationHistories } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationHistories";
 import { personalRecommendationHistoryToPanelItemsMapper } from "@/features/personalRecommendation/ui/mapper/personalRecommendationHistoryToPanelItemsMapper";
 
 const PERSONAL_RECOMMENDATION_LOCATION_KEY = "personal-recommendation-location";
@@ -47,7 +49,17 @@ export default function PersonalRecommendationPage() {
 
     const { histories } = usePersonalRecommendationHistories();
 
-    const historyPanelItems = personalRecommendationHistoryToPanelItemsMapper(histories);
+    const historyPanelItems =
+        personalRecommendationHistoryToPanelItemsMapper(histories);
+
+    // 추천 결과 화면 이동
+    const { moveToRecommendationResult } =
+        usePersonalRecommendationResultNavigation();
+
+    // 선택 완료되지 않은 진행 중 추천 찾기
+    const openRecommendation = histories.find(
+        (history) => history.status === "OPEN",
+    );
 
     const hasPreference =
         preferenceState.status === "SUCCESS" &&
@@ -57,11 +69,16 @@ export default function PersonalRecommendationPage() {
         isAlertModalOpen,
         isCreating,
         startRecommendation,
-        closeAlertModal
+        closeAlertModal,
     } = usePersonalRecommendationStart({
         location,
         hasPreference,
     });
+
+    // 진행 중 추천이 있으면 새 추천 대신 기존 결과 이동
+    const handleClickHeroButton = openRecommendation
+        ? () => moveToRecommendationResult(openRecommendation.id)
+        : startRecommendation;
 
     if (!member) {
         return (
@@ -92,8 +109,13 @@ export default function PersonalRecommendationPage() {
                     <div className={personalRecommendationPageStyles.layout}>
                         <div className={personalRecommendationPageStyles.mainColumn}>
                             <PersonalRecommendationHero
-                                onStart={startRecommendation}
+                                onStart={handleClickHeroButton}
                                 isStarting={isCreating}
+                                buttonLabel={
+                                    openRecommendation
+                                        ? "메뉴 추천 결과"
+                                        : "메뉴 추천 시작하기"
+                                }
                             />
 
                             <div className={personalRecommendationPageStyles.cardGrid}>
@@ -117,6 +139,7 @@ export default function PersonalRecommendationPage() {
 
                         <PersonalRecommendationHistoryPanel
                             histories={historyPanelItems}
+                            onClickDetail={moveToRecommendationResult}
                         />
                     </div>
                 </div>
