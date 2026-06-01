@@ -1,96 +1,118 @@
 "use client";
 
-import { mockInvites } from "@/features/group/ui/mock/mockInvites";
+import { useState } from "react";
+
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
+import { mockInvites } from "@/features/group/ui/mock/mockInvites";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupInviteCard from "@/features/group/ui/components/GroupInviteCard";
 import GroupInviteEmpty from "@/features/group/ui/components/GroupInviteEmpty";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
 import GroupManagementHeader from "@/features/group/ui/components/GroupManagementHeader";
+import GroupCreateModal from "@/features/group/ui/components/GroupCreateModal";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 export default function GroupPage() {
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [groupName, setGroupName] = useState("");
     const { groupState } = useGroupList();
 
     const hasInvites = mockInvites.length > 0;
     const showViewAllButton = mockInvites.length >= 3;
 
     return (
-        <main className={groupManagementPageStyles.container}>
-            <div className={groupManagementPageStyles.content}>
-                <GroupManagementHeader />
+        <>
+            <main className={groupManagementPageStyles.container}>
+                <div className={groupManagementPageStyles.content}>
+                    <GroupManagementHeader
+                        onClickCreate={() =>
+                            setIsCreateModalOpen(true)
+                        }
+                    />
 
-                <section className={groupManagementPageStyles.section}>
-                    <div className={groupManagementPageStyles.sectionHeader}>
-                        <div className={groupManagementPageStyles.sectionTitleWrapper}>
-                            <h2 className={groupManagementPageStyles.sectionTitle}>
-                                받은 초대
-                            </h2>
+                    <section className={groupManagementPageStyles.section}>
+                        <div className={groupManagementPageStyles.sectionHeader}>
+                            <div className={groupManagementPageStyles.sectionTitleWrapper}>
+                                <h2 className={groupManagementPageStyles.sectionTitle}>
+                                    받은 초대
+                                </h2>
 
-                            {hasInvites && (
-                                <span className={groupManagementPageStyles.inviteCount}>
-                                    {mockInvites.length}
-                                </span>
+                                {hasInvites && (
+                                    <span className={groupManagementPageStyles.inviteCount}>
+                                        {mockInvites.length}
+                                    </span>
+                                )}
+                            </div>
+
+                            {showViewAllButton && (
+                                <button
+                                    type="button"
+                                    className={groupManagementPageStyles.viewAllButton}
+                                >
+                                    모두 보기
+                                </button>
                             )}
                         </div>
 
-                        {showViewAllButton && (
-                            <button
-                                type="button"
-                                className={groupManagementPageStyles.viewAllButton}
-                            >
-                                모두 보기
-                            </button>
-                        )}
-                    </div>
-
-                    {hasInvites ? (
-                        <div className={groupManagementPageStyles.inviteList}>
-                            {mockInvites.slice(0, 2).map((invite) => (
-                                <GroupInviteCard
-                                    key={invite.inviteId}
-                                    invite={invite}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <GroupInviteEmpty />
-                    )}
-                </section>
-
-                <section className={groupManagementPageStyles.section}>
-                    <div className={groupManagementPageStyles.sectionHeader}>
-                        <h2 className={groupManagementPageStyles.sectionTitle}>
-                            그룹 목록
-                        </h2>
-                    </div>
-
-                    {groupState.status === "LOADING" && (
-                        <div className={groupManagementPageStyles.emptyGroupBox}>
-                            그룹 목록을 불러오는 중...
-                        </div>
-                    )}
-
-                    {groupState.status === "ERROR" && (
-                        <div className={groupManagementPageStyles.emptyGroupBox}>
-                            {groupState.message}
-                        </div>
-                    )}
-
-                    {groupState.status === "SUCCESS" &&
-                        (groupState.data.length > 0 ? (
-                            <div className={groupManagementPageStyles.groupList}>
-                                {groupState.data.map((group) => (
-                                    <GroupCard key={group.id} group={group} />
+                        {hasInvites ? (
+                            <div className={groupManagementPageStyles.inviteList}>
+                                {mockInvites.slice(0, 2).map((invite) => (
+                                    <GroupInviteCard
+                                        key={invite.inviteId}
+                                        invite={invite}
+                                    />
                                 ))}
                             </div>
                         ) : (
-                            <GroupListEmpty />
-                        ))}
-                </section>
-            </div>
-        </main>
+                            <GroupInviteEmpty />
+                        )}
+                    </section>
+
+                    <section className={groupManagementPageStyles.section}>
+                        <div className={groupManagementPageStyles.sectionHeader}>
+                            <h2 className={groupManagementPageStyles.sectionTitle}>
+                                그룹 목록
+                            </h2>
+                        </div>
+
+                        {groupState.status === "LOADING" && (
+                            <div className={groupManagementPageStyles.emptyGroupBox}>
+                                그룹 목록을 불러오는 중...
+                            </div>
+                        )}
+
+                        {groupState.status === "ERROR" && (
+                            <div className={groupManagementPageStyles.emptyGroupBox}>
+                                {groupState.message}
+                            </div>
+                        )}
+
+                        {groupState.status === "SUCCESS" &&
+                            (groupState.data.length > 0 ? (
+                                <div className={groupManagementPageStyles.groupList}>
+                                    {groupState.data.map((group) => (
+                                        <GroupCard
+                                            key={group.id}
+                                            group={group}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <GroupListEmpty />
+                            ))}
+                    </section>
+                </div>
+            </main>
+
+            <GroupCreateModal
+                isOpen={isCreateModalOpen}
+                groupName={groupName}
+                address="서울특별시 서초구 서초동 118"
+                onClose={() => setIsCreateModalOpen(false)}
+                onChangeGroupName={setGroupName}
+            />
+        </>
     );
 }
