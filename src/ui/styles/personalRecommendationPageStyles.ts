@@ -34,5 +34,7 @@ export const personalRecommendationPageStyles = {
         "flex h-16 w-16 items-center justify-center rounded-full bg-[#eaf1fb] text-[#b5c4d7]",
     historyList: "flex w-full flex-col gap-3",
     historyItem:
-        "flex flex-col gap-1 rounded-2xl bg-zinc-50 px-4 py-3 text-sm text-zinc-700",
+        "flex items-center justify-between rounded-2xl bg-zinc-100 px-5 py-4 text-left text-zinc-500 transition hover:bg-zinc-200",
+    historyDetailButton:
+        "text-sm font-semibold text-orange-500",
 } as const;

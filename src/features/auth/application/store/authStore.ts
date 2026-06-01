@@ -12,6 +12,7 @@ export function setAuthenticated(
     onboarding: OnboardingState,
     member: LoginMember,
 ) {
+    console.log("[setAuthenticated]", { accessToken, onboarding, member });
     jotaiStore.set(authAtom, {
         status: "AUTHENTICATED",
         accessToken,
