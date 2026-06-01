@@ -26,7 +26,7 @@ const MENUS = [
         icon: User,
         enabled: true,
     },
-    { href: "/group", label: "그룹 메뉴 추천", icon: Users, enabled: false },
+    { href: "/group", label: "그룹 메뉴 추천", icon: Users, enabled: true },
     {
         href: "/preference",
         label: "취향 관리",
