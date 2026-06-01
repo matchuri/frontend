@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import { personalRecommendationResultAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { userPreferenceAtom } from "@/features/preference/application/selectors/preferenceSelectors";
 import { getPreferenceSummaryKeywords } from "@/features/preference/application/mapper/getPreferenceSummaryKeywords";
+import { useCompletePersonalRecommendationSelection } from "@/features/personalRecommendation/application/hooks/useCompletePersonalRecommendationSelection";
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
 import PersonalRecommendationResultActionButtons from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultActionButtons";
@@ -20,6 +21,13 @@ export default function PersonalRecommendationResultPage() {
     const recommendation = useAtomValue(personalRecommendationResultAtom);
     const preference = useAtomValue(userPreferenceAtom);
 
+    const { isCompleting, completeSelection } =
+        useCompletePersonalRecommendationSelection();
+
+    const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
+        recommendation?.selectedCandidateId ?? null,
+    );
+
     useEffect(() => {
         if (!recommendation) {
             router.replace("/personal-recommendation");
@@ -30,7 +38,17 @@ export default function PersonalRecommendationResultPage() {
         return null;
     }
 
+    const isClosed = recommendation.status !== "OPEN";
     const keywords = getPreferenceSummaryKeywords(preference);
+
+    const handleCompleteSelection = async () => {
+        if (!selectedCandidateId) {
+            alert("추천 메뉴를 먼저 선택해 주세요.");
+            return;
+        }
+
+        await completeSelection(recommendation.requestId, selectedCandidateId);
+    };
 
     return (
         <main className={personalRecommendationResultPageStyles.container}>
@@ -45,6 +63,12 @@ export default function PersonalRecommendationResultPage() {
             <h1 className={personalRecommendationResultPageStyles.title}>
                 메뉴 추천 결과
             </h1>
+
+            {isClosed && (
+                <p className={personalRecommendationResultPageStyles.closedMessage}>
+                    메뉴 추천이 종료되었습니다.
+                </p>
+            )}
 
             <section className={personalRecommendationResultPageStyles.summaryCard}>
                 <h2 className={personalRecommendationResultPageStyles.summaryTitle}>
@@ -75,8 +99,12 @@ export default function PersonalRecommendationResultPage() {
                 {recommendation.candidates.map((candidate) => (
                     <PersonalRecommendationResultCard
                         key={candidate.id}
+                        candidateId={candidate.id}
                         menuName={candidate.menuName}
                         score={candidate.score}
+                        selected={selectedCandidateId === candidate.id}
+                        disabled={isClosed}
+                        onSelect={setSelectedCandidateId}
                     />
                 ))}
             </section>
@@ -85,9 +113,10 @@ export default function PersonalRecommendationResultPage() {
                 onRetryRecommendation={() => {
                     console.log("재요청");
                 }}
-                onCompleteSelection={() => {
-                    console.log("선택 완료");
-                }}
+                onCompleteSelection={handleCompleteSelection}
+                canCompleteSelection={selectedCandidateId !== null}
+                isCompleteSelectionLoading={isCompleting}
+                isClosed={isClosed}
             />
         </main>
     );

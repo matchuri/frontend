@@ -22,8 +22,8 @@ import { usePersonalRecommendationStart } from "@/features/personalRecommendatio
 import { hasRequiredPreference } from "@/features/personalRecommendation/domain/validator/hasRequiredPreference";
 import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
-
-import { personalRecommendationHistoryMock } from "@/features/personalRecommendation/ui/config/personalRecommendationMockData";
+import { usePersonalRecommendationHistories } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationHistories";
+import { personalRecommendationHistoryToPanelItemsMapper } from "@/features/personalRecommendation/ui/mapper/personalRecommendationHistoryToPanelItemsMapper";
 
 const PERSONAL_RECOMMENDATION_LOCATION_KEY = "personal-recommendation-location";
 
@@ -44,6 +44,10 @@ export default function PersonalRecommendationPage() {
     const isRecommendationLoading = useAtomValue(
         isPersonalRecommendationLoadingAtom,
     );
+
+    const { histories } = usePersonalRecommendationHistories();
+
+    const historyPanelItems = personalRecommendationHistoryToPanelItemsMapper(histories);
 
     const hasPreference =
         preferenceState.status === "SUCCESS" &&
@@ -112,7 +116,7 @@ export default function PersonalRecommendationPage() {
                         </div>
 
                         <PersonalRecommendationHistoryPanel
-                            histories={personalRecommendationHistoryMock}
+                            histories={historyPanelItems}
                         />
                     </div>
                 </div>

@@ -4,17 +4,21 @@ interface PersonalRecommendationResultActionButtonsProps {
     readonly onRetryRecommendation: () => void;
     readonly onCompleteSelection: () => void;
 
+    readonly canCompleteSelection: boolean;
     readonly isRetryRecommendationLoading?: boolean;
     readonly isCompleteSelectionLoading?: boolean;
+    readonly isClosed?: boolean;
 }
 
 export default function PersonalRecommendationResultActionButtons({
     onRetryRecommendation,
     onCompleteSelection,
+    canCompleteSelection,
     isRetryRecommendationLoading = false,
     isCompleteSelectionLoading = false,
+    isClosed = false,
 }: PersonalRecommendationResultActionButtonsProps) {
-    const isDisabled =
+    const isActionLoading =
         isRetryRecommendationLoading || isCompleteSelectionLoading;
 
     return (
@@ -22,7 +26,7 @@ export default function PersonalRecommendationResultActionButtons({
             <button
                 type="button"
                 onClick={onRetryRecommendation}
-                disabled={isDisabled}
+                disabled={isActionLoading || isClosed}
                 className={
                     personalRecommendationResultActionButtonsStyles.retryRecommendationButton
                 }
@@ -33,12 +37,14 @@ export default function PersonalRecommendationResultActionButtons({
             <button
                 type="button"
                 onClick={onCompleteSelection}
-                disabled={isDisabled}
+                disabled={
+                    isActionLoading || !canCompleteSelection || isClosed
+                }
                 className={
                     personalRecommendationResultActionButtonsStyles.completeSelectionButton
                 }
             >
-                {isCompleteSelectionLoading ? "처리 중..." : "선택 완료"}
+                {isClosed ? "선택 완료됨" : "선택 완료"}
             </button>
         </div>
     );

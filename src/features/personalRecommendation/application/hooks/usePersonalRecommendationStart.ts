@@ -51,6 +51,11 @@ export function usePersonalRecommendationStart({
                 wait(MIN_LOADING_TIME_MS),
             ]);
 
+            console.log(
+                "[personalRecommendation] 추천 결과:",
+                recommendation,
+            );
+
             setRecommendationState({
                 status: "SUCCESS",
                 data: recommendation,

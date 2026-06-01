@@ -11,5 +11,6 @@ export interface PersonalRecommendation {
     readonly status: string;
     readonly requestedAt: string;
     readonly closedAt: string | null;
+    readonly selectedCandidateId?: number | null;
     readonly candidates: readonly RecommendedMenu[];
 }

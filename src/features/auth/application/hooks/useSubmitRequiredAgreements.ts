@@ -27,7 +27,7 @@ export function useSubmitRequiredAgreements() {
             try {
                 const response = await onboardingApi.submitRequiredAgreements({ agreements });
 
-                if (response.data.accessToken) {
+                if (response.data.accessToken && response.data.member) {
                     setAuthenticated(
                         response.data.accessToken,
                         response.data.onboarding,
