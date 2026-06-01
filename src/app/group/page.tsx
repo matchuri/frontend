@@ -1,7 +1,7 @@
 "use client";
 
-import { mockGroups } from "@/features/group/ui/mock/mockGroups";
 import { mockInvites } from "@/features/group/ui/mock/mockInvites";
+import { useGroupList } from "@/features/group/application/hooks/useGroupList";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupInviteCard from "@/features/group/ui/components/GroupInviteCard";
@@ -12,8 +12,9 @@ import GroupManagementHeader from "@/features/group/ui/components/GroupManagemen
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 export default function GroupPage() {
+    const { groupState } = useGroupList();
+
     const hasInvites = mockInvites.length > 0;
-    const hasGroups = mockGroups.length > 0;
     const showViewAllButton = mockInvites.length >= 3;
 
     return (
@@ -66,15 +67,28 @@ export default function GroupPage() {
                         </h2>
                     </div>
 
-                    {hasGroups ? (
-                        <div className={groupManagementPageStyles.groupList}>
-                            {mockGroups.map((group) => (
-                                <GroupCard key={group.id} group={group} />
-                            ))}
+                    {groupState.status === "LOADING" && (
+                        <div className={groupManagementPageStyles.emptyGroupBox}>
+                            그룹 목록을 불러오는 중...
                         </div>
-                    ) : (
-                        <GroupListEmpty />
                     )}
+
+                    {groupState.status === "ERROR" && (
+                        <div className={groupManagementPageStyles.emptyGroupBox}>
+                            {groupState.message}
+                        </div>
+                    )}
+
+                    {groupState.status === "SUCCESS" &&
+                        (groupState.data.length > 0 ? (
+                            <div className={groupManagementPageStyles.groupList}>
+                                {groupState.data.map((group) => (
+                                    <GroupCard key={group.id} group={group} />
+                                ))}
+                            </div>
+                        ) : (
+                            <GroupListEmpty />
+                        ))}
                 </section>
             </div>
         </main>

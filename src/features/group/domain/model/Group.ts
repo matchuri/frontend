@@ -1,4 +1,4 @@
-export type GroupRecommendationStatus = "PREPARING" | "OPEN" | "CLOSED" | null;
+import type { GroupRecommendationStatus } from "@/features/group/domain/model/GroupRecommendationStatus";
 
 export interface Group {
     readonly id: number;
