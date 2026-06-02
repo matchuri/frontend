@@ -4,6 +4,8 @@ import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles
 
 interface GroupCardProps {
     readonly group: Group;
+    readonly isSelected?: boolean;
+    readonly onClick?: () => void;
 }
 
 function getStatusLabel(status: Group["recommendationStatus"]) {
@@ -29,11 +31,22 @@ function getStatusClassName(status: Group["recommendationStatus"]) {
     return groupManagementPageStyles.statusBadge;
 }
 
-export default function GroupCard({ group }: GroupCardProps) {
+export default function GroupCard({
+    group,
+    isSelected = false,
+    onClick,
+}: GroupCardProps) {
     const statusLabel = getStatusLabel(group.recommendationStatus);
 
     return (
-        <article className={groupManagementPageStyles.groupCard}>
+        <article
+            onClick={onClick}
+            className={
+                isSelected
+                    ? groupManagementPageStyles.selectedGroupCard
+                    : groupManagementPageStyles.groupCard
+            }
+        >
             <div className={groupManagementPageStyles.groupInfo}>
                 <div className={groupManagementPageStyles.groupTop}>
                     <h3 className={groupManagementPageStyles.groupName}>
