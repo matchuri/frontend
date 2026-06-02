@@ -1,8 +1,11 @@
 "use client";
 
 import { ArrowLeft, Copy, MapPin, Plus, User } from "lucide-react";
+import { useAtomValue } from "jotai";
 
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
+
+import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 
 import GroupDetailMoreButton from "@/features/group/ui/components/GroupDetailMoreButton";
 import GroupRecommendationStartButton from "@/features/group/ui/components/GroupRecommendationStartButton";
@@ -20,6 +23,7 @@ export default function GroupDetailPanel({
     onClose,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 4);
+    const isOwner = useAtomValue(isGroupOwnerAtom);
 
     return (
         <aside className={groupDetailPanelStyles.panel}>
@@ -41,12 +45,12 @@ export default function GroupDetailPanel({
                         {group.name}
                     </h2>
 
-                    <div className={groupDetailPanelStyles.address}>
-                        <MapPin size={16} />
-                        <span>
+                    {group.location.address && (
+                        <div className={groupDetailPanelStyles.address}>
+                            <MapPin size={16} />
                             <span>{group.location.address}</span>
-                        </span>
-                    </div>
+                        </div>
+                    )}
                 </section>
 
                 <GroupRecommendationStartButton />
@@ -63,7 +67,7 @@ export default function GroupDetailPanel({
                             </p>
                         </div>
 
-                        <GroupMemberInviteButton />
+                        {isOwner && <GroupMemberInviteButton />}
                     </div>
 
                     <div className={groupDetailPanelStyles.memberList}>

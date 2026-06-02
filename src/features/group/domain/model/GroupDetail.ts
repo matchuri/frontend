@@ -1,4 +1,5 @@
 import type { GroupRecommendationStatus } from "@/features/group/domain/model/GroupRecommendationStatus";
+import type { GroupDetailMember } from "@/features/group/domain/model/GroupDetailMember";
 
 export interface GroupDetailLocation {
     readonly latitude: number;
@@ -7,15 +8,6 @@ export interface GroupDetailLocation {
     // TODO: 추후 서버 추가 예정
     readonly level?: number;
     readonly address?: string;
-}
-
-export interface GroupDetailMember {
-    readonly memberId: number;
-    readonly nickname: string;
-    readonly role: "OWNER" | "MEMBER";
-
-    // TODO: 추후 서버 추가 예정
-    readonly isMe?: boolean;
 }
 
 export interface GroupDetailRecommendation {

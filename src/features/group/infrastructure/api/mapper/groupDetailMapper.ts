@@ -20,33 +20,21 @@ export function mapGroupDetail(
             memberId: member.memberId,
             nickname: member.nickname,
             role: member.role,
-            isMe: member.isMe,
+            status: member.status,
+            joinedAt: member.joinedAt,
+            isMe: member.isMe ?? false, // TODO: 나중에 수정 필요
         })),
 
         activeRecommendation: response.activeRecommendation
             ? {
-                  sessionId:
-                      response.activeRecommendation
-                          .sessionId,
-
-                  status:
-                      response.activeRecommendation
-                          .status,
-
+                  sessionId: response.activeRecommendation.sessionId,
+                  status: response.activeRecommendation.status,
                   totalMemberCount:
-                      response.activeRecommendation
-                          .readiness
-                          .totalMemberCount,
-
+                      response.activeRecommendation.readiness.totalMemberCount,
                   readyMemberCount:
-                      response.activeRecommendation
-                          .readiness
-                          .readyMemberCount,
-
+                      response.activeRecommendation.readiness.readyMemberCount,
                   allReady:
-                      response.activeRecommendation
-                          .readiness
-                          .allReady,
+                      response.activeRecommendation.readiness.allReady,
               }
             : null,
     };

@@ -19,6 +19,7 @@ export interface GroupDetailResponse {
             readonly nickname: string;
             readonly role: "OWNER" | "MEMBER";
             readonly status: "ACTIVE";
+            readonly joinedAt: string;
             readonly isMe?: boolean; // TODO: 추후 서버 추가 예정
         }[];
 
