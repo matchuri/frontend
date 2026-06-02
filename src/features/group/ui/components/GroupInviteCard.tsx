@@ -18,7 +18,7 @@ export default function GroupInviteCard({ invite }: GroupInviteCardProps) {
 
                 <div>
                     <h3 className={groupInviteCardStyles.title}>
-                        {invite.inviterNickname}님의 초대
+                        {invite.requestMemberNickname}님의 초대
                     </h3>
 
                     <p className={groupInviteCardStyles.groupName}>

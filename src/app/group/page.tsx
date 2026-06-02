@@ -8,6 +8,7 @@ import type { LocationSetting } from "@/features/locationSetting/domain/model/Lo
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
 import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
+import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
 
 import {
     groupsAtom,
@@ -18,6 +19,8 @@ import {
 import {
     invitesAtom,
     hasInvitesAtom,
+    isInviteListLoadingAtom,
+    inviteListErrorMessageAtom,
     shouldShowInviteViewAllButtonAtom,
 } from "@/features/group/application/selectors/groupInviteSelectors";
 import {
@@ -41,6 +44,7 @@ export default function GroupPage() {
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
     const { refetchGroups } = useGroupList();
+    useGroupInvites();
     useGroupDetail(selectedGroupId);
 
     const groups = useAtomValue(groupsAtom);
@@ -50,6 +54,8 @@ export default function GroupPage() {
 
     const invites = useAtomValue(invitesAtom);
     const hasInvites = useAtomValue(hasInvitesAtom);
+    const isInviteListLoading = useAtomValue(isInviteListLoadingAtom);
+    const inviteListErrorMessage = useAtomValue(inviteListErrorMessageAtom);
     const showViewAllButton = useAtomValue(shouldShowInviteViewAllButtonAtom);
 
     const groupDetail = useAtomValue(groupDetailAtomValue);
@@ -82,6 +88,8 @@ export default function GroupPage() {
                                 invites={invites}
                                 hasInvites={hasInvites}
                                 showViewAllButton={showViewAllButton}
+                                isLoading={isInviteListLoading}
+                                errorMessage={inviteListErrorMessage}
                             />
 
                             <section className={groupManagementPageStyles.groupSection}>

@@ -8,12 +8,18 @@ interface GroupInviteSectionProps {
     readonly invites: readonly GroupInvite[];
     readonly hasInvites: boolean;
     readonly showViewAllButton: boolean;
+
+    //받은 초대 목록 조회 상태
+    readonly isLoading: boolean;
+    readonly errorMessage: string | null;
 }
 
 export default function GroupInviteSection({
     invites,
     hasInvites,
     showViewAllButton,
+    isLoading,
+    errorMessage,
 }: GroupInviteSectionProps) {
     return (
         <section className={groupManagementPageStyles.section}>
@@ -40,18 +46,35 @@ export default function GroupInviteSection({
                 )}
             </div>
 
-            {hasInvites ? (
-                <div className={groupManagementPageStyles.inviteList}>
-                    {invites.slice(0, 2).map((invite) => (
-                        <GroupInviteCard
-                            key={invite.inviteId}
-                            invite={invite}
-                        />
-                    ))}
+            {/* 로딩 상태 처리 */}
+            {isLoading && (
+                <div className={groupManagementPageStyles.emptyInviteBox}>
+                    받은 초대 목록을 불러오는 중...
                 </div>
-            ) : (
-                <GroupInviteEmpty />
             )}
+
+            {/* 에러 상태 처리 */}
+            {errorMessage && (
+                <div className={groupManagementPageStyles.emptyInviteBox}>
+                    {errorMessage}
+                </div>
+            )}
+
+            {/* 로딩/에러가 아닐 때만 목록 또는 빈 상태 표시 */}
+            {!isLoading &&
+                !errorMessage &&
+                (hasInvites ? (
+                    <div className={groupManagementPageStyles.inviteList}>
+                        {invites.slice(0, 2).map((invite) => (
+                            <GroupInviteCard
+                                key={invite.inviteId}
+                                invite={invite}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <GroupInviteEmpty />
+                ))}
         </section>
     );
 }
