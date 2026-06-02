@@ -1,7 +1,11 @@
+"use client";
+
+import { Plus } from "lucide-react";
+
 import { groupDetailPanelStyles } from "@/ui/styles/groupDetailPanelStyles";
 
 interface GroupMemberInviteButtonProps {
-    readonly onClick?: () => void;
+    readonly onClick: () => void;
 }
 
 export default function GroupMemberInviteButton({
@@ -13,7 +17,8 @@ export default function GroupMemberInviteButton({
             onClick={onClick}
             className={groupDetailPanelStyles.memberInviteButton}
         >
-            + 초대
+            <Plus size={14} />
+            <span>초대</span>
         </button>
     );
 }

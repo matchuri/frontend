@@ -16,11 +16,13 @@ import { groupDetailPanelStyles } from "@/ui/styles/groupDetailPanelStyles";
 interface GroupDetailPanelProps {
     readonly group: GroupDetail;
     readonly onClose: () => void;
+    readonly onClickInvite: () => void;
 }
 
 export default function GroupDetailPanel({
     group,
     onClose,
+    onClickInvite,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 4);
     const isOwner = useAtomValue(isGroupOwnerAtom);
@@ -67,7 +69,11 @@ export default function GroupDetailPanel({
                             </p>
                         </div>
 
-                        {isOwner && <GroupMemberInviteButton />}
+                        {isOwner && (
+                            <GroupMemberInviteButton
+                                onClick={onClickInvite}
+                            />
+                        )}
                     </div>
 
                     <div className={groupDetailPanelStyles.memberList}>

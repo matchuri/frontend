@@ -6,9 +6,9 @@ import { useAtomValue } from "jotai";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
+import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
 import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
-import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
 
 import {
     groupsAtom,
@@ -35,12 +35,15 @@ import GroupManagementHeader from "@/features/group/ui/components/GroupManagemen
 import GroupCreateModal from "@/features/group/ui/components/GroupCreateModal";
 import GroupDetailPanel from "@/features/group/ui/components/GroupDetailPanel";
 import GroupInviteSection from "@/features/group/ui/components/GroupInviteSection";
+import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 export default function GroupPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [groupName, setGroupName] = useState("");
+    const [inviteNickname, setInviteNickname] = useState("");
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
     const { refetchGroups } = useGroupList();
@@ -72,6 +75,11 @@ export default function GroupPage() {
 
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
+    };
+
+    const closeInviteModal = () => {
+        setIsInviteModalOpen(false);
+        setInviteNickname("");
     };
 
     return (
@@ -151,6 +159,7 @@ export default function GroupPage() {
                         <GroupDetailPanel
                             group={groupDetail}
                             onClose={() => setSelectedGroupId(null)}
+                            onClickInvite={() => setIsInviteModalOpen(true)}
                         />
                     )}
                 </div>
@@ -163,6 +172,13 @@ export default function GroupPage() {
                 onClose={() => setIsCreateModalOpen(false)}
                 onChangeGroupName={setGroupName}
                 onCreate={handleCreateGroup}
+            />
+
+            <GroupInviteModal
+                isOpen={isInviteModalOpen}
+                nickname={inviteNickname}
+                onClose={closeInviteModal}
+                onChangeNickname={setInviteNickname}
             />
         </>
     );
