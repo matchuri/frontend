@@ -4,8 +4,11 @@ import type { Group } from "@/features/group/domain/model/Group";
 import type { GroupListResponse } from "@/features/group/infrastructure/api/dto/GroupListResponse";
 import type { GroupCreateRequest } from "@/features/group/infrastructure/api/dto/GroupCreateRequest";
 import type { GroupCreateResponse } from "@/features/group/infrastructure/api/dto/GroupCreateResponse";
+import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
+import type { GroupDetailResponse } from "@/features/group/infrastructure/api/dto/GroupDetailResponse";
 
 import { mapGroupListToGroups } from "@/features/group/infrastructure/api/mapper/groupListMapper";
+import { mapGroupDetail } from "@/features/group/infrastructure/api/mapper/groupDetailMapper";
 
 export const groupApi = {
     async fetchMyGroups(): Promise<readonly Group[]> {
@@ -45,5 +48,23 @@ export const groupApi = {
         }
 
         return response.data;
+    },
+
+    async fetchGroupDetail(
+        groupId: number,
+    ): Promise<GroupDetail> {
+        const response =
+            await httpClient.get<GroupDetailResponse>(
+                `/api/v1/groups/${groupId}`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 상세 조회 실패",
+            );
+        }
+
+        return mapGroupDetail(response.data);
     },
 };

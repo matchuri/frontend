@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Copy, MapPin, Plus, User } from "lucide-react";
 
-import type { GroupDetailPanel as GroupDetailPanelModel } from "@/features/group/domain/model/GroupDetailPanel";
+import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
 
 import GroupDetailMoreButton from "@/features/group/ui/components/GroupDetailMoreButton";
 import GroupRecommendationStartButton from "@/features/group/ui/components/GroupRecommendationStartButton";
@@ -11,7 +11,7 @@ import GroupMemberInviteButton from "@/features/group/ui/components/GroupMemberI
 import { groupDetailPanelStyles } from "@/ui/styles/groupDetailPanelStyles";
 
 interface GroupDetailPanelProps {
-    readonly group: GroupDetailPanelModel;
+    readonly group: GroupDetail;
     readonly onClose: () => void;
 }
 
@@ -19,6 +19,8 @@ export default function GroupDetailPanel({
     group,
     onClose,
 }: GroupDetailPanelProps) {
+    const visibleMembers = group.members.slice(0, 4);
+
     return (
         <aside className={groupDetailPanelStyles.panel}>
             <div className={groupDetailPanelStyles.content}>
@@ -41,7 +43,9 @@ export default function GroupDetailPanel({
 
                     <div className={groupDetailPanelStyles.address}>
                         <MapPin size={16} />
-                        <span>{group.address}</span>
+                        <span>
+                            <span>{group.location.address}</span>
+                        </span>
                     </div>
                 </section>
 
@@ -63,9 +67,9 @@ export default function GroupDetailPanel({
                     </div>
 
                     <div className={groupDetailPanelStyles.memberList}>
-                        {group.members.map((member) => (
+                        {visibleMembers.map((member) => (
                             <div
-                                key={member.id}
+                                key={member.memberId}
                                 className={groupDetailPanelStyles.memberCard}
                             >
                                 <div className={groupDetailPanelStyles.memberAvatar}>
@@ -74,6 +78,7 @@ export default function GroupDetailPanel({
 
                                 <span className={groupDetailPanelStyles.memberNickname}>
                                     {member.nickname}
+                                    {member.isMe && " (나)"}
                                 </span>
 
                                 <span
@@ -88,13 +93,15 @@ export default function GroupDetailPanel({
                             </div>
                         ))}
 
-                        <button
-                            type="button"
-                            className={groupDetailPanelStyles.memberMoreButton}
-                        >
-                            <Plus size={28} />
-                            <span>모두 보기</span>
-                        </button>
+                        {group.members.length > 4 && (
+                            <button
+                                type="button"
+                                className={groupDetailPanelStyles.memberMoreButton}
+                            >
+                                <Plus size={28} />
+                                <span>모두 보기</span>
+                            </button>
+                        )}
                     </div>
                 </section>
 

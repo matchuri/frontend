@@ -1,6 +1,8 @@
 import { User } from "lucide-react";
+
 import type { GroupInvite } from "@/features/group/domain/model/GroupInvite";
-import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
+
+import { groupInviteCardStyles } from "@/ui/styles/groupInviteCardStyles";
 
 interface GroupInviteCardProps {
     readonly invite: GroupInvite;
@@ -8,32 +10,34 @@ interface GroupInviteCardProps {
 
 export default function GroupInviteCard({ invite }: GroupInviteCardProps) {
     return (
-        <article className={groupManagementPageStyles.inviteCard}>
-            <div className={groupManagementPageStyles.inviteInfo}>
-                <div className={groupManagementPageStyles.avatar}>
+        <article className={groupInviteCardStyles.card}>
+            <div className={groupInviteCardStyles.info}>
+                <div className={groupInviteCardStyles.avatar}>
                     <User size={34} />
                 </div>
 
                 <div>
-                    <p className={groupManagementPageStyles.inviteTitle}>
+                    <h3 className={groupInviteCardStyles.title}>
                         {invite.inviterNickname}님의 초대
-                    </p>
-                    <p className={groupManagementPageStyles.inviteGroupName}>
+                    </h3>
+
+                    <p className={groupInviteCardStyles.groupName}>
                         {invite.groupName}
                     </p>
                 </div>
             </div>
 
-            <div className={groupManagementPageStyles.inviteActions}>
+            <div className={groupInviteCardStyles.actions}>
                 <button
                     type="button"
-                    className={groupManagementPageStyles.acceptButton}
+                    className={groupInviteCardStyles.acceptButton}
                 >
                     수락
                 </button>
+
                 <button
                     type="button"
-                    className={groupManagementPageStyles.declineButton}
+                    className={groupInviteCardStyles.declineButton}
                 >
                     거절
                 </button>

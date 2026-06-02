@@ -54,4 +54,11 @@ export const groupManagementPageStyles = {
 
     emptyGroupBox:
         "flex min-h-0 flex-1 items-center justify-center rounded-[24px] border border-zinc-300 bg-white px-4 text-center text-lg leading-8 text-zinc-500",
+
+    detailLoadingPanel:
+        "h-full w-[540px] shrink-0 overflow-y-auto border-l border-zinc-200 bg-white",
+    detailMessageBox:
+        "p-10 text-sm font-medium text-slate-500",
+    detailErrorBox:
+        "p-10 text-sm font-medium text-red-500",
 } as const;
