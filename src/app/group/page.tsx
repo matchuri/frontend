@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
+import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { mockInvites } from "@/features/group/ui/mock/mockInvites";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
@@ -17,19 +19,30 @@ import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles
 export default function GroupPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [groupName, setGroupName] = useState("");
-    const { groupState } = useGroupList();
+
+    const { groupState, refetchGroups } = useGroupList();
+
+    const { isCreating, create } = useCreateGroup({
+        onSuccess: () => {
+            refetchGroups();
+            setGroupName("");
+            setIsCreateModalOpen(false);
+        },
+    });
 
     const hasInvites = mockInvites.length > 0;
     const showViewAllButton = mockInvites.length >= 3;
+
+    const handleCreateGroup = async (location: LocationSetting) => {
+        await create(groupName, location);
+    };
 
     return (
         <>
             <main className={groupManagementPageStyles.container}>
                 <div className={groupManagementPageStyles.content}>
                     <GroupManagementHeader
-                        onClickCreate={() =>
-                            setIsCreateModalOpen(true)
-                        }
+                        onClickCreate={() => setIsCreateModalOpen(true)}
                     />
 
                     <section className={groupManagementPageStyles.section}>
@@ -93,10 +106,7 @@ export default function GroupPage() {
                             (groupState.data.length > 0 ? (
                                 <div className={groupManagementPageStyles.groupList}>
                                     {groupState.data.map((group) => (
-                                        <GroupCard
-                                            key={group.id}
-                                            group={group}
-                                        />
+                                        <GroupCard key={group.id} group={group} />
                                     ))}
                                 </div>
                             ) : (
@@ -109,9 +119,10 @@ export default function GroupPage() {
             <GroupCreateModal
                 isOpen={isCreateModalOpen}
                 groupName={groupName}
-                address="서울특별시 서초구 서초동 118"
+                isCreating={isCreating}
                 onClose={() => setIsCreateModalOpen(false)}
                 onChangeGroupName={setGroupName}
+                onCreate={handleCreateGroup}
             />
         </>
     );
