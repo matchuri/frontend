@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useSetAtom } from "jotai";
 
-import type { GroupDetailState } from "@/features/group/domain/state/GroupDetailState";
+import { groupDetailAtom } from "@/features/group/application/atoms/groupDetailAtom";
 import { fetchGroupDetail } from "@/features/group/application/usecase/fetchGroupDetail";
 
 export function useGroupDetail(groupId: number | null) {
-    const [groupDetailState, setGroupDetailState] =
-        useState<GroupDetailState>({
-            status: "LOADING",
-        });
+    const setGroupDetailState = useSetAtom(groupDetailAtom);
 
     useEffect(() => {
         if (groupId === null) return;
@@ -38,9 +36,5 @@ export function useGroupDetail(groupId: number | null) {
         }
 
         loadGroupDetail();
-    }, [groupId]);
-
-    return {
-        groupDetailState,
-    };
+    }, [groupId, setGroupDetailState]);
 }
