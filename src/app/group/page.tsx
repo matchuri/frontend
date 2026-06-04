@@ -39,6 +39,7 @@ import GroupDetailPanel from "@/features/group/ui/components/GroupDetailPanel";
 import GroupInviteSection from "@/features/group/ui/components/GroupInviteSection";
 import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
 import GroupInviteAllView from "@/features/group/ui/components/GroupInviteAllView";
+import GroupMemberListModal from "@/features/group/ui/components/GroupMemberListModal";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
@@ -46,6 +47,7 @@ export default function GroupPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
+    const [isMemberListModalOpen, setIsMemberListModalOpen] = useState(false);
     const [groupName, setGroupName] = useState("");
     const [inviteNickname, setInviteNickname] = useState("");
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
@@ -213,6 +215,7 @@ export default function GroupPage() {
                             group={groupDetail}
                             onClose={() => setSelectedGroupId(null)}
                             onClickInvite={() => setIsInviteModalOpen(true)}
+                            onClickMemberMore={() => setIsMemberListModalOpen(true)}
                         />
                     )}
                 </div>
@@ -236,6 +239,14 @@ export default function GroupPage() {
                 onChangeNickname={setInviteNickname}
                 onInvite={handleInviteFriend}
             />
+
+            {groupDetail && (
+                <GroupMemberListModal
+                    isOpen={isMemberListModalOpen}
+                    members={groupDetail.members}
+                    onClose={() => setIsMemberListModalOpen(false)}
+                />
+            )}
         </>
     );
 }
