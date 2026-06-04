@@ -9,6 +9,7 @@ import { useGroupList } from "@/features/group/application/hooks/useGroupList";
 import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
 import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
+import { useCreateGroupInvite } from "@/features/group/application/hooks/useCreateGroupInvite";
 
 import {
     groupsAtom,
@@ -73,13 +74,31 @@ export default function GroupPage() {
         },
     });
 
+    const {
+        isInviting,
+        inviteMessage,
+        invite,
+        clearInviteMessage,
+    } = useCreateGroupInvite({
+        onSuccess: () => {
+            setInviteNickname("");
+        },
+    });
+
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
+    };
+
+    const handleInviteFriend = async () => {
+        if (selectedGroupId === null) return;
+
+        await invite(selectedGroupId, inviteNickname);
     };
 
     const closeInviteModal = () => {
         setIsInviteModalOpen(false);
         setInviteNickname("");
+        clearInviteMessage();
     };
 
     return (
@@ -177,8 +196,11 @@ export default function GroupPage() {
             <GroupInviteModal
                 isOpen={isInviteModalOpen}
                 nickname={inviteNickname}
+                isInviting={isInviting}
+                message={inviteMessage}
                 onClose={closeInviteModal}
                 onChangeNickname={setInviteNickname}
+                onInvite={handleInviteFriend}
             />
         </>
     );

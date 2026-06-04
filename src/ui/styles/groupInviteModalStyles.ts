@@ -9,4 +9,6 @@ export const groupInviteModalStyles = {
         "h-12 rounded-xl border border-slate-200 px-4 text-sm text-zinc-700 outline-none transition placeholder:text-slate-400 focus:border-slate-400",
     footer: "flex justify-end",
     inviteButton: "h-11 rounded-full bg-black px-8 text-sm font-semibold text-white transition hover:bg-zinc-800",
+    message: "text-sm font-medium text-slate-600",
+    disabledButton: "h-11 cursor-not-allowed rounded-full bg-zinc-300 px-8 text-sm font-semibold text-zinc-500",
 } as const;

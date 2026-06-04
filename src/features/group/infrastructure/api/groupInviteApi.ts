@@ -2,6 +2,8 @@ import { httpClient } from "@/infrastructure/http/httpClient";
 
 import type { GroupInvite } from "@/features/group/domain/model/GroupInvite";
 import type { GroupInviteListResponse } from "@/features/group/infrastructure/api/dto/GroupInviteListResponse";
+import type { GroupInviteCreateRequest } from "@/features/group/infrastructure/api/dto/GroupInviteCreateRequest";
+import type { GroupInviteCreateResponse } from "@/features/group/infrastructure/api/dto/GroupInviteCreateResponse";
 
 import { mapGroupInviteListToModel } from "@/features/group/infrastructure/api/mapper/groupInviteMapper";
 
@@ -19,8 +21,18 @@ export const groupInviteApi = {
             );
         }
 
-        return mapGroupInviteListToModel(
-            response.data.content,
-        );
+        return mapGroupInviteListToModel(response.data.content);
     },
+
+    async createInviteByNickname(
+        request: GroupInviteCreateRequest,
+    ) {
+        const response =
+            await httpClient.post<GroupInviteCreateResponse>(
+                "/api/v1/groups/invites/nickname",
+                request,
+            );
+
+        return response.data;
+    }
 };

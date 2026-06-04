@@ -7,19 +7,28 @@ import { groupInviteModalStyles } from "@/ui/styles/groupInviteModalStyles";
 interface GroupInviteModalProps {
     readonly isOpen: boolean;
     readonly nickname: string;
+    readonly isInviting: boolean;
+    readonly message: string | null;
     readonly onClose: () => void;
     readonly onChangeNickname: (value: string) => void;
+    readonly onInvite: () => void;
 }
 
 export default function GroupInviteModal({
     isOpen,
     nickname,
+    isInviting,
+    message,
     onClose,
     onChangeNickname,
+    onInvite,
 }: GroupInviteModalProps) {
     if (!isOpen) {
         return null;
     }
+
+    const isDisabled =
+        nickname.trim().length === 0 || isInviting;
 
     return (
         <div className={groupInviteModalStyles.overlay}>
@@ -29,7 +38,7 @@ export default function GroupInviteModal({
                     onClick={onClose}
                     className={groupInviteModalStyles.backButton}
                 >
-                    <ArrowLeft size={24} />
+                    <ArrowLeft size={22} />
                 </button>
 
                 <div className={groupInviteModalStyles.content}>
@@ -47,12 +56,24 @@ export default function GroupInviteModal({
                         className={groupInviteModalStyles.input}
                     />
 
+                    {message && (
+                        <p className={groupInviteModalStyles.message}>
+                            {message}
+                        </p>
+                    )}
+
                     <div className={groupInviteModalStyles.footer}>
                         <button
                             type="button"
-                            className={groupInviteModalStyles.inviteButton}
+                            disabled={isDisabled}
+                            onClick={onInvite}
+                            className={
+                                isDisabled
+                                    ? groupInviteModalStyles.disabledButton
+                                    : groupInviteModalStyles.inviteButton
+                            }
                         >
-                            초대
+                            {isInviting ? "초대 중..." : "초대"}
                         </button>
                     </div>
                 </div>
