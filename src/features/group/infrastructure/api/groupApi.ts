@@ -6,6 +6,8 @@ import type { GroupCreateRequest } from "@/features/group/infrastructure/api/dto
 import type { GroupCreateResponse } from "@/features/group/infrastructure/api/dto/GroupCreateResponse";
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
 import type { GroupDetailResponse } from "@/features/group/infrastructure/api/dto/GroupDetailResponse";
+import type { GroupUpdateRequest } from "@/features/group/infrastructure/api/dto/GroupUpdateRequest";
+import type { GroupUpdateResponse } from "@/features/group/infrastructure/api/dto/GroupUpdateResponse";
 
 import { mapGroupListToGroups } from "@/features/group/infrastructure/api/mapper/groupListMapper";
 import { mapGroupDetail } from "@/features/group/infrastructure/api/mapper/groupDetailMapper";
@@ -66,5 +68,18 @@ export const groupApi = {
         }
 
         return mapGroupDetail(response.data);
+    },
+
+    async updateGroup(
+        groupId: number,
+        request: GroupUpdateRequest,
+    ) {
+        const response =
+            await httpClient.patch<GroupUpdateResponse>(
+                `/api/v1/groups/${groupId}`,
+                request,
+            );
+
+        return response.data;
     },
 };

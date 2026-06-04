@@ -8,7 +8,13 @@ import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDe
 
 import { groupDetailMoreButtonStyles } from "@/ui/styles/groupDetailMoreButtonStyles";
 
-export default function GroupDetailMoreButton() {
+interface GroupDetailMoreButtonProps {
+    readonly onClickEditName: () => void;
+}
+
+export default function GroupDetailMoreButton({
+    onClickEditName,
+}: GroupDetailMoreButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const isOwner = useAtomValue(isGroupOwnerAtom);
@@ -29,6 +35,7 @@ export default function GroupDetailMoreButton() {
                         <>
                             <button
                                 type="button"
+                                onClick={onClickEditName}
                                 className={groupDetailMoreButtonStyles.menuItem}
                             >
                                 <Pencil size={18} />

@@ -19,6 +19,7 @@ interface GroupDetailPanelProps {
     readonly onClose: () => void;
     readonly onClickInvite: () => void;
     readonly onClickMemberMore: () => void;
+    readonly onClickEditName: () => void;
 }
 
 export default function GroupDetailPanel({
@@ -26,6 +27,7 @@ export default function GroupDetailPanel({
     onClose,
     onClickInvite,
     onClickMemberMore,
+    onClickEditName,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
@@ -42,7 +44,9 @@ export default function GroupDetailPanel({
                         <ArrowLeft size={22} />
                     </button>
 
-                    <GroupDetailMoreButton />
+                    <GroupDetailMoreButton
+                        onClickEditName={onClickEditName}
+                    />
                 </header>
 
                 <section>
