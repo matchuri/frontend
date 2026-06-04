@@ -7,11 +7,18 @@ import { groupInviteAllViewStyles } from "@/ui/styles/groupInviteAllViewStyles";
 interface GroupInviteAllViewProps {
     readonly invites: readonly GroupInvite[];
     readonly onBack: () => void;
+
+    readonly processingInviteId: number | null;
+    readonly onAcceptInvite: (inviteId: number) => void;
+    readonly onDeclineInvite: (inviteId: number) => void;
 }
 
 export default function GroupInviteAllView({
     invites,
     onBack,
+    processingInviteId,
+    onAcceptInvite,
+    onDeclineInvite,
 }: GroupInviteAllViewProps) {
     return (
         <main className={groupInviteAllViewStyles.container}>
@@ -38,6 +45,15 @@ export default function GroupInviteAllView({
                         <GroupInviteCard
                             key={invite.inviteId}
                             invite={invite}
+                            isProcessing={
+                                processingInviteId === invite.inviteId
+                            }
+                            onAccept={() =>
+                                onAcceptInvite(invite.inviteId)
+                            }
+                            onDecline={() =>
+                                onDeclineInvite(invite.inviteId)
+                            }
                         />
                     ))}
                 </div>

@@ -10,6 +10,7 @@ import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvi
 import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
 import { useCreateGroupInvite } from "@/features/group/application/hooks/useCreateGroupInvite";
+import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
 
 import {
     groupsAtom,
@@ -44,13 +45,13 @@ import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles
 export default function GroupPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
     const [groupName, setGroupName] = useState("");
     const [inviteNickname, setInviteNickname] = useState("");
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
-    const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
 
     const { refetchGroups } = useGroupList();
-    useGroupInvites();
+    const { refetchInvites } = useGroupInvites();
     useGroupDetail(selectedGroupId);
 
     const groups = useAtomValue(groupsAtom);
@@ -87,6 +88,13 @@ export default function GroupPage() {
         },
     });
 
+    const { processingInviteId, respond } = useRespondGroupInvite({
+        onSuccess: () => {
+            refetchGroups();
+            refetchInvites();
+        },
+    });
+
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
     };
@@ -95,6 +103,14 @@ export default function GroupPage() {
         if (selectedGroupId === null) return;
 
         await invite(selectedGroupId, inviteNickname);
+    };
+
+    const handleAcceptInvite = async (inviteId: number) => {
+        await respond(inviteId, "ACCEPT");
+    };
+
+    const handleDeclineInvite = async (inviteId: number) => {
+        await respond(inviteId, "DECLINE");
     };
 
     const closeInviteModal = () => {
@@ -108,6 +124,9 @@ export default function GroupPage() {
             <GroupInviteAllView
                 invites={invites}
                 onBack={() => setIsAllInviteViewOpen(false)}
+                processingInviteId={processingInviteId}
+                onAcceptInvite={handleAcceptInvite}
+                onDeclineInvite={handleDeclineInvite}
             />
         );
     }
@@ -129,6 +148,9 @@ export default function GroupPage() {
                                 isLoading={isInviteListLoading}
                                 errorMessage={inviteListErrorMessage}
                                 onClickViewAll={() => setIsAllInviteViewOpen(true)}
+                                processingInviteId={processingInviteId}
+                                onAcceptInvite={handleAcceptInvite}
+                                onDeclineInvite={handleDeclineInvite}
                             />
 
                             <section className={groupManagementPageStyles.groupSection}>

@@ -13,6 +13,9 @@ interface GroupInviteSectionProps {
     readonly isLoading: boolean;
     readonly errorMessage: string | null;
     readonly onClickViewAll: () => void;
+    readonly processingInviteId: number | null;
+    readonly onAcceptInvite: (inviteId: number) => void;
+    readonly onDeclineInvite: (inviteId: number) => void;
 }
 
 export default function GroupInviteSection({
@@ -22,6 +25,9 @@ export default function GroupInviteSection({
     isLoading,
     errorMessage,
     onClickViewAll,
+    processingInviteId,
+    onAcceptInvite,
+    onDeclineInvite,
 }: GroupInviteSectionProps) {
     return (
         <section className={groupManagementPageStyles.section}>
@@ -72,6 +78,9 @@ export default function GroupInviteSection({
                             <GroupInviteCard
                                 key={invite.inviteId}
                                 invite={invite}
+                                isProcessing={processingInviteId === invite.inviteId}
+                                onAccept={() => onAcceptInvite(invite.inviteId)}
+                                onDecline={() => onDeclineInvite(invite.inviteId)}
                             />
                         ))}
                     </div>

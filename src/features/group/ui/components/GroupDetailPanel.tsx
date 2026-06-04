@@ -24,7 +24,7 @@ export default function GroupDetailPanel({
     onClose,
     onClickInvite,
 }: GroupDetailPanelProps) {
-    const visibleMembers = group.members.slice(0, 4);
+    const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
     return (
@@ -103,7 +103,7 @@ export default function GroupDetailPanel({
                             </div>
                         ))}
 
-                        {group.members.length > 4 && (
+                        {group.members.length > 3 && (
                             <button
                                 type="button"
                                 className={groupDetailPanelStyles.memberMoreButton}
