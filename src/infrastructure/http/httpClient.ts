@@ -7,10 +7,24 @@ import {
 import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
 import type { LoginMember } from "@/features/auth/domain/model/LoginMember";
 
+interface ErrorResponseBody {
+    readonly success?: boolean;
+
+    readonly data?: unknown;
+
+    readonly error?: {
+        readonly status?: number;
+        readonly code?: string;
+        readonly message?: string;
+        readonly details?: readonly unknown[];
+    } | null;
+}
+
 class HttpError extends Error {
     constructor(
         public readonly status: number,
         public readonly statusText: string,
+        public readonly body?: ErrorResponseBody,
     ) {
         super(`[httpClient] ${status} ${statusText}`);
         this.name = "HttpError";
@@ -35,6 +49,7 @@ const NO_REFRESH_PATHS = [
 const SILENT_ERROR_LOG_PATHS = [
     "/api/v1/auth/refresh",
     "/api/v1/auth/email/confirm",
+    "/api/v1/groups/invites/nickname",
 ];
 
 function shouldTryRefresh(path: string, isRetry: boolean) {
@@ -115,7 +130,7 @@ async function request<T>(
                 body: errorBody,
             });
         }
-        throw new HttpError(response.status, response.statusText);
+        throw new HttpError(response.status, response.statusText, errorBody,);
     }
 
     const text = await response.text();

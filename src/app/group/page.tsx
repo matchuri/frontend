@@ -6,9 +6,11 @@ import { useAtomValue } from "jotai";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
+import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
 import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
-import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
+import { useCreateGroupInvite } from "@/features/group/application/hooks/useCreateGroupInvite";
+import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
 
 import {
     groupsAtom,
@@ -35,16 +37,21 @@ import GroupManagementHeader from "@/features/group/ui/components/GroupManagemen
 import GroupCreateModal from "@/features/group/ui/components/GroupCreateModal";
 import GroupDetailPanel from "@/features/group/ui/components/GroupDetailPanel";
 import GroupInviteSection from "@/features/group/ui/components/GroupInviteSection";
+import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
+import GroupInviteAllView from "@/features/group/ui/components/GroupInviteAllView";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 export default function GroupPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
     const [groupName, setGroupName] = useState("");
+    const [inviteNickname, setInviteNickname] = useState("");
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
     const { refetchGroups } = useGroupList();
-    useGroupInvites();
+    const { refetchInvites } = useGroupInvites();
     useGroupDetail(selectedGroupId);
 
     const groups = useAtomValue(groupsAtom);
@@ -70,9 +77,59 @@ export default function GroupPage() {
         },
     });
 
+    const {
+        isInviting,
+        inviteMessage,
+        invite,
+        clearInviteMessage,
+    } = useCreateGroupInvite({
+        onSuccess: () => {
+            setInviteNickname("");
+        },
+    });
+
+    const { processingInviteId, respond } = useRespondGroupInvite({
+        onSuccess: () => {
+            refetchGroups();
+            refetchInvites();
+        },
+    });
+
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
     };
+
+    const handleInviteFriend = async () => {
+        if (selectedGroupId === null) return;
+
+        await invite(selectedGroupId, inviteNickname);
+    };
+
+    const handleAcceptInvite = async (inviteId: number) => {
+        await respond(inviteId, "ACCEPT");
+    };
+
+    const handleDeclineInvite = async (inviteId: number) => {
+        await respond(inviteId, "DECLINE");
+    };
+
+    const closeInviteModal = () => {
+        setIsInviteModalOpen(false);
+        setInviteNickname("");
+        clearInviteMessage();
+    };
+
+    if (isAllInviteViewOpen) {
+        return (
+            <GroupInviteAllView
+                invites={invites}
+                onBack={() => setIsAllInviteViewOpen(false)}
+                processingInviteId={processingInviteId}
+                onAcceptInvite={handleAcceptInvite}
+                onDeclineInvite={handleDeclineInvite}
+            />
+        );
+    }
 
     return (
         <>
@@ -90,6 +147,10 @@ export default function GroupPage() {
                                 showViewAllButton={showViewAllButton}
                                 isLoading={isInviteListLoading}
                                 errorMessage={inviteListErrorMessage}
+                                onClickViewAll={() => setIsAllInviteViewOpen(true)}
+                                processingInviteId={processingInviteId}
+                                onAcceptInvite={handleAcceptInvite}
+                                onDeclineInvite={handleDeclineInvite}
                             />
 
                             <section className={groupManagementPageStyles.groupSection}>
@@ -151,6 +212,7 @@ export default function GroupPage() {
                         <GroupDetailPanel
                             group={groupDetail}
                             onClose={() => setSelectedGroupId(null)}
+                            onClickInvite={() => setIsInviteModalOpen(true)}
                         />
                     )}
                 </div>
@@ -163,6 +225,16 @@ export default function GroupPage() {
                 onClose={() => setIsCreateModalOpen(false)}
                 onChangeGroupName={setGroupName}
                 onCreate={handleCreateGroup}
+            />
+
+            <GroupInviteModal
+                isOpen={isInviteModalOpen}
+                nickname={inviteNickname}
+                isInviting={isInviting}
+                message={inviteMessage}
+                onClose={closeInviteModal}
+                onChangeNickname={setInviteNickname}
+                onInvite={handleInviteFriend}
             />
         </>
     );

@@ -15,7 +15,7 @@ export const groupDetailPanelStyles = {
     memberSectionHeader: "flex items-start justify-between",
     memberSectionTitle: "text-xl font-bold text-zinc-900",
     memberCountText: "mt-1 text-sm text-slate-500",
-    memberInviteButton: "rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-600",
+    memberInviteButton: "flex items-center gap-1 rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-600",
     memberList: "mt-8 flex items-start gap-6",
     memberCard: "flex flex-col items-center gap-2",
     memberAvatar: "flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-slate-500",

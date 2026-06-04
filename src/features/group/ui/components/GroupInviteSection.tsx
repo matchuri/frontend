@@ -12,6 +12,10 @@ interface GroupInviteSectionProps {
     //받은 초대 목록 조회 상태
     readonly isLoading: boolean;
     readonly errorMessage: string | null;
+    readonly onClickViewAll: () => void;
+    readonly processingInviteId: number | null;
+    readonly onAcceptInvite: (inviteId: number) => void;
+    readonly onDeclineInvite: (inviteId: number) => void;
 }
 
 export default function GroupInviteSection({
@@ -20,6 +24,10 @@ export default function GroupInviteSection({
     showViewAllButton,
     isLoading,
     errorMessage,
+    onClickViewAll,
+    processingInviteId,
+    onAcceptInvite,
+    onDeclineInvite,
 }: GroupInviteSectionProps) {
     return (
         <section className={groupManagementPageStyles.section}>
@@ -39,6 +47,7 @@ export default function GroupInviteSection({
                 {showViewAllButton && (
                     <button
                         type="button"
+                        onClick={onClickViewAll}
                         className={groupManagementPageStyles.viewAllButton}
                     >
                         모두 보기
@@ -69,6 +78,9 @@ export default function GroupInviteSection({
                             <GroupInviteCard
                                 key={invite.inviteId}
                                 invite={invite}
+                                isProcessing={processingInviteId === invite.inviteId}
+                                onAccept={() => onAcceptInvite(invite.inviteId)}
+                                onDecline={() => onDeclineInvite(invite.inviteId)}
                             />
                         ))}
                     </div>
