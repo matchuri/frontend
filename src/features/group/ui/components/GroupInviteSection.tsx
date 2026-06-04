@@ -12,6 +12,7 @@ interface GroupInviteSectionProps {
     //받은 초대 목록 조회 상태
     readonly isLoading: boolean;
     readonly errorMessage: string | null;
+    readonly onClickViewAll: () => void;
 }
 
 export default function GroupInviteSection({
@@ -20,6 +21,7 @@ export default function GroupInviteSection({
     showViewAllButton,
     isLoading,
     errorMessage,
+    onClickViewAll,
 }: GroupInviteSectionProps) {
     return (
         <section className={groupManagementPageStyles.section}>
@@ -39,6 +41,7 @@ export default function GroupInviteSection({
                 {showViewAllButton && (
                     <button
                         type="button"
+                        onClick={onClickViewAll}
                         className={groupManagementPageStyles.viewAllButton}
                     >
                         모두 보기

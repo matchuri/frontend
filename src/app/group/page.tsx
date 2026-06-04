@@ -37,6 +37,7 @@ import GroupCreateModal from "@/features/group/ui/components/GroupCreateModal";
 import GroupDetailPanel from "@/features/group/ui/components/GroupDetailPanel";
 import GroupInviteSection from "@/features/group/ui/components/GroupInviteSection";
 import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
+import GroupInviteAllView from "@/features/group/ui/components/GroupInviteAllView";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
@@ -46,6 +47,7 @@ export default function GroupPage() {
     const [groupName, setGroupName] = useState("");
     const [inviteNickname, setInviteNickname] = useState("");
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+    const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
 
     const { refetchGroups } = useGroupList();
     useGroupInvites();
@@ -101,6 +103,15 @@ export default function GroupPage() {
         clearInviteMessage();
     };
 
+    if (isAllInviteViewOpen) {
+        return (
+            <GroupInviteAllView
+                invites={invites}
+                onBack={() => setIsAllInviteViewOpen(false)}
+            />
+        );
+    }
+
     return (
         <>
             <main className={groupManagementPageStyles.container}>
@@ -117,6 +128,7 @@ export default function GroupPage() {
                                 showViewAllButton={showViewAllButton}
                                 isLoading={isInviteListLoading}
                                 errorMessage={inviteListErrorMessage}
+                                onClickViewAll={() => setIsAllInviteViewOpen(true)}
                             />
 
                             <section className={groupManagementPageStyles.groupSection}>
