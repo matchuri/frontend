@@ -12,6 +12,7 @@ import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetai
 import { useCreateGroupInvite } from "@/features/group/application/hooks/useCreateGroupInvite";
 import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
 import { useUpdateGroupName } from "@/features/group/application/hooks/useUpdateGroupName";
+import { useUpdateGroupLocation } from "@/features/group/application/hooks/useUpdateGroupLocation";
 
 import {
     groupsAtom,
@@ -42,6 +43,7 @@ import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
 import GroupInviteAllView from "@/features/group/ui/components/GroupInviteAllView";
 import GroupMemberListModal from "@/features/group/ui/components/GroupMemberListModal";
 import GroupNameEditModal from "@/features/group/ui/components/GroupNameEditModal";
+import GroupLocationEditModal from "@/features/group/ui/components/GroupLocationEditModal";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
@@ -51,10 +53,12 @@ export default function GroupPage() {
     const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
     const [isMemberListModalOpen, setIsMemberListModalOpen] = useState(false);
     const [isGroupNameEditModalOpen, setIsGroupNameEditModalOpen] = useState(false);
+    const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
 
     const [groupName, setGroupName] = useState("");
     const [inviteNickname, setInviteNickname] = useState("");
     const [editingGroupName, setEditingGroupName] = useState("");
+    const [editingLocation, setEditingLocation] = useState<LocationSetting | null>(null);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
     const { refetchGroups } = useGroupList();
@@ -116,6 +120,18 @@ export default function GroupPage() {
         },
     });
 
+    const {
+        isUpdating: isUpdatingLocation,
+        update: updateLocation,
+        clearMessage: clearLocationUpdateMessage,
+    } = useUpdateGroupLocation({
+        onSuccess: () => {
+            refetchGroupDetail();
+            setIsLocationEditModalOpen(false);
+            setEditingLocation(null);
+        },
+    });
+
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
     };
@@ -148,6 +164,31 @@ export default function GroupPage() {
         await update(selectedGroupId, editingGroupName);
     };
 
+    const openLocationEditModal = () => {
+        if (!groupDetail) return;
+
+        setEditingLocation({
+            latitude: groupDetail.location.latitude,
+            longitude: groupDetail.location.longitude,
+            address: groupDetail.location.address ?? "",
+            level: groupDetail.location.level ?? 3,
+        });
+
+        clearLocationUpdateMessage();
+        setIsLocationEditModalOpen(true);
+    };
+
+    const handleUpdateLocation = async () => {
+        if (selectedGroupId === null || !editingLocation) return;
+
+        await updateLocation(
+            selectedGroupId,
+            editingLocation.latitude,
+            editingLocation.longitude,
+            editingLocation.level,
+        );
+    };
+
     const closeInviteModal = () => {
         setIsInviteModalOpen(false);
         setInviteNickname("");
@@ -158,6 +199,12 @@ export default function GroupPage() {
         setIsGroupNameEditModalOpen(false);
         setEditingGroupName("");
         clearUpdateMessage();
+    };
+
+    const closeLocationEditModal = () => {
+        setIsLocationEditModalOpen(false);
+        setEditingLocation(null);
+        clearLocationUpdateMessage();
     };
 
     if (isAllInviteViewOpen) {
@@ -256,6 +303,7 @@ export default function GroupPage() {
                             onClickInvite={() => setIsInviteModalOpen(true)}
                             onClickMemberMore={() => setIsMemberListModalOpen(true)}
                             onClickEditName={openGroupNameEditModal}
+                            onClickEditLocation={openLocationEditModal}
                         />
                     )}
                 </div>
@@ -297,6 +345,16 @@ export default function GroupPage() {
                 onChangeGroupName={setEditingGroupName}
                 onSubmit={handleUpdateGroupName}
             />
+
+            {isLocationEditModalOpen && editingLocation && (
+                <GroupLocationEditModal
+                    location={editingLocation}
+                    isUpdating={isUpdatingLocation}
+                    onClose={closeLocationEditModal}
+                    onChangeLocation={setEditingLocation}
+                    onSubmit={handleUpdateLocation}
+                />
+            )}
         </>
     );
 }

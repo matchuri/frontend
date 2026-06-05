@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-    ArrowLeft,
-    Check,
-    Crosshair,
-    Info,
-    MapPin,
-    Search,
-} from "lucide-react";
+import { ArrowLeft, Check, Crosshair, Info, MapPin, Search, } from "lucide-react";
 
 import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 import { useLocationSearch } from "@/features/locationSetting/application/hooks/useLocationSearch";
@@ -43,49 +36,24 @@ export default function GroupCreateModal({
         handleSearchFailed,
     } = useLocationSearch();
 
-    const [selectedAddress, setSelectedAddress] = useState(
-        defaultLocationSetting.address,
-    );
-
     const [selectedLocation, setSelectedLocation] = useState({
+        address: defaultLocationSetting.address,
         latitude: defaultLocationSetting.latitude,
         longitude: defaultLocationSetting.longitude,
-
         level: defaultLocationSetting.level,
-
-        southWestLatitude: defaultLocationSetting.southWestLatitude,
-        southWestLongitude: defaultLocationSetting.southWestLongitude,
-
-        northEastLatitude: defaultLocationSetting.northEastLatitude,
-        northEastLongitude: defaultLocationSetting.northEastLongitude,
     });
 
     if (!isOpen) return null;
 
-    const selectedGroupLocation: LocationSetting = {
-        address: selectedAddress,
-
-        latitude: selectedLocation.latitude,
-        longitude: selectedLocation.longitude,
-
-        level: selectedLocation.level,
-
-        southWestLatitude: selectedLocation.southWestLatitude,
-        southWestLongitude: selectedLocation.southWestLongitude,
-
-        northEastLatitude: selectedLocation.northEastLatitude,
-        northEastLongitude: selectedLocation.northEastLongitude,
-    };
-
     const isDisabled =
         groupName.trim().length === 0 ||
-        selectedAddress.trim().length === 0 ||
+        selectedLocation.address.trim().length === 0 ||
         isCreating;
 
     const handleCreate = async () => {
         if (isDisabled) return;
 
-        await onCreate(selectedGroupLocation);
+        await onCreate(selectedLocation);
     };
 
     return (
@@ -152,25 +120,24 @@ export default function GroupCreateModal({
 
                     <div className={groupCreateModalStyles.mapContainer}>
                         <KakaoMapView
-                            centerLatitude={defaultLocationSetting.latitude}
-                            centerLongitude={defaultLocationSetting.longitude}
-                            level={defaultLocationSetting.level}
+                            centerLatitude={selectedLocation.latitude}
+                            centerLongitude={selectedLocation.longitude}
+                            level={selectedLocation.level}
                             searchKeyword={searchKeyword}
                             onCenterChanged={(center) => {
-                                setSelectedLocation({
+                                setSelectedLocation((prev) => ({
+                                    ...prev,
                                     latitude: center.latitude,
                                     longitude: center.longitude,
-
                                     level: center.level,
-
-                                    southWestLatitude: center.southWestLatitude,
-                                    southWestLongitude: center.southWestLongitude,
-
-                                    northEastLatitude: center.northEastLatitude,
-                                    northEastLongitude: center.northEastLongitude,
-                                });
+                                }));
                             }}
-                            onAddressChanged={setSelectedAddress}
+                            onAddressChanged={(address) => {
+                                setSelectedLocation((prev) => ({
+                                    ...prev,
+                                    address,
+                                }));
+                            }}
                             onSearchFailed={handleSearchFailed}
                         />
 
@@ -184,7 +151,7 @@ export default function GroupCreateModal({
                             </span>
 
                             <strong className={groupCreateModalStyles.selectedAddress}>
-                                {selectedAddress}
+                                {selectedLocation.address}
                             </strong>
                         </div>
                     </div>
@@ -193,6 +160,7 @@ export default function GroupCreateModal({
                 <footer className={groupCreateModalStyles.footer}>
                     <div className={groupCreateModalStyles.guideBox}>
                         <Info size={18} />
+
                         <span>
                             지도를 드래그하거나 확대/축소하여 추천 범위를 조정하세요.
                         </span>

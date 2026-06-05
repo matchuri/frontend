@@ -15,18 +15,6 @@ function createRequest(
 
         // 현재 서버에서 미사용. 추후 확장 고려
         level: location.level,
-
-        southWestLatitude:
-            location.southWestLatitude,
-
-        southWestLongitude:
-            location.southWestLongitude,
-
-        northEastLatitude:
-            location.northEastLatitude,
-
-        northEastLongitude:
-            location.northEastLongitude,
     };
 }
 

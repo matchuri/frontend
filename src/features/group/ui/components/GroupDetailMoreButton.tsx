@@ -10,14 +10,26 @@ import { groupDetailMoreButtonStyles } from "@/ui/styles/groupDetailMoreButtonSt
 
 interface GroupDetailMoreButtonProps {
     readonly onClickEditName: () => void;
+    readonly onClickEditLocation: () => void;
 }
 
 export default function GroupDetailMoreButton({
     onClickEditName,
+    onClickEditLocation,
 }: GroupDetailMoreButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const isOwner = useAtomValue(isGroupOwnerAtom);
+
+    const handleClickEditName = () => {
+        setIsOpen(false);
+        onClickEditName();
+    };
+
+    const handleClickEditLocation = () => {
+        setIsOpen(false);
+        onClickEditLocation();
+    };
 
     return (
         <div className={groupDetailMoreButtonStyles.wrapper}>
@@ -35,7 +47,7 @@ export default function GroupDetailMoreButton({
                         <>
                             <button
                                 type="button"
-                                onClick={onClickEditName}
+                                onClick={handleClickEditName}
                                 className={groupDetailMoreButtonStyles.menuItem}
                             >
                                 <Pencil size={18} />
@@ -44,6 +56,7 @@ export default function GroupDetailMoreButton({
 
                             <button
                                 type="button"
+                                onClick={handleClickEditLocation}
                                 className={groupDetailMoreButtonStyles.menuItem}
                             >
                                 <MapPin size={18} />

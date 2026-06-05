@@ -80,6 +80,12 @@ export const groupApi = {
                 request,
             );
 
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 수정 실패",
+            );
+        }
         return response.data;
     },
 };
