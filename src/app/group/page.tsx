@@ -13,6 +13,7 @@ import { useCreateGroupInvite } from "@/features/group/application/hooks/useCrea
 import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
 import { useUpdateGroupName } from "@/features/group/application/hooks/useUpdateGroupName";
 import { useUpdateGroupLocation } from "@/features/group/application/hooks/useUpdateGroupLocation";
+import { useDeleteGroup } from "@/features/group/application/hooks/useDeleteGroup";
 
 import {
     groupsAtom,
@@ -44,6 +45,7 @@ import GroupInviteAllView from "@/features/group/ui/components/GroupInviteAllVie
 import GroupMemberListModal from "@/features/group/ui/components/GroupMemberListModal";
 import GroupNameEditModal from "@/features/group/ui/components/GroupNameEditModal";
 import GroupLocationEditModal from "@/features/group/ui/components/GroupLocationEditModal";
+import GroupDeleteModal from "@/features/group/ui/components/GroupDeleteModal";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
@@ -54,6 +56,7 @@ export default function GroupPage() {
     const [isMemberListModalOpen, setIsMemberListModalOpen] = useState(false);
     const [isGroupNameEditModalOpen, setIsGroupNameEditModalOpen] = useState(false);
     const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [groupName, setGroupName] = useState("");
     const [inviteNickname, setInviteNickname] = useState("");
@@ -132,6 +135,14 @@ export default function GroupPage() {
         },
     });
 
+    const { isDeleting, removeGroup } = useDeleteGroup({
+        onSuccess: () => {
+            refetchGroups();
+            setIsDeleteModalOpen(false);
+            setSelectedGroupId(null);
+        },
+    });
+
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
     };
@@ -189,6 +200,16 @@ export default function GroupPage() {
         );
     };
 
+    const openDeleteModal = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleDeleteGroup = async () => {
+        if (selectedGroupId === null) return;
+
+        await removeGroup(selectedGroupId);
+    };
+
     const closeInviteModal = () => {
         setIsInviteModalOpen(false);
         setInviteNickname("");
@@ -205,6 +226,10 @@ export default function GroupPage() {
         setIsLocationEditModalOpen(false);
         setEditingLocation(null);
         clearLocationUpdateMessage();
+    };
+
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
     };
 
     if (isAllInviteViewOpen) {
@@ -304,6 +329,7 @@ export default function GroupPage() {
                             onClickMemberMore={() => setIsMemberListModalOpen(true)}
                             onClickEditName={openGroupNameEditModal}
                             onClickEditLocation={openLocationEditModal}
+                            onClickDeleteGroup={openDeleteModal}
                         />
                     )}
                 </div>
@@ -355,6 +381,13 @@ export default function GroupPage() {
                     onSubmit={handleUpdateLocation}
                 />
             )}
+
+            <GroupDeleteModal
+                isOpen={isDeleteModalOpen}
+                isDeleting={isDeleting}
+                onClose={closeDeleteModal}
+                onDelete={handleDeleteGroup}
+            />
         </>
     );
 }

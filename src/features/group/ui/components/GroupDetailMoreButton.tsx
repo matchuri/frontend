@@ -11,11 +11,13 @@ import { groupDetailMoreButtonStyles } from "@/ui/styles/groupDetailMoreButtonSt
 interface GroupDetailMoreButtonProps {
     readonly onClickEditName: () => void;
     readonly onClickEditLocation: () => void;
+    readonly onClickDeleteGroup: () => void;
 }
 
 export default function GroupDetailMoreButton({
     onClickEditName,
     onClickEditLocation,
+    onClickDeleteGroup,
 }: GroupDetailMoreButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -29,6 +31,11 @@ export default function GroupDetailMoreButton({
     const handleClickEditLocation = () => {
         setIsOpen(false);
         onClickEditLocation();
+    };
+
+    const handleClickDeleteGroup = () => {
+        setIsOpen(false);
+        onClickDeleteGroup();
     };
 
     return (
@@ -65,6 +72,7 @@ export default function GroupDetailMoreButton({
 
                             <button
                                 type="button"
+                                onClick={handleClickDeleteGroup}
                                 className={
                                     groupDetailMoreButtonStyles.deleteMenuItem
                                 }
