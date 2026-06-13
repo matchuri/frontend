@@ -9,6 +9,7 @@ import type { GroupDetailResponse } from "@/features/group/infrastructure/api/dt
 import type { GroupUpdateRequest } from "@/features/group/infrastructure/api/dto/GroupUpdateRequest";
 import type { GroupUpdateResponse } from "@/features/group/infrastructure/api/dto/GroupUpdateResponse";
 import type { GroupDeleteResponse } from "@/features/group/infrastructure/api/dto/GroupDeleteResponse";
+import type { GroupLeaveResponse } from "@/features/group/infrastructure/api/dto/GroupLeaveResponse";
 
 import { mapGroupListToGroups } from "@/features/group/infrastructure/api/mapper/groupListMapper";
 import { mapGroupDetail } from "@/features/group/infrastructure/api/mapper/groupDetailMapper";
@@ -100,6 +101,22 @@ export const groupApi = {
             throw new Error(
                 response.error?.message ??
                     "그룹 삭제에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async leaveGroup(groupId: number) {
+        const response =
+            await httpClient.post<GroupLeaveResponse>(
+                `/api/v1/groups/${groupId}/leave`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 나가기에 실패했습니다.",
             );
         }
 

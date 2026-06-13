@@ -14,6 +14,7 @@ import { useRespondGroupInvite } from "@/features/group/application/hooks/useRes
 import { useUpdateGroupName } from "@/features/group/application/hooks/useUpdateGroupName";
 import { useUpdateGroupLocation } from "@/features/group/application/hooks/useUpdateGroupLocation";
 import { useDeleteGroup } from "@/features/group/application/hooks/useDeleteGroup";
+import { useLeaveGroup } from "@/features/group/application/hooks/useLeaveGroup";
 
 import {
     groupsAtom,
@@ -46,6 +47,7 @@ import GroupMemberListModal from "@/features/group/ui/components/GroupMemberList
 import GroupNameEditModal from "@/features/group/ui/components/GroupNameEditModal";
 import GroupLocationEditModal from "@/features/group/ui/components/GroupLocationEditModal";
 import GroupDeleteModal from "@/features/group/ui/components/GroupDeleteModal";
+import GroupLeaveModal from "@/features/group/ui/components/GroupLeaveModal";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
@@ -57,6 +59,7 @@ export default function GroupPage() {
     const [isGroupNameEditModalOpen, setIsGroupNameEditModalOpen] = useState(false);
     const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
 
     const [groupName, setGroupName] = useState("");
     const [inviteNickname, setInviteNickname] = useState("");
@@ -143,6 +146,14 @@ export default function GroupPage() {
         },
     });
 
+    const { isLeaving, leave } = useLeaveGroup({
+        onSuccess: () => {
+            refetchGroups();
+            setIsLeaveModalOpen(false);
+            setSelectedGroupId(null);
+        },
+    });
+
     const handleCreateGroup = async (location: LocationSetting) => {
         await create(groupName, location);
     };
@@ -208,6 +219,12 @@ export default function GroupPage() {
         if (selectedGroupId === null) return;
 
         await removeGroup(selectedGroupId);
+    };
+
+    const handleLeaveGroup = async () => {
+        if (selectedGroupId === null) return;
+
+        await leave(selectedGroupId);
     };
 
     const closeInviteModal = () => {
@@ -330,6 +347,7 @@ export default function GroupPage() {
                             onClickEditName={openGroupNameEditModal}
                             onClickEditLocation={openLocationEditModal}
                             onClickDeleteGroup={openDeleteModal}
+                            onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
                         />
                     )}
                 </div>
@@ -387,6 +405,13 @@ export default function GroupPage() {
                 isDeleting={isDeleting}
                 onClose={closeDeleteModal}
                 onDelete={handleDeleteGroup}
+            />
+
+            <GroupLeaveModal
+                isOpen={isLeaveModalOpen}
+                isLeaving={isLeaving}
+                onClose={() => setIsLeaveModalOpen(false)}
+                onLeave={handleLeaveGroup}
             />
         </>
     );

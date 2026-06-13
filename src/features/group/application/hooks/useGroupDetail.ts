@@ -18,6 +18,7 @@ export function useGroupDetail(groupId: number | null) {
             setGroupDetailState({ status: "LOADING" });
 
             const groupDetail = await fetchGroupDetail(groupId);
+            console.log("그룹 정보?:", groupDetail);
 
             setGroupDetailState({
                 status: "SUCCESS",

@@ -12,12 +12,14 @@ interface GroupDetailMoreButtonProps {
     readonly onClickEditName: () => void;
     readonly onClickEditLocation: () => void;
     readonly onClickDeleteGroup: () => void;
+    readonly onClickLeaveGroup: () => void;
 }
 
 export default function GroupDetailMoreButton({
     onClickEditName,
     onClickEditLocation,
     onClickDeleteGroup,
+    onClickLeaveGroup,
 }: GroupDetailMoreButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -36,6 +38,11 @@ export default function GroupDetailMoreButton({
     const handleClickDeleteGroup = () => {
         setIsOpen(false);
         onClickDeleteGroup();
+    };
+
+    const handleClickLeaveGroup = () => {
+        setIsOpen(false);
+        onClickLeaveGroup();
     };
 
     return (
@@ -84,6 +91,7 @@ export default function GroupDetailMoreButton({
                     ) : (
                         <button
                             type="button"
+                            onClick={handleClickLeaveGroup}
                             className={groupDetailMoreButtonStyles.leaveMenuItem}
                         >
                             <LogOut size={18} />
