@@ -40,40 +40,17 @@ export default function LocationModal({
         handleSearchFailed,
     } = useLocationSearch();
 
-    const [selectedAddress, setSelectedAddress] = useState(
-        baseLocation.address,
-    );
-
-    const [selectedLocation, setSelectedLocation] = useState({
+    const [selectedLocation, setSelectedLocation] = useState<LocationSetting>({
+        address: baseLocation.address,
         latitude: baseLocation.latitude,
         longitude: baseLocation.longitude,
-
         level: baseLocation.level,
-
-        southWestLatitude: baseLocation.southWestLatitude,
-        southWestLongitude: baseLocation.southWestLongitude,
-
-        northEastLatitude: baseLocation.northEastLatitude,
-        northEastLongitude: baseLocation.northEastLongitude,
     });
 
     if (!isOpen) return null;
 
     const handleSave = () => {
-        onSave({
-            address: selectedAddress,
-
-            latitude: selectedLocation.latitude,
-            longitude: selectedLocation.longitude,
-
-            level: selectedLocation.level,
-
-            southWestLatitude: selectedLocation.southWestLatitude,
-            southWestLongitude: selectedLocation.southWestLongitude,
-
-            northEastLatitude: selectedLocation.northEastLatitude,
-            northEastLongitude: selectedLocation.northEastLongitude,
-        });
+        onSave(selectedLocation);
     };
 
     return (
@@ -135,24 +112,25 @@ export default function LocationModal({
                             level={baseLocation.level}
                             searchKeyword={searchKeyword}
                             onCenterChanged={(center) => {
-                                setSelectedLocation({
-                                    latitude: center.latitude,
-                                    longitude: center.longitude,
-
-                                    level: center.level,
-
-                                    southWestLatitude:
-                                        center.southWestLatitude,
-                                    southWestLongitude:
-                                        center.southWestLongitude,
-
-                                    northEastLatitude:
-                                        center.northEastLatitude,
-                                    northEastLongitude:
-                                        center.northEastLongitude,
-                                });
+                                setSelectedLocation(
+                                    (prev) => ({
+                                        ...prev,
+                                        latitude:
+                                            center.latitude,
+                                        longitude:
+                                            center.longitude,
+                                        level: center.level,
+                                    }),
+                                );
                             }}
-                            onAddressChanged={setSelectedAddress}
+                            onAddressChanged={(address,) => {
+                                setSelectedLocation(
+                                    (prev) => ({
+                                        ...prev,
+                                        address,
+                                    }),
+                                );
+                            }}
                             onSearchFailed={handleSearchFailed}
                         />
 
@@ -166,7 +144,7 @@ export default function LocationModal({
                             </span>
 
                             <strong className={locationModalStyles.selectedAddress}>
-                                {selectedAddress}
+                                {selectedLocation.address}
                             </strong>
                         </div>
                     </div>

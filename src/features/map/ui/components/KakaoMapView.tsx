@@ -56,6 +56,14 @@ export default function KakaoMapView({
     const onAddressChangedRef = useRef(onAddressChanged);
     const onSearchFailedRef = useRef(onSearchFailed);
 
+    // 지도 최초 생성 시 사용할 중심 좌표/레벨 고정
+    // 이후 부모 state 변경으로 centerLatitude, centerLongitude, level이 바뀌어도 지도를 다시 생성하지 않기 위한 값
+    const initialCenterRef = useRef({
+        latitude: centerLatitude,
+        longitude: centerLongitude,
+        level,
+    });
+
     useEffect(() => {
         onCenterChangedRef.current = onCenterChanged;
     }, [onCenterChanged]);
@@ -81,13 +89,13 @@ export default function KakaoMapView({
             }
 
             const center = new window.kakao.maps.LatLng(
-                centerLatitude,
-                centerLongitude,
+                initialCenterRef.current.latitude,
+                initialCenterRef.current.longitude,
             );
 
             const map = new window.kakao.maps.Map(mapContainerRef.current, {
                 center,
-                level,
+                level: initialCenterRef.current.level,
             });
 
             const geocoder = new window.kakao.maps.services.Geocoder();
@@ -133,7 +141,7 @@ export default function KakaoMapView({
         return () => {
             cancelled = true;
         };
-    }, [centerLatitude, centerLongitude, level]);
+    }, []);
 
     useEffect(() => {
         const keyword = searchKeyword?.trim();

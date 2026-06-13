@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Copy, MapPin, Plus, User } from "lucide-react";
+import { ArrowLeft, Copy, MapPin, User } from "lucide-react";
 import { useAtomValue } from "jotai";
 
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
@@ -10,6 +10,7 @@ import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDe
 import GroupDetailMoreButton from "@/features/group/ui/components/GroupDetailMoreButton";
 import GroupRecommendationStartButton from "@/features/group/ui/components/GroupRecommendationStartButton";
 import GroupMemberInviteButton from "@/features/group/ui/components/GroupMemberInviteButton";
+import GroupMemberMoreButton from "@/features/group/ui/components/GroupMemberMoreButton";
 
 import { groupDetailPanelStyles } from "@/ui/styles/groupDetailPanelStyles";
 
@@ -17,12 +18,22 @@ interface GroupDetailPanelProps {
     readonly group: GroupDetail;
     readonly onClose: () => void;
     readonly onClickInvite: () => void;
+    readonly onClickMemberMore: () => void;
+    readonly onClickEditName: () => void;
+    readonly onClickEditLocation: () => void;
+    readonly onClickDeleteGroup: () => void;
+    readonly onClickLeaveGroup: () => void;
 }
 
 export default function GroupDetailPanel({
     group,
     onClose,
     onClickInvite,
+    onClickMemberMore,
+    onClickEditName,
+    onClickEditLocation,
+    onClickDeleteGroup,
+    onClickLeaveGroup,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
@@ -39,7 +50,12 @@ export default function GroupDetailPanel({
                         <ArrowLeft size={22} />
                     </button>
 
-                    <GroupDetailMoreButton />
+                    <GroupDetailMoreButton
+                        onClickEditName={onClickEditName}
+                        onClickEditLocation={onClickEditLocation}
+                        onClickDeleteGroup={onClickDeleteGroup}
+                        onClickLeaveGroup={onClickLeaveGroup}
+                    />
                 </header>
 
                 <section>
@@ -104,13 +120,7 @@ export default function GroupDetailPanel({
                         ))}
 
                         {group.members.length > 3 && (
-                            <button
-                                type="button"
-                                className={groupDetailPanelStyles.memberMoreButton}
-                            >
-                                <Plus size={28} />
-                                <span>모두 보기</span>
-                            </button>
+                            <GroupMemberMoreButton onClick={onClickMemberMore} />
                         )}
                     </div>
                 </section>

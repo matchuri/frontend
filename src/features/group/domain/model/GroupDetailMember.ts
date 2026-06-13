@@ -6,7 +6,7 @@ export interface GroupDetailMember {
     readonly role: GroupMemberRole;
     readonly status: "ACTIVE";
 
-    // 서버에서 추후 추가 예정
+    // TODO: 서버에서 추후 추가 예정
     readonly isMe: boolean;
 
     readonly joinedAt: string;

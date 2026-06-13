@@ -6,9 +6,4 @@ export interface LocationSetting {
 
     readonly level: number;
 
-    readonly southWestLatitude: number;
-    readonly southWestLongitude: number;
-
-    readonly northEastLatitude: number;
-    readonly northEastLongitude: number;
 }

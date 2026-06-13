@@ -8,10 +8,42 @@ import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDe
 
 import { groupDetailMoreButtonStyles } from "@/ui/styles/groupDetailMoreButtonStyles";
 
-export default function GroupDetailMoreButton() {
+interface GroupDetailMoreButtonProps {
+    readonly onClickEditName: () => void;
+    readonly onClickEditLocation: () => void;
+    readonly onClickDeleteGroup: () => void;
+    readonly onClickLeaveGroup: () => void;
+}
+
+export default function GroupDetailMoreButton({
+    onClickEditName,
+    onClickEditLocation,
+    onClickDeleteGroup,
+    onClickLeaveGroup,
+}: GroupDetailMoreButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const isOwner = useAtomValue(isGroupOwnerAtom);
+
+    const handleClickEditName = () => {
+        setIsOpen(false);
+        onClickEditName();
+    };
+
+    const handleClickEditLocation = () => {
+        setIsOpen(false);
+        onClickEditLocation();
+    };
+
+    const handleClickDeleteGroup = () => {
+        setIsOpen(false);
+        onClickDeleteGroup();
+    };
+
+    const handleClickLeaveGroup = () => {
+        setIsOpen(false);
+        onClickLeaveGroup();
+    };
 
     return (
         <div className={groupDetailMoreButtonStyles.wrapper}>
@@ -29,6 +61,7 @@ export default function GroupDetailMoreButton() {
                         <>
                             <button
                                 type="button"
+                                onClick={handleClickEditName}
                                 className={groupDetailMoreButtonStyles.menuItem}
                             >
                                 <Pencil size={18} />
@@ -37,6 +70,7 @@ export default function GroupDetailMoreButton() {
 
                             <button
                                 type="button"
+                                onClick={handleClickEditLocation}
                                 className={groupDetailMoreButtonStyles.menuItem}
                             >
                                 <MapPin size={18} />
@@ -45,6 +79,7 @@ export default function GroupDetailMoreButton() {
 
                             <button
                                 type="button"
+                                onClick={handleClickDeleteGroup}
                                 className={
                                     groupDetailMoreButtonStyles.deleteMenuItem
                                 }
@@ -56,6 +91,7 @@ export default function GroupDetailMoreButton() {
                     ) : (
                         <button
                             type="button"
+                            onClick={handleClickLeaveGroup}
                             className={groupDetailMoreButtonStyles.leaveMenuItem}
                         >
                             <LogOut size={18} />

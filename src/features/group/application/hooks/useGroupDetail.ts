@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useSetAtom } from "jotai";
 
 import { groupDetailAtom } from "@/features/group/application/atoms/groupDetailAtom";
@@ -9,32 +9,37 @@ import { fetchGroupDetail } from "@/features/group/application/usecase/fetchGrou
 export function useGroupDetail(groupId: number | null) {
     const setGroupDetailState = useSetAtom(groupDetailAtom);
 
-    useEffect(() => {
-        if (groupId === null) return;
-
-        const selectedGroupId = groupId;
-
-        async function loadGroupDetail() {
-            try {
-                setGroupDetailState({ status: "LOADING" });
-
-                const groupDetail = await fetchGroupDetail(selectedGroupId);
-
-                setGroupDetailState({
-                    status: "SUCCESS",
-                    data: groupDetail,
-                });
-            } catch (error) {
-                setGroupDetailState({
-                    status: "ERROR",
-                    message:
-                        error instanceof Error
-                            ? error.message
-                            : "그룹 상세 정보를 불러오는데 실패했습니다.",
-                });
-            }
+    const refetchGroupDetail = useCallback(async () => {
+        if (groupId === null) {
+            return;
         }
 
-        loadGroupDetail();
+        try {
+            setGroupDetailState({ status: "LOADING" });
+
+            const groupDetail = await fetchGroupDetail(groupId);
+            console.log("그룹 정보?:", groupDetail);
+
+            setGroupDetailState({
+                status: "SUCCESS",
+                data: groupDetail,
+            });
+        } catch (error) {
+            setGroupDetailState({
+                status: "ERROR",
+                message:
+                    error instanceof Error
+                        ? error.message
+                        : "그룹 상세 정보를 불러오는데 실패했습니다.",
+            });
+        }
     }, [groupId, setGroupDetailState]);
+
+    useEffect(() => {
+        refetchGroupDetail();
+    }, [refetchGroupDetail]);
+
+    return {
+        refetchGroupDetail,
+    };
 }
