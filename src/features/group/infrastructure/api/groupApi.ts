@@ -76,11 +76,17 @@ export const groupApi = {
         groupId: number,
         request: GroupUpdateRequest,
     ) {
+        console.log("PATCH 요청", {
+            groupId,
+            request,
+        });
         const response =
             await httpClient.patch<GroupUpdateResponse>(
                 `/api/v1/groups/${groupId}`,
                 request,
             );
+
+        console.log("그룹 수정 성공 response:", response.data);
 
         if (!response.success) {
             throw new Error(
