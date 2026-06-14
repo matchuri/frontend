@@ -130,13 +130,7 @@ export default function GroupPage() {
         isUpdating: isUpdatingLocation,
         update: updateLocation,
         clearMessage: clearLocationUpdateMessage,
-    } = useUpdateGroupLocation({
-        onSuccess: () => {
-            refetchGroupDetail();
-            setIsLocationEditModalOpen(false);
-            setEditingLocation(null);
-        },
-    });
+    } = useUpdateGroupLocation();
 
     const { isDeleting, removeGroup } = useDeleteGroup({
         onSuccess: () => {
@@ -200,15 +194,32 @@ export default function GroupPage() {
         setIsLocationEditModalOpen(true);
     };
 
-    const handleUpdateLocation = async () => {
-        if (selectedGroupId === null || !editingLocation) return;
+    const handleUpdateLocation = async (
+        location: LocationSetting,
+    ) => {
+        if (selectedGroupId === null) return;
+
+        console.log("수정 요청 위치", {
+            groupId: selectedGroupId,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            address: location.address,
+            level: location.level,
+        });
 
         await updateLocation(
             selectedGroupId,
-            editingLocation.latitude,
-            editingLocation.longitude,
-            editingLocation.level,
+            location.latitude,
+            location.longitude,
+            location.level,
         );
+
+        // 위치 수정 후 최신 상세 정보를 다시 조회
+        await refetchGroupDetail();
+
+        // 상세 재조회 이후 모달 상태 초기화
+        setIsLocationEditModalOpen(false);
+        setEditingLocation(null);
     };
 
     const openDeleteModal = () => {
@@ -395,7 +406,6 @@ export default function GroupPage() {
                     location={editingLocation}
                     isUpdating={isUpdatingLocation}
                     onClose={closeLocationEditModal}
-                    onChangeLocation={setEditingLocation}
                     onSubmit={handleUpdateLocation}
                 />
             )}

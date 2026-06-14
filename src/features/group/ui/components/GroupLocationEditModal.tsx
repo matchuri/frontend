@@ -13,7 +13,6 @@ interface GroupLocationEditModalProps {
     readonly location: LocationSetting;
     readonly isUpdating: boolean;
     readonly onClose: () => void;
-    readonly onChangeLocation: (location: LocationSetting) => void;
     readonly onSubmit: (location: LocationSetting) => void;
 }
 
@@ -21,7 +20,6 @@ export default function GroupLocationEditModal({
     location,
     isUpdating,
     onClose,
-    onChangeLocation,
     onSubmit,
 }: GroupLocationEditModalProps) {
     const {
@@ -33,28 +31,15 @@ export default function GroupLocationEditModal({
         handleSearchFailed,
     } = useLocationSearch();
 
-    // address와 좌표 state를 하나로 통합
-    // 모달이 열릴 때 전달받은 기존 그룹 위치가 초기값으로 들어감
     const [selectedLocation, setSelectedLocation] =
-        useState<LocationSetting | null>(location);
+        useState<LocationSetting>(location);
 
-    // KakaoMapView 재생성을 막기 위해 지도 초기 중심값을 고정
-    const [initialLocation] = useState<LocationSetting>(location);
-
-    if (!selectedLocation) {
-        return null;
-    }
+    const [initialLocation] =
+        useState<LocationSetting>(location);
 
     const isDisabled =
         selectedLocation.address.trim().length === 0 ||
         isUpdating;
-
-    const handleChangeLocation = (
-        nextLocation: LocationSetting,
-    ) => {
-        setSelectedLocation(nextLocation);
-        onChangeLocation(nextLocation);
-    };
 
     const handleUpdate = () => {
         if (isDisabled) {
@@ -125,18 +110,18 @@ export default function GroupLocationEditModal({
                             level={initialLocation.level}
                             searchKeyword={searchKeyword}
                             onCenterChanged={(center) => {
-                                handleChangeLocation({
-                                    address: selectedLocation.address,
+                                setSelectedLocation((prev) => ({
+                                    ...prev,
                                     latitude: center.latitude,
                                     longitude: center.longitude,
                                     level: center.level,
-                                });
+                                }));
                             }}
                             onAddressChanged={(address) => {
-                                handleChangeLocation({
-                                    ...selectedLocation,
+                                setSelectedLocation((prev) => ({
+                                    ...prev,
                                     address,
-                                });
+                                }));
                             }}
                             onSearchFailed={handleSearchFailed}
                         />
