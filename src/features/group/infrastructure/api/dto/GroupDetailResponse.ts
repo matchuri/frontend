@@ -7,10 +7,8 @@ export interface GroupDetailResponse {
         readonly inviteCode: string;
         readonly latitude: number;
         readonly longitude: number;
-
-        // TODO: 추후 서버 추가 예정
-        readonly level?: number;
-        readonly address?: string;
+        readonly radiusMeters: number;
+        readonly address: string;
 
         readonly status: "ACTIVE";
 
@@ -20,7 +18,7 @@ export interface GroupDetailResponse {
             readonly role: "OWNER" | "MEMBER";
             readonly status: "ACTIVE";
             readonly joinedAt: string;
-            readonly isMe?: boolean; // TODO: 추후 서버 추가 예정
+            readonly isMe: boolean;
         }[];
 
         readonly activeRecommendation: {

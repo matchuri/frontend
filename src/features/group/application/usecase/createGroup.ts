@@ -13,8 +13,8 @@ function createRequest(
         latitude: location.latitude,
         longitude: location.longitude,
 
-        // 현재 서버에서 미사용. 추후 확장 고려
-        level: location.level,
+        radiusMeters: 1000,
+        address: location.address,
     };
 }
 
@@ -22,10 +22,7 @@ export async function createGroup(
     groupName: string,
     location: LocationSetting,
 ) {
-    const request = createRequest(
-        groupName,
-        location,
-    );
+    const request = createRequest(groupName, location);
 
     return groupApi.createGroup(request);
 }

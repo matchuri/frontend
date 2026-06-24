@@ -40,7 +40,7 @@ export default function GroupCreateModal({
         address: defaultLocationSetting.address,
         latitude: defaultLocationSetting.latitude,
         longitude: defaultLocationSetting.longitude,
-        level: defaultLocationSetting.level,
+        level: 4,
     });
 
     if (!isOpen) return null;
@@ -129,7 +129,7 @@ export default function GroupCreateModal({
                                     ...prev,
                                     latitude: center.latitude,
                                     longitude: center.longitude,
-                                    level: center.level,
+                                    level: 4, //TODO: 후에 반경 설정 할 수 있도록 변경 필요
                                 }));
                             }}
                             onAddressChanged={(address) => {

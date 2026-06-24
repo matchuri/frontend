@@ -4,10 +4,8 @@ import type { GroupDetailMember } from "@/features/group/domain/model/GroupDetai
 export interface GroupDetailLocation {
     readonly latitude: number;
     readonly longitude: number;
-
-    // TODO: 추후 서버 추가 예정
-    readonly level?: number;
-    readonly address?: string;
+    readonly radiusMeters: number;
+    readonly address: string;
 }
 
 export interface GroupDetailRecommendation {
