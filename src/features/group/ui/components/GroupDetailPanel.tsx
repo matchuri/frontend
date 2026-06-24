@@ -23,6 +23,7 @@ interface GroupDetailPanelProps {
     readonly onClickEditLocation: () => void;
     readonly onClickDeleteGroup: () => void;
     readonly onClickLeaveGroup: () => void;
+    readonly onClickStartRecommendation: () => void;
 }
 
 export default function GroupDetailPanel({
@@ -34,6 +35,7 @@ export default function GroupDetailPanel({
     onClickEditLocation,
     onClickDeleteGroup,
     onClickLeaveGroup,
+    onClickStartRecommendation,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
@@ -71,7 +73,15 @@ export default function GroupDetailPanel({
                     )}
                 </section>
 
-                <GroupRecommendationStartButton />
+                {isOwner ? (
+                    <GroupRecommendationStartButton
+                        onClick={onClickStartRecommendation}
+                    />
+                ) : (
+                    <p className={groupDetailPanelStyles.recommendationGuideText}>
+                        방장이 추천을 시작하면 참여할 수 있어요.
+                    </p>
+                )}
 
                 <section className={groupDetailPanelStyles.memberSection}>
                     <div className={groupDetailPanelStyles.memberSectionHeader}>

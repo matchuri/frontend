@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAtomValue } from "jotai";
+import { useRouter } from "next/navigation";
 
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
@@ -37,6 +38,7 @@ import {
 import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
+import { useStartGroupRecommendation } from "@/features/group/application/hooks/useStartGroupRecommendation";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
@@ -55,6 +57,8 @@ import GroupLeaveModal from "@/features/group/ui/components/GroupLeaveModal";
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 export default function GroupPage() {
+    const router = useRouter();
+
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isAllInviteViewOpen, setIsAllInviteViewOpen] = useState(false);
@@ -91,6 +95,14 @@ export default function GroupPage() {
     const groupDetail = useAtomValue(groupDetailAtomValue);
     const isGroupDetailLoading = useAtomValue(isGroupDetailLoadingAtom);
     const groupDetailErrorMessage = useAtomValue(groupDetailErrorMessageAtom);
+
+    const { start } = useStartGroupRecommendation({
+        onSuccess: (sessionId) => {
+            router.push(
+                `/group/${selectedGroupId}/recommendations/${sessionId}`,
+            );
+        },
+    });
 
     const { isCreating, create } = useCreateGroup({
         onSuccess: () => {
@@ -192,8 +204,8 @@ export default function GroupPage() {
         setEditingLocation({
             latitude: groupDetail.location.latitude,
             longitude: groupDetail.location.longitude,
-            address: groupDetail.location.address ?? "",
-            level: groupDetail.location.level ?? 3,
+            address: groupDetail.location.address,
+            level: 4,
         });
 
         clearLocationUpdateMessage();
@@ -217,7 +229,7 @@ export default function GroupPage() {
             selectedGroupId,
             location.latitude,
             location.longitude,
-            location.level,
+            location.address,
         );
 
         // 위치 수정 후 최신 상세 정보를 다시 조회
@@ -226,6 +238,24 @@ export default function GroupPage() {
         // 상세 재조회 이후 모달 상태 초기화
         setIsLocationEditModalOpen(false);
         setEditingLocation(null);
+    };
+
+    const handleStartRecommendation = async () => {
+        if (selectedGroupId === null || !groupDetail) {
+            return;
+        }
+
+        if (!groupDetail.location.address) {
+            alert("그룹 위치 주소가 없습니다. 그룹 위치를 먼저 수정해주세요.");
+            return;
+        }
+
+        await start(selectedGroupId, {
+            latitude: groupDetail.location.latitude,
+            longitude: groupDetail.location.longitude,
+            address: groupDetail.location.address,
+            radiusMeters: 1000,
+        });
     };
 
     const openDeleteModal = () => {
@@ -365,6 +395,7 @@ export default function GroupPage() {
                             onClickEditLocation={openLocationEditModal}
                             onClickDeleteGroup={openDeleteModal}
                             onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
+                            onClickStartRecommendation={handleStartRecommendation}
                         />
                     )}
                 </div>
