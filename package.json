@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "event-source-polyfill": "^1.0.31",
     "jotai": "^2.19.1",
     "lucide-react": "^1.8.0",
     "next": "^16.2.9",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/event-source-polyfill": "^1.0.5",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -29,6 +31,6 @@
     "typescript": "^5"
   },
   "overrides": {
-    "postcss" : "^8.5.10"
+    "postcss": "^8.5.10"
   }
 }

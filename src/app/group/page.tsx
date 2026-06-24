@@ -34,6 +34,9 @@ import {
     isGroupDetailLoadingAtom,
     groupDetailErrorMessageAtom,
 } from "@/features/group/application/selectors/groupDetailSelectors";
+import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
+
+import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
@@ -66,6 +69,9 @@ export default function GroupPage() {
     const [editingGroupName, setEditingGroupName] = useState("");
     const [editingLocation, setEditingLocation] = useState<LocationSetting | null>(null);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+
+    const accessToken = useAtomValue(accessTokenAtom);
+    useMyRealtimeEvents(accessToken);
 
     const { refetchGroups } = useGroupList();
     const { refetchInvites } = useGroupInvites();
