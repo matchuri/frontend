@@ -244,8 +244,19 @@ export default function GroupPage() {
             return;
         }
 
+        const sessionId = groupDetail.activeRecommendation.sessionId;
+
+        // 추천 상태가 OPEN이면 결과 페이지로 이동
+        if (groupDetail.activeRecommendation.status === "OPEN") {
+            router.push(
+                `/group/${selectedGroupId}/recommendations/${sessionId}/result`,
+            );
+            return;
+        }
+
+        // PREPARING 상태이면 준비 페이지로 이동
         router.push(
-            `/group/${selectedGroupId}/recommendations/${groupDetail.activeRecommendation.sessionId}`,
+            `/group/${selectedGroupId}/recommendations/${sessionId}`,
         );
     };
 

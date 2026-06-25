@@ -42,6 +42,11 @@ export default function GroupDetailPanel({
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
+    const activeRecommendationButtonLabel =
+        group.activeRecommendation?.status === "OPEN"
+            ? "투표 현황 확인하기"
+            : "진행중인 메뉴 추천 페이지 이동";
+
     return (
         <aside className={groupDetailPanelStyles.panel}>
             <div className={groupDetailPanelStyles.content}>
@@ -77,7 +82,7 @@ export default function GroupDetailPanel({
 
                 {group.activeRecommendation ? (
                     <GroupRecommendationStartButton
-                        label="진행중인 메뉴 추천 페이지 이동"
+                        label={activeRecommendationButtonLabel}
                         onClick={onClickMoveActiveRecommendation}
                     />
                 ) : isOwner ? (

@@ -4,7 +4,10 @@ import type { GroupRecommendationStartRequest } from "@/features/groupRecommenda
 import type { GroupRecommendationStartResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationStartResponse";
 import type { GroupRecommendationReadinessResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationReadinessResponse";
 import type { CompleteGroupRecommendationPreparationResponse } from "@/features/groupRecommendation/infrastructure/api/dto/CompleteGroupRecommendationPreparationResponse";
+import type { GroupRecommendationSessionDetailResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationSessionDetailResponse";
+
 import type { GroupRecommendationReadiness } from "@/features/groupRecommendation/domain/model/GroupRecommendationReadiness";
+import type { GroupRecommendationSessionDetail } from "@/features/groupRecommendation/domain/model/GroupRecommendationSessionDetail";
 
 export const groupRecommendationApi = {
     async startRecommendation(
@@ -59,6 +62,25 @@ export const groupRecommendationApi = {
             throw new Error(
                 response.error?.message ??
                     "그룹 추천 준비 완료에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async fetchSessionDetail(
+        groupId: number,
+        sessionId: number,
+    ): Promise<GroupRecommendationSessionDetail> {
+        const response =
+            await httpClient.get<GroupRecommendationSessionDetailResponse>(
+                `/api/v1/groups/${groupId}/recommendations/${sessionId}`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 추천 세션 상세 조회에 실패했습니다.",
             );
         }
 
