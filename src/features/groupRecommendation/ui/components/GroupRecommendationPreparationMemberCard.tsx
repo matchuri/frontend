@@ -6,6 +6,7 @@ interface GroupRecommendationPreparationMemberCardProps {
     readonly nickname: string;
     readonly isMe: boolean;
     readonly isReady: boolean;
+    readonly hasPreference: boolean;
     readonly onClickEditPreference?: () => void;
     readonly onClickReady?: () => void;
 }
@@ -14,6 +15,7 @@ export default function GroupRecommendationPreparationMemberCard({
     nickname,
     isMe,
     isReady,
+    hasPreference,
     onClickEditPreference,
     onClickReady,
 }: GroupRecommendationPreparationMemberCardProps) {
@@ -44,7 +46,7 @@ export default function GroupRecommendationPreparationMemberCard({
                             onClick={onClickEditPreference}
                             className={groupRecommendationPreparationPageStyles.preferenceEditButton}
                         >
-                            취향 수정
+                            {hasPreference ? "취향 수정" : "취향 등록"}
                         </button>
 
                         <button

@@ -31,7 +31,7 @@ export const mockGroupRecommendationPreparation = {
         },
         {
             memberId: 4,
-            nickname: "묻마는 내친구",
+            nickname: "돈나룸마",
             isMe: false,
             isReady: false,
         },
