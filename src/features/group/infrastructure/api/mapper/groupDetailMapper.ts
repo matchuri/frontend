@@ -28,12 +28,19 @@ export function mapGroupDetail(
             ? {
                   sessionId: response.activeRecommendation.sessionId,
                   status: response.activeRecommendation.status,
-                  totalMemberCount:
-                      response.activeRecommendation.readiness.totalMemberCount,
-                  readyMemberCount:
-                      response.activeRecommendation.readiness.readyMemberCount,
-                  allReady:
-                      response.activeRecommendation.readiness.allReady,
+                  readiness: response.activeRecommendation.readiness
+                      ? {
+                            totalMemberCount:
+                                response.activeRecommendation.readiness
+                                    .totalMemberCount,
+                            readyMemberCount:
+                                response.activeRecommendation.readiness
+                                    .readyMemberCount,
+                            allReady:
+                                response.activeRecommendation.readiness
+                                    .allReady,
+                        }
+                      : null,
               }
             : null,
     };
