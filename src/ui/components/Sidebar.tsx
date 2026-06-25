@@ -3,13 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAtomValue } from "jotai";
-import {
-    Home,
-    User,
-    Users,
-    UtensilsCrossed,
-    Settings,
-} from "lucide-react";
+import { Home, User, Users, UtensilsCrossed, Settings, } from "lucide-react";
 
 import {
     sidebarStyles,
@@ -20,24 +14,18 @@ import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommen
 
 const MENUS = [
     { href: "/home", label: "홈", icon: Home, enabled: true },
-    {
-        href: "/personal-recommendation",
-        label: "개인 메뉴 추천",
-        icon: User,
-        enabled: true,
-    },
+    { href: "/personal-recommendation", label: "개인 메뉴 추천", icon: User, enabled: true },
     { href: "/group", label: "그룹 메뉴 추천", icon: Users, enabled: true },
-    {
-        href: "/preference",
-        label: "취향 관리",
-        icon: UtensilsCrossed,
-        enabled: true,
-    },
+    { href: "/preference", label: "취향 관리", icon: UtensilsCrossed, enabled: true },
     { href: "/settings", label: "설정", icon: Settings, enabled: true },
 ];
 
 export default function Sidebar() {
     const pathname = usePathname();
+
+    const isGroupRecommendationPage =
+        pathname.startsWith("/group/") &&
+        pathname.includes("/recommendations/");
 
     const isRecommendationLoading = useAtomValue(
         isPersonalRecommendationLoadingAtom,
@@ -51,6 +39,12 @@ export default function Sidebar() {
         event: React.MouseEvent<HTMLAnchorElement>,
         href: string,
     ) => {
+        // 그룹 메뉴 추천 진행중에는 페이지 이동 차단
+        if (isGroupRecommendationPage) {
+            event.preventDefault();
+            alert("그룹 메뉴 추천이 진행 중에는 다른 페이지로 이동할 수 없습니다.");
+            return;
+        }
         if (!isRecommendationLoading) return;
 
         if (href === "/personal-recommendation") {
