@@ -16,6 +16,8 @@ import { useUpdateGroupName } from "@/features/group/application/hooks/useUpdate
 import { useUpdateGroupLocation } from "@/features/group/application/hooks/useUpdateGroupLocation";
 import { useDeleteGroup } from "@/features/group/application/hooks/useDeleteGroup";
 import { useLeaveGroup } from "@/features/group/application/hooks/useLeaveGroup";
+import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
+import { useStartGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useStartGroupRecommendation";
 
 import {
     groupsAtom,
@@ -36,9 +38,6 @@ import {
     groupDetailErrorMessageAtom,
 } from "@/features/group/application/selectors/groupDetailSelectors";
 import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
-
-import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
-import { useStartGroupRecommendation } from "@/features/group/application/hooks/useStartGroupRecommendation";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
@@ -240,8 +239,23 @@ export default function GroupPage() {
         setEditingLocation(null);
     };
 
+    const handleMoveActiveRecommendation = () => {
+        if (selectedGroupId === null || !groupDetail?.activeRecommendation) {
+            return;
+        }
+
+        router.push(
+            `/group/${selectedGroupId}/recommendations/${groupDetail.activeRecommendation.sessionId}`,
+        );
+    };
+
     const handleStartRecommendation = async () => {
         if (selectedGroupId === null || !groupDetail) {
+            return;
+        }
+
+        if (groupDetail.activeRecommendation) {
+            handleMoveActiveRecommendation();
             return;
         }
 
@@ -396,6 +410,7 @@ export default function GroupPage() {
                             onClickDeleteGroup={openDeleteModal}
                             onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
                             onClickStartRecommendation={handleStartRecommendation}
+                            onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
                         />
                     )}
                 </div>

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { startGroupRecommendation } from "@/features/group/application/usecase/startGroupRecommendation";
-import type { GroupRecommendationStartRequest } from "@/features/group/infrastructure/api/dto/GroupRecommendationStartRequest";
+import { startGroupRecommendation } from "@/features/groupRecommendation/application/usecase/startGroupRecommendation";
+import type { GroupRecommendationStartRequest } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationStartRequest";
 
 interface UseStartGroupRecommendationProps {
     readonly onSuccess?: (sessionId: number) => void;

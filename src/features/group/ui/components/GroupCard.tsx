@@ -11,7 +11,7 @@ interface GroupCardProps {
 function getStatusLabel(status: Group["recommendationStatus"]) {
     if (status === "OPEN") return "투표 진행 중";
     if (status === "CLOSED") return "투표 종료";
-    if (status === "PREPARING") return "준비 중";
+    if (status === "PREPARING") return "메뉴 추천 준비중";
     return null;
 }
 

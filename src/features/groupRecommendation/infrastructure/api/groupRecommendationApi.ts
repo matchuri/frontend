@@ -1,7 +1,7 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
 
-import type { GroupRecommendationStartRequest } from "./dto/GroupRecommendationStartRequest";
-import type { GroupRecommendationStartResponse } from "./dto/GroupRecommendationStartResponse";
+import type { GroupRecommendationStartRequest } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationStartRequest";
+import type { GroupRecommendationStartResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationStartResponse";
 
 export const groupRecommendationApi = {
     async startRecommendation(
