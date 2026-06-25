@@ -6,6 +6,7 @@ import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
+import { useVoteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/hooks/useVoteGroupRecommendationCandidate";
 import {
     groupRecommendationSessionDetailAtomValue,
     isGroupRecommendationSessionDetailLoadingAtom,
@@ -36,7 +37,19 @@ export default function GroupRecommendationResultPage() {
 
     const [isVoteClosed, setIsVoteClosed] = useState(false);
 
-    useGroupRecommendationSessionDetail(groupId, sessionId);
+    // refetchSessionDetail을 받아 투표 성공 후 최신 결과를 다시 조회
+    const { refetchSessionDetail } = useGroupRecommendationSessionDetail(
+        groupId,
+        sessionId,
+    );
+
+    const { isVoting, vote } = useVoteGroupRecommendationCandidate({
+        onSuccess: async () => {
+            await refetchSessionDetail({
+                showLoading: false,
+            });
+        },
+    });
 
     const sessionDetail = useAtomValue(
         groupRecommendationSessionDetailAtomValue,
@@ -52,12 +65,20 @@ export default function GroupRecommendationResultPage() {
         router.push(`/group?selectedGroupId=${groupId}`);
     };
 
-    const handleClickVote = (candidateId: number) => {
+    // 투표하기 버튼 클릭 시 투표 API 호출
+    const handleClickVote = async (candidateId: number) => {
         if (isVoteClosed || sessionDetail?.status === "FINALIZED") {
             return;
         }
 
-        setSelectedCandidateId(candidateId);
+        try {
+            await vote(groupId, sessionId, candidateId);
+
+            // 투표 성공 후 선택된 후보 UI 표시
+            setSelectedCandidateId(candidateId);
+        } catch {
+            alert("투표에 실패했습니다.");
+        }
     };
 
     const handleClickCloseVote = () => {
@@ -119,9 +140,7 @@ export default function GroupRecommendationResultPage() {
         (candidate) => candidate.candidateId === selectedCandidateId,
     );
 
-    const votedMemberCount = selectedCandidate
-        ? (sessionDetail.voteProgress?.votedMemberCount ?? 0) + 1
-        : sessionDetail.voteProgress?.votedMemberCount ?? 0;
+    const votedMemberCount = sessionDetail.voteProgress?.votedMemberCount ?? 0;
 
     const totalMemberCount =
         sessionDetail.voteProgress?.totalMemberCount ?? 0;
@@ -182,6 +201,9 @@ export default function GroupRecommendationResultPage() {
                             matchPercent={Math.round(candidate.score)}
                             selected={candidate.selected}
                             isVoteClosed={isFinalized}
+
+                            // 투표 요청 중이면 버튼 비활성화 및 문구 변경
+                            isVoting={isVoting}
                             onClickVote={() =>
                                 handleClickVote(candidate.candidateId)
                             }

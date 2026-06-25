@@ -5,6 +5,10 @@ interface GroupRecommendationResultCandidateCardProps {
     readonly matchPercent: number;
     readonly selected: boolean;
     readonly isVoteClosed: boolean;
+
+    // 투표 API 요청 중인지 여부
+    readonly isVoting: boolean;
+
     readonly onClickVote: () => void;
 }
 
@@ -13,8 +17,11 @@ export default function GroupRecommendationResultCandidateCard({
     matchPercent,
     selected,
     isVoteClosed,
+    isVoting,
     onClickVote,
 }: GroupRecommendationResultCandidateCardProps) {
+    const isVoteButtonDisabled = isVoteClosed || isVoting;
+
     return (
         <article
             className={
@@ -37,14 +44,16 @@ export default function GroupRecommendationResultCandidateCard({
                 <button
                     type="button"
                     onClick={onClickVote}
-                    disabled={isVoteClosed}
+
+                    // 투표 종료 또는 투표 요청 중이면 버튼 비활성화
+                    disabled={isVoteButtonDisabled}
                     className={
-                        isVoteClosed
+                        isVoteButtonDisabled
                             ? groupRecommendationResultPageStyles.disabledVoteButton
                             : groupRecommendationResultPageStyles.voteButton
                     }
                 >
-                    투표하기
+                    {isVoting ? "투표 중..." : "투표하기"}
                 </button>
             </div>
         </article>

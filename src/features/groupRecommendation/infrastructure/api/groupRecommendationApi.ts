@@ -5,6 +5,8 @@ import type { GroupRecommendationStartResponse } from "@/features/groupRecommend
 import type { GroupRecommendationReadinessResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationReadinessResponse";
 import type { CompleteGroupRecommendationPreparationResponse } from "@/features/groupRecommendation/infrastructure/api/dto/CompleteGroupRecommendationPreparationResponse";
 import type { GroupRecommendationSessionDetailResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationSessionDetailResponse";
+import type { GroupRecommendationVoteRequest } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteRequest";
+import type { GroupRecommendationVoteResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteResponse";
 
 import type { GroupRecommendationReadiness } from "@/features/groupRecommendation/domain/model/GroupRecommendationReadiness";
 import type { GroupRecommendationSessionDetail } from "@/features/groupRecommendation/domain/model/GroupRecommendationSessionDetail";
@@ -81,6 +83,27 @@ export const groupRecommendationApi = {
             throw new Error(
                 response.error?.message ??
                     "그룹 추천 세션 상세 조회에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async voteCandidate(
+        groupId: number,
+        sessionId: number,
+        request: GroupRecommendationVoteRequest,
+    ) {
+        const response =
+            await httpClient.post<GroupRecommendationVoteResponse>(
+                `/api/v1/groups/${groupId}/recommendations/${sessionId}/votes`,
+                request,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "메뉴 후보 투표에 실패했습니다.",
             );
         }
 
