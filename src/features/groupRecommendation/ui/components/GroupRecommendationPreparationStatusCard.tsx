@@ -13,10 +13,20 @@ export default function GroupRecommendationPreparationStatusCard({
     totalMemberCount,
     readyMemberCount,
 }: GroupRecommendationPreparationStatusCardProps) {
+    // readyMemberCount가 totalMemberCount보다 커져도 100%를 넘지 않도록 방어
     const progressPercent =
         totalMemberCount === 0
             ? 0
-            : (readyMemberCount / totalMemberCount) * 100;
+            : Math.min(
+                  (readyMemberCount / totalMemberCount) * 100,
+                  100,
+              );
+
+    // 화면 표시용 count도 totalMemberCount를 넘지 않도록 방어
+    const safeReadyMemberCount = Math.min(
+        readyMemberCount,
+        totalMemberCount,
+    );
 
     const isAnalyzing = status === "OPEN";
 
@@ -30,7 +40,7 @@ export default function GroupRecommendationPreparationStatusCard({
                 </h2>
 
                 <span className={groupRecommendationPreparationPageStyles.preferenceStatusCount}>
-                    {readyMemberCount}/{totalMemberCount}
+                    {safeReadyMemberCount}/{totalMemberCount}
                 </span>
             </div>
 

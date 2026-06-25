@@ -5,6 +5,7 @@ interface GroupRecommendationResultVoteStatusCardProps {
     readonly votedMemberCount: number;
     readonly isOwner: boolean;
     readonly isVoteClosed: boolean;
+    readonly isFinalizing: boolean;
     readonly onClickCloseVote: () => void;
     readonly onClickMoveVoteResult: () => void;
 }
@@ -14,6 +15,7 @@ export default function GroupRecommendationResultVoteStatusCard({
     votedMemberCount,
     isOwner,
     isVoteClosed,
+    isFinalizing,
     onClickCloseVote,
     onClickMoveVoteResult,
 }: GroupRecommendationResultVoteStatusCardProps) {
@@ -60,7 +62,7 @@ export default function GroupRecommendationResultVoteStatusCard({
                     onClick={onClickCloseVote}
                     className={groupRecommendationResultPageStyles.voteActionButton}
                 >
-                    투표 종료
+                    {isFinalizing ? "투표 종료 중..." : "투표 종료"}
                 </button>
             )}
         </section>
