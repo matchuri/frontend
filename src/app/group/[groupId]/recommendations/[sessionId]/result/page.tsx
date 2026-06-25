@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+
+import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
+import {
+    groupRecommendationSessionDetailAtomValue,
+    isGroupRecommendationSessionDetailLoadingAtom,
+    groupRecommendationSessionDetailErrorMessageAtom,
+} from "@/features/groupRecommendation/application/selectors/groupRecommendationSessionDetailSelectors";
 
 import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultVoteStatusCard";
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
@@ -21,28 +29,107 @@ export default function GroupRecommendationResultPage() {
     const router = useRouter();
 
     const groupId = Number(params.groupId);
+    const sessionId = Number(params.sessionId);
 
     const [selectedCandidateId, setSelectedCandidateId] =
         useState<number | null>(null);
 
-    const [isVoteClosed, setIsVoteClosed] = useState(
-        mockGroupRecommendationResult.status === "FINALIZED",
+    const [isVoteClosed, setIsVoteClosed] = useState(false);
+
+    useGroupRecommendationSessionDetail(groupId, sessionId);
+
+    const sessionDetail = useAtomValue(
+        groupRecommendationSessionDetailAtomValue,
+    );
+    const isSessionDetailLoading = useAtomValue(
+        isGroupRecommendationSessionDetailLoadingAtom,
+    );
+    const sessionDetailErrorMessage = useAtomValue(
+        groupRecommendationSessionDetailErrorMessageAtom,
     );
 
-    const selectedCandidate = mockGroupRecommendationResult.candidates.find(
+    const handleClickBack = () => {
+        router.push(`/group?selectedGroupId=${groupId}`);
+    };
+
+    const handleClickVote = (candidateId: number) => {
+        if (isVoteClosed || sessionDetail?.status === "FINALIZED") {
+            return;
+        }
+
+        setSelectedCandidateId(candidateId);
+    };
+
+    const handleClickCloseVote = () => {
+        setIsVoteClosed(true);
+    };
+
+    const handleClickMoveVoteResult = () => {
+        alert("투표 결과 상세 화면 구현 예정");
+    };
+
+    if (isSessionDetailLoading) {
+        return (
+            <main className={groupRecommendationResultPageStyles.container}>
+                <div className={groupRecommendationResultPageStyles.content}>
+                    그룹 추천 결과를 불러오는 중...
+                </div>
+            </main>
+        );
+    }
+
+    if (sessionDetailErrorMessage) {
+        return (
+            <main className={groupRecommendationResultPageStyles.container}>
+                <div className={groupRecommendationResultPageStyles.content}>
+                    {sessionDetailErrorMessage}
+                </div>
+            </main>
+        );
+    }
+
+    if (!sessionDetail) {
+        return null;
+    }
+
+    if (sessionDetail.status === "PREPARING") {
+        return (
+            <main className={groupRecommendationResultPageStyles.container}>
+                <div className={groupRecommendationResultPageStyles.content}>
+                    <button
+                        type="button"
+                        onClick={handleClickBack}
+                        className={groupRecommendationResultPageStyles.backButton}
+                    >
+                        <ArrowLeft size={30} strokeWidth={2.5} />
+                    </button>
+
+                    <h1 className={groupRecommendationResultPageStyles.title}>
+                        아직 추천 후보를 생성하는 중입니다.
+                    </h1>
+                </div>
+            </main>
+        );
+    }
+
+    const isFinalized =
+        sessionDetail.status === "FINALIZED" || isVoteClosed;
+
+    const selectedCandidate = sessionDetail.candidates.find(
         (candidate) => candidate.candidateId === selectedCandidateId,
     );
 
     const votedMemberCount = selectedCandidate
-        ? mockGroupRecommendationResult.voteProgress.votedMemberCount + 1
-        : mockGroupRecommendationResult.voteProgress.votedMemberCount;
+        ? (sessionDetail.voteProgress?.votedMemberCount ?? 0) + 1
+        : sessionDetail.voteProgress?.votedMemberCount ?? 0;
 
-    const candidates = mockGroupRecommendationResult.candidates.map(
-        (candidate) => ({
-            ...candidate,
-            selected: candidate.candidateId === selectedCandidateId,
-        }),
-    );
+    const totalMemberCount =
+        sessionDetail.voteProgress?.totalMemberCount ?? 0;
+
+    const candidates = sessionDetail.candidates.map((candidate) => ({
+        ...candidate,
+        selected: candidate.candidateId === selectedCandidateId,
+    }));
 
     const members = mockGroupRecommendationResult.members.map((member) =>
         member.isMe && selectedCandidate
@@ -53,24 +140,6 @@ export default function GroupRecommendationResultPage() {
             : member,
     );
 
-    const handleClickBack = () => {
-        router.push(`/group?selectedGroupId=${groupId}`);
-    };
-
-    const handleClickVote = (candidateId: number) => {
-        if (isVoteClosed) return;
-
-        setSelectedCandidateId(candidateId);
-    };
-
-    const handleClickCloseVote = () => {
-        setIsVoteClosed(true);
-    };
-
-    const handleClickMoveVoteResult = () => {
-        alert("투표 결과 화면 구현 예정");
-    };
-
     return (
         <main className={groupRecommendationResultPageStyles.container}>
             <div className={groupRecommendationResultPageStyles.content}>
@@ -79,7 +148,7 @@ export default function GroupRecommendationResultPage() {
                     onClick={handleClickBack}
                     className={groupRecommendationResultPageStyles.backButton}
                 >
-                    <ArrowLeft size={28} />
+                    <ArrowLeft size={30} strokeWidth={2.5} />
                 </button>
 
                 <header className={groupRecommendationResultPageStyles.titleSection}>
@@ -94,13 +163,10 @@ export default function GroupRecommendationResultPage() {
 
                 <div className={groupRecommendationResultPageStyles.topSection}>
                     <GroupRecommendationResultVoteStatusCard
-                        totalMemberCount={
-                            mockGroupRecommendationResult.voteProgress
-                                .totalMemberCount
-                        }
+                        totalMemberCount={totalMemberCount}
                         votedMemberCount={votedMemberCount}
                         isOwner={mockGroupRecommendationResult.isOwner}
-                        isVoteClosed={isVoteClosed}
+                        isVoteClosed={isFinalized}
                         onClickCloseVote={handleClickCloseVote}
                         onClickMoveVoteResult={handleClickMoveVoteResult}
                     />
@@ -115,7 +181,7 @@ export default function GroupRecommendationResultPage() {
                             menuName={candidate.menuName}
                             matchPercent={Math.round(candidate.score)}
                             selected={candidate.selected}
-                            isVoteClosed={isVoteClosed}
+                            isVoteClosed={isFinalized}
                             onClickVote={() =>
                                 handleClickVote(candidate.candidateId)
                             }
