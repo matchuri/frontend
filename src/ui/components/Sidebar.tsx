@@ -25,7 +25,8 @@ export default function Sidebar() {
 
     const isGroupRecommendationPage =
         pathname.startsWith("/group/") &&
-        pathname.includes("/recommendations/");
+        pathname.includes("/recommendations/") &&
+        !pathname.endsWith("/result");
 
     const isRecommendationLoading = useAtomValue(
         isPersonalRecommendationLoadingAtom,

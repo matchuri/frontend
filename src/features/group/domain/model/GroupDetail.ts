@@ -8,12 +8,16 @@ export interface GroupDetailLocation {
     readonly address: string;
 }
 
-export interface GroupDetailRecommendation {
-    readonly sessionId: number;
-    readonly status: GroupRecommendationStatus;
+export interface GroupDetailRecommendationReadiness {
     readonly totalMemberCount: number;
     readonly readyMemberCount: number;
     readonly allReady: boolean;
+}
+
+export interface GroupDetailRecommendation {
+    readonly sessionId: number;
+    readonly status: Exclude<GroupRecommendationStatus, null>;
+    readonly readiness: GroupDetailRecommendationReadiness | null;
 }
 
 export interface GroupDetail {

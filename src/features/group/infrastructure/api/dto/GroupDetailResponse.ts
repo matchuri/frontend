@@ -8,7 +8,7 @@ export interface GroupDetailResponse {
         readonly latitude: number;
         readonly longitude: number;
         readonly radiusMeters: number;
-        readonly address: string;
+        readonly address: string | null;
 
         readonly status: "ACTIVE";
 
@@ -33,7 +33,7 @@ export interface GroupDetailResponse {
                 readonly totalMemberCount: number;
                 readonly readyMemberCount: number;
                 readonly allReady: boolean;
-            };
+            } | null;
         } | null;
     };
 

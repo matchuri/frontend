@@ -7,8 +7,9 @@ interface GroupRecommendationPreparationMemberCardProps {
     readonly isMe: boolean;
     readonly isReady: boolean;
     readonly hasPreference: boolean;
+    readonly isCompletingPreparation?: boolean;
     readonly onClickEditPreference?: () => void;
-    readonly onClickReady?: () => void;
+    readonly onClickCompletePreparation?: () => void;
 }
 
 export default function GroupRecommendationPreparationMemberCard({
@@ -16,8 +17,9 @@ export default function GroupRecommendationPreparationMemberCard({
     isMe,
     isReady,
     hasPreference,
+    isCompletingPreparation = false,
     onClickEditPreference,
-    onClickReady,
+    onClickCompletePreparation,
 }: GroupRecommendationPreparationMemberCardProps) {
     return (
         <article
@@ -51,10 +53,13 @@ export default function GroupRecommendationPreparationMemberCard({
 
                         <button
                             type="button"
-                            onClick={onClickReady}
+                            onClick={onClickCompletePreparation}
+                            disabled={isCompletingPreparation}
                             className={groupRecommendationPreparationPageStyles.readyButton}
                         >
-                            준비 완료
+                            {isCompletingPreparation
+                                ? "처리 중"
+                                : "준비 완료"}
                         </button>
                     </>
                 )}
