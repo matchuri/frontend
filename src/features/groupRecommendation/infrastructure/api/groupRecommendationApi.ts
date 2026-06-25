@@ -7,6 +7,7 @@ import type { CompleteGroupRecommendationPreparationResponse } from "@/features/
 import type { GroupRecommendationSessionDetailResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationSessionDetailResponse";
 import type { GroupRecommendationVoteRequest } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteRequest";
 import type { GroupRecommendationVoteResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteResponse";
+import type { FinalizeGroupRecommendationResponse } from "@/features/groupRecommendation/infrastructure/api/dto/FinalizeGroupRecommendationResponse";
 
 import type { GroupRecommendationReadiness } from "@/features/groupRecommendation/domain/model/GroupRecommendationReadiness";
 import type { GroupRecommendationSessionDetail } from "@/features/groupRecommendation/domain/model/GroupRecommendationSessionDetail";
@@ -104,6 +105,25 @@ export const groupRecommendationApi = {
             throw new Error(
                 response.error?.message ??
                     "메뉴 후보 투표에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async finalizeRecommendation(
+        groupId: number,
+        sessionId: number,
+    ) {
+        const response =
+            await httpClient.patch<FinalizeGroupRecommendationResponse>(
+                `/api/v1/groups/${groupId}/recommendations/${sessionId}/finalize`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 추천 최종 메뉴 확정에 실패했습니다.",
             );
         }
 

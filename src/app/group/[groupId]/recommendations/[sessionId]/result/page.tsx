@@ -11,6 +11,8 @@ import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDe
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
 import { useGroupRecommendationReadiness } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationReadiness";
 import { useVoteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/hooks/useVoteGroupRecommendationCandidate";
+import { useFinalizeGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useFinalizeGroupRecommendation";
+
 import {
     groupRecommendationSessionDetailAtomValue,
     isGroupRecommendationSessionDetailLoadingAtom,
@@ -68,6 +70,14 @@ export default function GroupRecommendationResultPage() {
         },
     });
 
+    const { isFinalizing, finalize } = useFinalizeGroupRecommendation({
+        onSuccess: async () => {
+            await refetchSessionDetail({
+                showLoading: false,
+            });
+        },
+    });
+
     const sessionDetail = useAtomValue(
         groupRecommendationSessionDetailAtomValue,
     );
@@ -95,8 +105,14 @@ export default function GroupRecommendationResultPage() {
         }
     };
 
-    const handleClickCloseVote = () => {
-        setIsVoteClosed(true);
+    const handleClickCloseVote = async () => {
+        try {
+            await finalize(groupId, sessionId);
+
+            setIsVoteClosed(true);
+        } catch {
+            alert("투표 종료에 실패했습니다.");
+        }
     };
 
     const handleClickMoveVoteResult = () => {
@@ -199,6 +215,7 @@ export default function GroupRecommendationResultPage() {
                         votedMemberCount={votedMemberCount}
                         isOwner={isOwner}
                         isVoteClosed={isFinalized}
+                        isFinalizing={isFinalizing}
                         onClickCloseVote={handleClickCloseVote}
                         onClickMoveVoteResult={handleClickMoveVoteResult}
                     />
