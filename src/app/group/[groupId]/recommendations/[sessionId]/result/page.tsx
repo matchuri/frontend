@@ -5,19 +5,23 @@ import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
+import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
+
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
+import { useGroupRecommendationReadiness } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationReadiness";
 import { useVoteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/hooks/useVoteGroupRecommendationCandidate";
 import {
     groupRecommendationSessionDetailAtomValue,
     isGroupRecommendationSessionDetailLoadingAtom,
     groupRecommendationSessionDetailErrorMessageAtom,
 } from "@/features/groupRecommendation/application/selectors/groupRecommendationSessionDetailSelectors";
+import { groupRecommendationReadinessAtomValue } from "@/features/groupRecommendation/application/selectors/groupRecommendationReadinessSelectors";
+import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultVoteStatusCard";
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
 import GroupRecommendationResultCandidateCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultCandidateCard";
-
-import { mockGroupRecommendationResult } from "@/features/groupRecommendation/ui/mock/mockGroupRecommendationResult";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
@@ -37,7 +41,20 @@ export default function GroupRecommendationResultPage() {
 
     const [isVoteClosed, setIsVoteClosed] = useState(false);
 
-    // refetchSessionDetail을 받아 투표 성공 후 최신 결과를 다시 조회
+    const member = useAtomValue(memberAtom);
+
+    // 새로고침/직접 진입 시에도 방장 여부를 알 수 있도록 그룹 상세 조회
+    useGroupDetail(groupId);
+
+    // 그룹 상세 조회 결과를 기반으로 방장 여부 판단
+    const isOwner = useAtomValue(isGroupOwnerAtom);
+
+    // TODO: 나중에 확인 필요
+    // 결과 화면에서도 멤버 목록 확보를 위해 준비 상태 조회 (다른 api에서는 멤버 정보를 주는 게 없기 때문)
+    useGroupRecommendationReadiness(groupId, sessionId);
+
+    const readiness = useAtomValue(groupRecommendationReadinessAtomValue);
+
     const { refetchSessionDetail } = useGroupRecommendationSessionDetail(
         groupId,
         sessionId,
@@ -65,7 +82,6 @@ export default function GroupRecommendationResultPage() {
         router.push(`/group?selectedGroupId=${groupId}`);
     };
 
-    // 투표하기 버튼 클릭 시 투표 API 호출
     const handleClickVote = async (candidateId: number) => {
         if (isVoteClosed || sessionDetail?.status === "FINALIZED") {
             return;
@@ -73,8 +89,6 @@ export default function GroupRecommendationResultPage() {
 
         try {
             await vote(groupId, sessionId, candidateId);
-
-            // 투표 성공 후 선택된 후보 UI 표시
             setSelectedCandidateId(candidateId);
         } catch {
             alert("투표에 실패했습니다.");
@@ -136,10 +150,6 @@ export default function GroupRecommendationResultPage() {
     const isFinalized =
         sessionDetail.status === "FINALIZED" || isVoteClosed;
 
-    const selectedCandidate = sessionDetail.candidates.find(
-        (candidate) => candidate.candidateId === selectedCandidateId,
-    );
-
     const votedMemberCount = sessionDetail.voteProgress?.votedMemberCount ?? 0;
 
     const totalMemberCount =
@@ -150,14 +160,17 @@ export default function GroupRecommendationResultPage() {
         selected: candidate.candidateId === selectedCandidateId,
     }));
 
-    const members = mockGroupRecommendationResult.members.map((member) =>
-        member.isMe && selectedCandidate
-            ? {
-                  ...member,
-                  voted: true,
-              }
-            : member,
-    );
+    const members =
+        readiness?.members.map((readinessMember) => {
+            const isMe = member?.id === readinessMember.memberId;
+
+            return {
+                memberId: readinessMember.memberId,
+                nickname: readinessMember.nickname,
+                isMe,
+                voted: isMe && selectedCandidateId !== null,
+            };
+        }) ?? [];
 
     return (
         <main className={groupRecommendationResultPageStyles.container}>
@@ -184,7 +197,7 @@ export default function GroupRecommendationResultPage() {
                     <GroupRecommendationResultVoteStatusCard
                         totalMemberCount={totalMemberCount}
                         votedMemberCount={votedMemberCount}
-                        isOwner={mockGroupRecommendationResult.isOwner}
+                        isOwner={isOwner}
                         isVoteClosed={isFinalized}
                         onClickCloseVote={handleClickCloseVote}
                         onClickMoveVoteResult={handleClickMoveVoteResult}
@@ -201,8 +214,6 @@ export default function GroupRecommendationResultPage() {
                             matchPercent={Math.round(candidate.score)}
                             selected={candidate.selected}
                             isVoteClosed={isFinalized}
-
-                            // 투표 요청 중이면 버튼 비활성화 및 문구 변경
                             isVoting={isVoting}
                             onClickVote={() =>
                                 handleClickVote(candidate.candidateId)
