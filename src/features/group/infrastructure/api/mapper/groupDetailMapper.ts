@@ -11,9 +11,8 @@ export function mapGroupDetail(
         location: {
             latitude: response.latitude,
             longitude: response.longitude,
-
-            level: response.level,
-            address: response.address,
+            radiusMeters: response.radiusMeters,
+            address: response.address ?? "",
         },
 
         members: response.members.map((member) => ({
@@ -22,7 +21,7 @@ export function mapGroupDetail(
             role: member.role,
             status: member.status,
             joinedAt: member.joinedAt,
-            isMe: member.isMe ?? false, // TODO: 나중에 수정 필요
+            isMe: member.isMe,
         })),
 
         activeRecommendation: response.activeRecommendation

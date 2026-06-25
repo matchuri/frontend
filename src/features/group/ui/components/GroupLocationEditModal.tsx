@@ -114,7 +114,7 @@ export default function GroupLocationEditModal({
                                     ...prev,
                                     latitude: center.latitude,
                                     longitude: center.longitude,
-                                    level: center.level,
+                                    level: 4,
                                 }));
                             }}
                             onAddressChanged={(address) => {

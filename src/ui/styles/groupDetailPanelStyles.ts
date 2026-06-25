@@ -10,6 +10,7 @@ export const groupDetailPanelStyles = {
     address: "mt-4 flex items-center gap-2 text-base text-slate-600",
 
     recommendationButton: "mt-10 h-16 rounded-full bg-zinc-950 text-lg font-bold text-white",
+    recommendationGuideText: "mt-10 rounded-[24px] bg-zinc-100 px-6 py-5 text-center text-base font-semibold text-slate-500",
 
     memberSection: "mt-8 rounded-[28px] border border-zinc-200 p-8",
     memberSectionHeader: "flex items-start justify-between",

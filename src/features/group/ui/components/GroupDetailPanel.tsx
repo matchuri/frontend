@@ -23,6 +23,8 @@ interface GroupDetailPanelProps {
     readonly onClickEditLocation: () => void;
     readonly onClickDeleteGroup: () => void;
     readonly onClickLeaveGroup: () => void;
+    readonly onClickStartRecommendation: () => void;
+    readonly onClickMoveActiveRecommendation: () => void;
 }
 
 export default function GroupDetailPanel({
@@ -34,6 +36,8 @@ export default function GroupDetailPanel({
     onClickEditLocation,
     onClickDeleteGroup,
     onClickLeaveGroup,
+    onClickStartRecommendation,
+    onClickMoveActiveRecommendation,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
@@ -71,7 +75,20 @@ export default function GroupDetailPanel({
                     )}
                 </section>
 
-                <GroupRecommendationStartButton />
+                {group.activeRecommendation ? (
+                    <GroupRecommendationStartButton
+                        label="진행중인 메뉴 추천 페이지 이동"
+                        onClick={onClickMoveActiveRecommendation}
+                    />
+                ) : isOwner ? (
+                    <GroupRecommendationStartButton
+                        onClick={onClickStartRecommendation}
+                    />
+                ) : (
+                    <p className={groupDetailPanelStyles.recommendationGuideText}>
+                        방장이 추천을 시작하면 참여할 수 있어요.
+                    </p>
+                )}
 
                 <section className={groupDetailPanelStyles.memberSection}>
                     <div className={groupDetailPanelStyles.memberSectionHeader}>

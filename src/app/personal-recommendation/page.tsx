@@ -22,7 +22,7 @@ import { usePersonalRecommendationStart } from "@/features/personalRecommendatio
 import { usePersonalRecommendationHistories } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationHistories";
 import { usePersonalRecommendationResultNavigation } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationResultNavigation";
 
-import { hasRequiredPreference } from "@/features/personalRecommendation/domain/validator/hasRequiredPreference";
+import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
 import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 import { personalRecommendationHistoryToPanelItemsMapper } from "@/features/personalRecommendation/ui/mapper/personalRecommendationHistoryToPanelItemsMapper";

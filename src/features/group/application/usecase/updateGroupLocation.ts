@@ -4,11 +4,12 @@ export async function updateGroupLocation(
     groupId: number,
     latitude: number,
     longitude: number,
-    level?: number,
+    address: string,
 ) {
     return groupApi.updateGroup(groupId, {
         latitude,
         longitude,
-        level,
+        radiusMeters: 1000,
+        address,
     });
 }

@@ -18,7 +18,7 @@ export function useUpdateGroupLocation({
         groupId: number,
         latitude: number,
         longitude: number,
-        level?: number,
+        address: string,
     ) => {
         try {
             setIsUpdating(true);
@@ -28,7 +28,7 @@ export function useUpdateGroupLocation({
                 groupId,
                 latitude,
                 longitude,
-                level,
+                address,
             );
 
             setMessage("그룹 위치가 수정되었습니다.");

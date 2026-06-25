@@ -6,6 +6,8 @@ export interface GroupUpdateResponse {
         readonly name: string;
         readonly latitude: number;
         readonly longitude: number;
+        readonly radiusMeters: number;
+        readonly address: string;
         readonly status: "ACTIVE";
         readonly updatedAt: string;
     };

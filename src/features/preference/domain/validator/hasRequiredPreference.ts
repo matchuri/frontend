@@ -1,10 +1,5 @@
-import type { PreferenceCategory } from "@/features/preference/domain/model/PreferenceCategory";
 import type { UserPreference } from "@/features/preference/domain/model/UserPreference";
-
-const REQUIRED_PREFERENCE_CATEGORIES: readonly PreferenceCategory[] = [
-    "FLAVOR",
-    "COOKING_METHOD",
-];
+import { REQUIRED_PREFERENCE_CATEGORIES } from "@/features/preference/domain/model/requiredPreferenceCategories";
 
 export function hasRequiredPreference(
     preference: UserPreference | null,
