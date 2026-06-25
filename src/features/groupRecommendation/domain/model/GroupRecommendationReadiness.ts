@@ -1,4 +1,6 @@
-export type GroupRecommendationReadinessStatus = "PREPARING";
+export type GroupRecommendationReadinessStatus =
+    | "PREPARING"
+    | "OPEN";
 
 export interface GroupRecommendationReadinessProgress {
     readonly totalMemberCount: number;

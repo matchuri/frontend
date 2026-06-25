@@ -28,7 +28,7 @@ export const groupRecommendationPreparationPageStyles = {
     preferenceEditButton:
         "h-9 min-w-[96px] cursor-pointer whitespace-nowrap rounded-full border border-blue-400 bg-white px-5 text-sm font-semibold text-slate-600",
     readyButton:
-        "h-9 min-w-[96px] cursor-pointer whitespace-nowrap rounded-full bg-blue-400 px-5 text-sm font-semibold text-white",
+        "h-9 min-w-[96px] cursor-pointer whitespace-nowrap rounded-full bg-blue-400 px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-zinc-300",
     readyIcon: "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-300 text-zinc-950",
     waitingIcon:
         "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-zinc-950",

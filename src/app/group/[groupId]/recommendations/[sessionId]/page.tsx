@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAtomValue } from "jotai";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
@@ -11,6 +11,7 @@ import { hasRequiredPreference } from "@/features/preference/domain/validator/ha
 import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import { useGroupRecommendationReadiness } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationReadiness";
+import { useCompleteGroupRecommendationPreparation } from "@/features/groupRecommendation/application/hooks/useCompleteGroupRecommendationPreparation";
 import {
     groupRecommendationReadinessAtomValue,
     isGroupRecommendationReadinessLoadingAtom,
@@ -31,14 +32,25 @@ export default function GroupRecommendationPreparationPage() {
         sessionId: string;
     }>();
 
+    const router = useRouter();
+
     const groupId = Number(params.groupId);
     const sessionId = Number(params.sessionId);
 
-    const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
+    const [isPreferenceModalOpen, setIsPreferenceModalOpen] =
+        useState(false);
 
     const member = useAtomValue(memberAtom);
 
-    useGroupRecommendationReadiness(groupId, sessionId);
+    const { refetchReadiness } = useGroupRecommendationReadiness(
+        groupId,
+        sessionId,
+    );
+
+    const {
+        isCompletingPreparation,
+        completePreparation,
+    } = useCompleteGroupRecommendationPreparation();
 
     const readiness = useAtomValue(groupRecommendationReadinessAtomValue);
     const isReadinessLoading = useAtomValue(
@@ -60,8 +72,45 @@ export default function GroupRecommendationPreparationPage() {
         setIsPreferenceModalOpen(true);
     };
 
-    const handleClickReady = () => {
-        alert("준비 완료 API 연동 예정");
+    const moveToResultPage = () => {
+        router.push(
+            `/group/${groupId}/recommendations/${sessionId}/result`,
+        );
+    };
+
+    const handleClickCompletePreparation = async () => {
+        if (!member) {
+            alert("회원 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        if (!hasPreference) {
+            alert("필수 취향 정보를 먼저 등록해주세요.");
+            setIsPreferenceModalOpen(true);
+            return;
+        }
+
+        try {
+            const result = await completePreparation(
+                groupId,
+                sessionId,
+                member.id,
+            );
+
+            if (result.status === "OPEN") {
+                window.setTimeout(() => {
+                    moveToResultPage();
+                }, 2500);
+
+                return;
+            }
+
+            await refetchReadiness({
+                showLoading: false,
+            });
+        } catch {
+            alert("준비 완료 처리에 실패했습니다.");
+        }
     };
 
     if (isReadinessLoading) {
@@ -100,7 +149,6 @@ export default function GroupRecommendationPreparationPage() {
         return 0;
     });
 
-    // TODO: 현재는 그룹 메뉴 추천 페이지에서 멤버 카드 최대 4개만 표시. 나중에 바꿀 수도 있음
     const visibleMembers = sortedMembers.slice(0, 4);
 
     return (
@@ -114,6 +162,7 @@ export default function GroupRecommendationPreparationPage() {
                     <div className={groupRecommendationPreparationPageStyles.layout}>
                         <section className={groupRecommendationPreparationPageStyles.mainSection}>
                             <GroupRecommendationPreparationStatusCard
+                                status={readiness.status}
                                 totalMemberCount={
                                     readiness.progress.totalMemberCount
                                 }
@@ -125,25 +174,35 @@ export default function GroupRecommendationPreparationPage() {
                             <div className={groupRecommendationPreparationPageStyles.memberGrid}>
                                 {visibleMembers.map((readinessMember) => {
                                     const isMe =
-                                        member?.id === readinessMember.memberId;
+                                        member?.id ===
+                                        readinessMember.memberId;
 
                                     return (
                                         <GroupRecommendationPreparationMemberCard
                                             key={readinessMember.memberId}
-                                            nickname={readinessMember.nickname}
+                                            nickname={
+                                                readinessMember.nickname
+                                            }
                                             isMe={isMe}
                                             isReady={readinessMember.ready}
                                             hasPreference={
-                                                isMe ? hasPreference : false
+                                                isMe
+                                                    ? hasPreference
+                                                    : false
+                                            }
+                                            isCompletingPreparation={
+                                                isMe
+                                                    ? isCompletingPreparation
+                                                    : false
                                             }
                                             onClickEditPreference={
                                                 isMe
                                                     ? handleClickEditPreference
                                                     : undefined
                                             }
-                                            onClickReady={
+                                            onClickCompletePreparation={
                                                 isMe
-                                                    ? handleClickReady
+                                                    ? handleClickCompletePreparation
                                                     : undefined
                                             }
                                         />
@@ -154,7 +213,9 @@ export default function GroupRecommendationPreparationPage() {
 
                         <GroupRecommendationPreparationInfoCard
                             name={groupRecommendation.group.name}
-                            createdAt={groupRecommendation.group.createdAt}
+                            createdAt={
+                                groupRecommendation.group.createdAt
+                            }
                             address={groupRecommendation.group.address}
                             memberCount={
                                 readiness.progress.totalMemberCount
