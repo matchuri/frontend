@@ -18,6 +18,7 @@ import { useDeleteGroup } from "@/features/group/application/hooks/useDeleteGrou
 import { useLeaveGroup } from "@/features/group/application/hooks/useLeaveGroup";
 import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useStartGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useStartGroupRecommendation";
+import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 
 import {
     groupsAtom,
@@ -75,6 +76,10 @@ export default function GroupPage() {
 
     const accessToken = useAtomValue(accessTokenAtom);
     useMyRealtimeEvents(accessToken);
+    useGroupRealtimeEvents({
+        accessToken,
+        groupId: selectedGroupId,
+    });
 
     const { refetchGroups } = useGroupList();
     const { refetchInvites } = useGroupInvites();
