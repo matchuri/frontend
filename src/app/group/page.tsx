@@ -246,18 +246,12 @@ export default function GroupPage() {
 
         const sessionId = groupDetail.activeRecommendation.sessionId;
 
-        // 추천 상태가 OPEN이면 결과 페이지로 이동
-        if (groupDetail.activeRecommendation.status === "OPEN") {
-            router.push(
-                `/group/${selectedGroupId}/recommendations/${sessionId}/result`,
-            );
+        if (groupDetail.activeRecommendation.status === "PREPARING") {
+            router.push(`/group/${selectedGroupId}/recommendations/${sessionId}`);
             return;
         }
 
-        // PREPARING 상태이면 준비 페이지로 이동
-        router.push(
-            `/group/${selectedGroupId}/recommendations/${sessionId}`,
-        );
+        router.push(`/group/${selectedGroupId}/recommendations/${sessionId}/result`);
     };
 
     const handleStartRecommendation = async () => {
@@ -422,6 +416,7 @@ export default function GroupPage() {
                             onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
                             onClickStartRecommendation={handleStartRecommendation}
                             onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
+                            onClickOpenRestaurantMap={() => alert("기능 준비중입니다.")}
                         />
                     )}
                 </div>

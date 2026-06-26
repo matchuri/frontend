@@ -9,6 +9,7 @@ import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDe
 
 import GroupDetailMoreButton from "@/features/group/ui/components/GroupDetailMoreButton";
 import GroupRecommendationStartButton from "@/features/group/ui/components/GroupRecommendationStartButton";
+import GroupRecommendationStatusCard from "@/features/group/ui/components/GroupRecommendationStatusCard";
 import GroupMemberInviteButton from "@/features/group/ui/components/GroupMemberInviteButton";
 import GroupMemberMoreButton from "@/features/group/ui/components/GroupMemberMoreButton";
 
@@ -25,6 +26,7 @@ interface GroupDetailPanelProps {
     readonly onClickLeaveGroup: () => void;
     readonly onClickStartRecommendation: () => void;
     readonly onClickMoveActiveRecommendation: () => void;
+    readonly onClickOpenRestaurantMap: () => void;
 }
 
 export default function GroupDetailPanel({
@@ -38,14 +40,12 @@ export default function GroupDetailPanel({
     onClickLeaveGroup,
     onClickStartRecommendation,
     onClickMoveActiveRecommendation,
+    onClickOpenRestaurantMap,
 }: GroupDetailPanelProps) {
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
-    const activeRecommendationButtonLabel =
-        group.activeRecommendation?.status === "OPEN"
-            ? "투표 현황 확인하기"
-            : "진행중인 메뉴 추천 페이지 이동";
+    const activeRecommendation = group.activeRecommendation;
 
     return (
         <aside className={groupDetailPanelStyles.panel}>
@@ -80,19 +80,58 @@ export default function GroupDetailPanel({
                     )}
                 </section>
 
-                {group.activeRecommendation ? (
-                    <GroupRecommendationStartButton
-                        label={activeRecommendationButtonLabel}
-                        onClick={onClickMoveActiveRecommendation}
-                    />
-                ) : isOwner ? (
+                {!activeRecommendation && isOwner && (
                     <GroupRecommendationStartButton
                         onClick={onClickStartRecommendation}
                     />
-                ) : (
+                )}
+
+                {!activeRecommendation && !isOwner && (
                     <p className={groupDetailPanelStyles.recommendationGuideText}>
                         방장이 추천을 시작하면 참여할 수 있어요.
                     </p>
+                )}
+
+                {activeRecommendation?.status === "PREPARING" && (
+                    <GroupRecommendationStartButton
+                        label="진행중인 메뉴 추천 페이지로 이동"
+                        variant="preparing"
+                        onClick={onClickMoveActiveRecommendation}
+                    />
+                )}
+
+                {activeRecommendation?.status === "OPEN" && (
+                    <>
+                        <GroupRecommendationStartButton
+                            label="투표 현황 확인하기"
+                            variant="open"
+                            onClick={onClickMoveActiveRecommendation}
+                        />
+
+                        <GroupRecommendationStatusCard
+                            recommendation={activeRecommendation}
+                            onClickOpenRestaurantMap={onClickOpenRestaurantMap}
+                        />
+                    </>
+                )}
+
+                {activeRecommendation?.status === "FINALIZED" && (
+                    <>
+                        {isOwner ? (
+                            <GroupRecommendationStartButton
+                                onClick={onClickStartRecommendation}
+                            />
+                        ) : (
+                            <p className={groupDetailPanelStyles.recommendationGuideText}>
+                                방장이 추천을 시작하면 참여할 수 있어요.
+                            </p>
+                        )}
+
+                        <GroupRecommendationStatusCard
+                            recommendation={activeRecommendation}
+                            onClickOpenRestaurantMap={onClickOpenRestaurantMap}
+                        />
+                    </>
                 )}
 
                 <section className={groupDetailPanelStyles.memberSection}>
@@ -142,7 +181,9 @@ export default function GroupDetailPanel({
                         ))}
 
                         {group.members.length > 3 && (
-                            <GroupMemberMoreButton onClick={onClickMemberMore} />
+                            <GroupMemberMoreButton
+                                onClick={onClickMemberMore}
+                            />
                         )}
                     </div>
                 </section>
