@@ -22,32 +22,50 @@ type GroupRealtimeEventSource = {
 interface UseGroupRealtimeEventsProps {
     readonly accessToken: string | null;
     readonly groupId: number | null;
+
+    readonly onMemberJoined?: () => void;
 }
 
 export function useGroupRealtimeEvents({
     accessToken,
     groupId,
+    onMemberJoined,
 }: UseGroupRealtimeEventsProps) {
     useEffect(() => {
         if (!accessToken || groupId === null) {
             return;
         }
 
-        const eventSource = createGroupRealtimeConnection(
-            accessToken,
-            groupId,
-        ) as unknown as GroupRealtimeEventSource;
+        const eventSource =
+            createGroupRealtimeConnection(
+                accessToken,
+                groupId,
+            ) as unknown as GroupRealtimeEventSource;
 
-        Object.values(GROUP_REALTIME_EVENT_TYPE).forEach((eventType) => {
-            eventSource.addEventListener(eventType, (event) => {
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.CONNECTED,
+            () => {
                 if (process.env.NODE_ENV === "development") {
                     console.log(
-                        `[GROUP SSE] ${eventType}`,
+                        "[GROUP SSE] connected",
+                    );
+                }
+            },
+        );
+
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_MEMBER_JOINED,
+            (event) => {
+                if (process.env.NODE_ENV === "development") {
+                    console.log(
+                        "[GROUP SSE] GROUP_MEMBER_JOINED",
                         JSON.parse(event.data),
                     );
                 }
-            });
-        });
+
+                onMemberJoined?.();
+            },
+        );
 
         eventSource.onerror = (error) => {
             if (process.env.NODE_ENV === "development") {
@@ -61,5 +79,9 @@ export function useGroupRealtimeEvents({
         return () => {
             eventSource.close();
         };
-    }, [accessToken, groupId]);
+    }, [
+        accessToken,
+        groupId,
+        onMemberJoined,
+    ]);
 }

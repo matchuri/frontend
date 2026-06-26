@@ -76,14 +76,20 @@ export default function GroupPage() {
 
     const accessToken = useAtomValue(accessTokenAtom);
     useMyRealtimeEvents(accessToken);
-    useGroupRealtimeEvents({
-        accessToken,
-        groupId: selectedGroupId,
-    });
 
     const { refetchGroups } = useGroupList();
     const { refetchInvites } = useGroupInvites();
     const { refetchGroupDetail } = useGroupDetail(selectedGroupId);
+
+    useGroupRealtimeEvents({
+        accessToken,
+        groupId: selectedGroupId,
+
+        onMemberJoined: () => {
+            refetchGroups();
+            refetchGroupDetail();
+        },
+    });
 
     const groups = useAtomValue(groupsAtom);
     const hasGroups = useAtomValue(hasGroupsAtom);
