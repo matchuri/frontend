@@ -14,7 +14,6 @@ export function mapGroupDetail(
             radiusMeters: response.radiusMeters,
             address: response.address ?? "",
         },
-
         members: response.members.map((member) => ({
             memberId: member.memberId,
             nickname: member.nickname,
@@ -23,7 +22,6 @@ export function mapGroupDetail(
             joinedAt: member.joinedAt,
             isMe: member.isMe,
         })),
-
         activeRecommendation: response.activeRecommendation
             ? {
                   sessionId: response.activeRecommendation.sessionId,
@@ -31,16 +29,48 @@ export function mapGroupDetail(
                   readiness: response.activeRecommendation.readiness
                       ? {
                             totalMemberCount:
-                                response.activeRecommendation.readiness
-                                    .totalMemberCount,
+                                response.activeRecommendation.readiness.totalMemberCount,
                             readyMemberCount:
-                                response.activeRecommendation.readiness
-                                    .readyMemberCount,
+                                response.activeRecommendation.readiness.readyMemberCount,
                             allReady:
-                                response.activeRecommendation.readiness
-                                    .allReady,
+                                response.activeRecommendation.readiness.allReady,
                         }
                       : null,
+                  candidates: response.activeRecommendation.candidates.map(
+                      (candidate) => ({
+                          candidateId: candidate.candidateId,
+                          menuId: candidate.menuId,
+                          menuName: candidate.menuName,
+                          rankNo: candidate.rankNo,
+                          score: candidate.score,
+                          voteCount: candidate.voteCount,
+                      }),
+                  ),
+                  voteProgress: response.activeRecommendation.voteProgress
+                      ? {
+                            totalMemberCount:
+                                response.activeRecommendation.voteProgress.totalMemberCount,
+                            votedMemberCount:
+                                response.activeRecommendation.voteProgress.votedMemberCount,
+                        }
+                      : null,
+                  finalCandidate: response.activeRecommendation.finalCandidate
+                      ? {
+                            candidateId:
+                                response.activeRecommendation.finalCandidate.candidateId,
+                            menuId:
+                                response.activeRecommendation.finalCandidate.menuId,
+                            menuName:
+                                response.activeRecommendation.finalCandidate.menuName,
+                            rankNo:
+                                response.activeRecommendation.finalCandidate.rankNo,
+                            score:
+                                response.activeRecommendation.finalCandidate.score,
+                            voteCount:
+                                response.activeRecommendation.finalCandidate.voteCount,
+                        }
+                      : null,
+                  createdAt: response.activeRecommendation.createdAt,
               }
             : null,
     };

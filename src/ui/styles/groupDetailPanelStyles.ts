@@ -11,6 +11,11 @@ export const groupDetailPanelStyles = {
 
     recommendationButton: "mt-10 h-16 rounded-full bg-zinc-950 text-lg font-bold text-white",
     recommendationGuideText: "mt-10 rounded-[24px] bg-zinc-100 px-6 py-5 text-center text-base font-semibold text-slate-500",
+    preparingRecommendationButton:
+        "mt-10 h-16 rounded-full bg-orange-500 text-lg font-bold text-white transition-colors hover:bg-orange-600 active:bg-orange-700",
+    openRecommendationButton:
+        "mt-10 h-16 rounded-full bg-emerald-700 text-lg font-bold text-white transition-colors hover:bg-emerald-800 active:bg-emerald-900",
+
 
     memberSection: "mt-8 rounded-[28px] border border-zinc-200 p-8",
     memberSectionHeader: "flex items-start justify-between",

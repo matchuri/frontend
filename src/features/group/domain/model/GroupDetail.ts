@@ -1,4 +1,3 @@
-import type { GroupRecommendationStatus } from "@/features/group/domain/model/GroupRecommendationStatus";
 import type { GroupDetailMember } from "@/features/group/domain/model/GroupDetailMember";
 
 export interface GroupDetailLocation {
@@ -14,10 +13,28 @@ export interface GroupDetailRecommendationReadiness {
     readonly allReady: boolean;
 }
 
+export interface GroupDetailRecommendationVoteProgress {
+    readonly totalMemberCount: number;
+    readonly votedMemberCount: number;
+}
+
+export interface GroupDetailRecommendationCandidate {
+    readonly candidateId: number;
+    readonly menuId: number;
+    readonly menuName: string;
+    readonly rankNo: number;
+    readonly score: number;
+    readonly voteCount: number;
+}
+
 export interface GroupDetailRecommendation {
     readonly sessionId: number;
-    readonly status: Exclude<GroupRecommendationStatus, null>;
+    readonly status: "PREPARING" | "OPEN" | "FINALIZED";
     readonly readiness: GroupDetailRecommendationReadiness | null;
+    readonly candidates: readonly GroupDetailRecommendationCandidate[];
+    readonly voteProgress: GroupDetailRecommendationVoteProgress | null;
+    readonly finalCandidate: GroupDetailRecommendationCandidate | null;
+    readonly createdAt: string;
 }
 
 export interface GroupDetail {
