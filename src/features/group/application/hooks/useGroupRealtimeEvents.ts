@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 
 import { createGroupRealtimeConnection } from "@/infrastructure/sse/groupRealtimeClient";
-
 import { GROUP_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/GroupRealtimeEventType";
 
 type GroupRealtimeEventSource = {
@@ -24,31 +23,30 @@ interface UseGroupRealtimeEventsProps {
     readonly groupId: number | null;
 
     readonly onMemberJoined?: () => void;
+    readonly onMemberLeft?: () => void;
 }
 
 export function useGroupRealtimeEvents({
     accessToken,
     groupId,
     onMemberJoined,
+    onMemberLeft,
 }: UseGroupRealtimeEventsProps) {
     useEffect(() => {
         if (!accessToken || groupId === null) {
             return;
         }
 
-        const eventSource =
-            createGroupRealtimeConnection(
-                accessToken,
-                groupId,
-            ) as unknown as GroupRealtimeEventSource;
+        const eventSource = createGroupRealtimeConnection(
+            accessToken,
+            groupId,
+        ) as unknown as GroupRealtimeEventSource;
 
         eventSource.addEventListener(
             GROUP_REALTIME_EVENT_TYPE.CONNECTED,
             () => {
                 if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] connected",
-                    );
+                    console.log("[GROUP SSE] connected");
                 }
             },
         );
@@ -67,21 +65,28 @@ export function useGroupRealtimeEvents({
             },
         );
 
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_MEMBER_LEFT,
+            (event) => {
+                if (process.env.NODE_ENV === "development") {
+                    console.log(
+                        "[GROUP SSE] GROUP_MEMBER_LEFT",
+                        JSON.parse(event.data),
+                    );
+                }
+
+                onMemberLeft?.();
+            },
+        );
+
         eventSource.onerror = (error) => {
             if (process.env.NODE_ENV === "development") {
-                console.error(
-                    "그룹 실시간 이벤트 스트림 에러",
-                    error,
-                );
+                console.error("그룹 실시간 이벤트 스트림 에러", error);
             }
         };
 
         return () => {
             eventSource.close();
         };
-    }, [
-        accessToken,
-        groupId,
-        onMemberJoined,
-    ]);
+    }, [accessToken, groupId, onMemberJoined, onMemberLeft]);
 }

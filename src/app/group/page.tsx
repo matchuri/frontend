@@ -89,6 +89,11 @@ export default function GroupPage() {
             refetchGroups();
             refetchGroupDetail();
         },
+
+        onMemberLeft: () => {
+            refetchGroups();
+            refetchGroupDetail();
+        },
     });
 
     const groups = useAtomValue(groupsAtom);
