@@ -4,9 +4,8 @@ import { useCallback, useRef, useState } from "react";
 import { useSetAtom, useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 
-import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
-
 import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
+import type { GroupRecommendationOpenedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationOpenedEvent";
 
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
@@ -15,6 +14,7 @@ import {
     memberAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 import { groupRecommendationReadinessAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationReadinessAtom";
+import { groupRecommendationSessionDetailAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationSessionDetailAtom";
 
 import { useGroupRecommendationReadiness } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationReadiness";
 import { useCompleteGroupRecommendationPreparation } from "@/features/groupRecommendation/application/hooks/useCompleteGroupRecommendationPreparation";
@@ -26,6 +26,7 @@ import {
     groupRecommendationReadinessErrorMessageAtom,
 } from "@/features/groupRecommendation/application/selectors/groupRecommendationReadinessSelectors";
 
+import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 import GroupRecommendationPreparationStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationStatusCard";
 import GroupRecommendationPreparationInfoCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationInfoCard";
 import GroupRecommendationPreparationMemberCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationMemberCard";
@@ -49,11 +50,17 @@ export default function GroupRecommendationPreparationPage() {
         useState(false);
 
     const handledReadinessUpdatedEventIds = useRef<Set<string>>(new Set());
+    const handledRecommendationOpenedEventIds = useRef<Set<string>>(new Set());
+
+    // 방장이 준비 완료 API 응답으로 이미 결과 화면 이동을 예약한 경우,
+    // GROUP_RECOMMENDATION_OPENED SSE에서 중복 router.push가 실행되지 않도록 막는 ref
+    const isMovingToResultPageByAction = useRef(false);
 
     const accessToken = useAtomValue(accessTokenAtom);
     const member = useAtomValue(memberAtom);
 
     const setReadinessState = useSetAtom(groupRecommendationReadinessAtom);
+    const setSessionDetailState = useSetAtom(groupRecommendationSessionDetailAtom);
 
     const { refetchReadiness } = useGroupRecommendationReadiness(
         groupId,
@@ -89,7 +96,7 @@ export default function GroupRecommendationPreparationPage() {
 
             handledReadinessUpdatedEventIds.current.add(event.eventId);
 
-            if (event.groupId !== groupId ||event.sessionId !== sessionId) {
+            if (event.groupId !== groupId || event.sessionId !== sessionId) {
                 return;
             }
 
@@ -127,11 +134,86 @@ export default function GroupRecommendationPreparationPage() {
         [groupId, sessionId, setReadinessState],
     );
 
+    const handleRecommendationOpened = useCallback(
+        (event: GroupRecommendationOpenedEvent) => {
+            if (handledRecommendationOpenedEventIds.current.has(event.eventId)) {
+                return;
+            }
+
+            handledRecommendationOpenedEventIds.current.add(event.eventId);
+
+            if (event.groupId !== groupId || event.sessionId !== sessionId) {
+                return;
+            }
+
+            setReadinessState((prev) => {
+                if (prev.status !== "SUCCESS") {
+                    return prev;
+                }
+
+                return {
+                    status: "SUCCESS",
+                    data: {
+                        ...prev.data,
+                        status: event.payload.status,
+                    },
+                };
+            });
+
+            setSessionDetailState({
+                status: "SUCCESS",
+                data: {
+                    sessionId: event.payload.sessionId,
+                    status: event.payload.status,
+                    readiness: null,
+                    candidates: event.payload.candidates.map(
+                        (candidate, index) => ({
+                            candidateId: candidate.candidateId,
+                            menuId: candidate.menuItemId,
+                            menuName: candidate.menuName,
+                            rankNo: index + 1,
+                            score: 0,
+                            voteCount: 0,
+                        }),
+                    ),
+                    voteProgress: {
+                        totalMemberCount:
+                            event.payload.voteProgress.totalMemberCount,
+                        votedMemberCount:
+                            event.payload.voteProgress.votedMemberCount,
+                        allReady: undefined,
+                    },
+                    memberVotes: [],
+                    finalCandidate: null,
+                    createdAt: event.occurredAt,
+                },
+            });
+
+            // 방장이 completePreparation 응답으로 이미 이동을 예약한 경우에는
+            // SSE 이벤트에서 다시 router.push를 실행하지 않음
+            if (isMovingToResultPageByAction.current) {
+                return;
+            }
+
+            router.push(
+                `/group/${event.groupId}/recommendations/${event.sessionId}/result`,
+            );
+        },
+        [
+            groupId,
+            router,
+            sessionId,
+            setReadinessState,
+            setSessionDetailState,
+        ],
+    );
+
     useGroupRealtimeEvents({
         accessToken,
         groupId,
         onRecommendationReadinessUpdated:
             handleRecommendationReadinessUpdated,
+        onRecommendationOpened: handleRecommendationOpened,
     });
 
     const handleClickEditPreference = () => {
@@ -164,6 +246,10 @@ export default function GroupRecommendationPreparationPage() {
             );
 
             if (result.status === "OPEN") {
+                // 방장은 API 응답 기준으로 결과 화면 이동을 예약하므로,
+                // 이후 도착하는 GROUP_RECOMMENDATION_OPENED SSE에서는 중복 이동하지 않도록 표시
+                isMovingToResultPageByAction.current = true;
+
                 window.setTimeout(() => {
                     moveToResultPage();
                 }, 2500);
