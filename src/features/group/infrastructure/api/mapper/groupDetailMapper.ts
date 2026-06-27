@@ -22,55 +22,58 @@ export function mapGroupDetail(
             joinedAt: member.joinedAt,
             isMe: member.isMe,
         })),
-        activeRecommendation: response.activeRecommendation
+        recentlyRecommendation: response.recentlyRecommendation
             ? {
-                  sessionId: response.activeRecommendation.sessionId,
-                  status: response.activeRecommendation.status,
-                  readiness: response.activeRecommendation.readiness
+                  sessionId: response.recentlyRecommendation.sessionId,
+                  status: response.recentlyRecommendation.status,
+                  readiness: response.recentlyRecommendation.readiness
                       ? {
                             totalMemberCount:
-                                response.activeRecommendation.readiness.totalMemberCount,
+                                response.recentlyRecommendation.readiness.totalMemberCount,
                             readyMemberCount:
-                                response.activeRecommendation.readiness.readyMemberCount,
+                                response.recentlyRecommendation.readiness.readyMemberCount,
                             allReady:
-                                response.activeRecommendation.readiness.allReady,
+                                response.recentlyRecommendation.readiness.allReady,
                         }
                       : null,
-                  candidates: response.activeRecommendation.candidates.map(
+                  candidates: response.recentlyRecommendation.candidates.map(
                       (candidate) => ({
                           candidateId: candidate.candidateId,
                           menuId: candidate.menuId,
                           menuName: candidate.menuName,
+                          thumbnailUrl: candidate.thumbnailUrl,
                           rankNo: candidate.rankNo,
                           score: candidate.score,
                           voteCount: candidate.voteCount,
                       }),
                   ),
-                  voteProgress: response.activeRecommendation.voteProgress
+                  voteProgress: response.recentlyRecommendation.voteProgress
                       ? {
                             totalMemberCount:
-                                response.activeRecommendation.voteProgress.totalMemberCount,
+                                response.recentlyRecommendation.voteProgress.totalMemberCount,
                             votedMemberCount:
-                                response.activeRecommendation.voteProgress.votedMemberCount,
+                                response.recentlyRecommendation.voteProgress.votedMemberCount,
                         }
                       : null,
-                  finalCandidate: response.activeRecommendation.finalCandidate
+                  finalCandidate: response.recentlyRecommendation.finalCandidate
                       ? {
                             candidateId:
-                                response.activeRecommendation.finalCandidate.candidateId,
+                                response.recentlyRecommendation.finalCandidate.candidateId,
                             menuId:
-                                response.activeRecommendation.finalCandidate.menuId,
+                                response.recentlyRecommendation.finalCandidate.menuId,
                             menuName:
-                                response.activeRecommendation.finalCandidate.menuName,
+                                response.recentlyRecommendation.finalCandidate.menuName,
+                            thumbnailUrl:
+                                response.recentlyRecommendation.finalCandidate.thumbnailUrl,
                             rankNo:
-                                response.activeRecommendation.finalCandidate.rankNo,
+                                response.recentlyRecommendation.finalCandidate.rankNo,
                             score:
-                                response.activeRecommendation.finalCandidate.score,
+                                response.recentlyRecommendation.finalCandidate.score,
                             voteCount:
-                                response.activeRecommendation.finalCandidate.voteCount,
+                                response.recentlyRecommendation.finalCandidate.voteCount,
                         }
                       : null,
-                  createdAt: response.activeRecommendation.createdAt,
+                  createdAt: response.recentlyRecommendation.createdAt,
               }
             : null,
     };

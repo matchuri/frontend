@@ -29,6 +29,14 @@ export interface GroupRecommendationSessionDetailResponse {
             readonly score: number;
             readonly voteCount: number;
         } | null;
+        readonly memberVotes: readonly {
+            readonly memberId: number;
+            readonly nickname: string;
+            readonly role: "OWNER" | "MEMBER";
+            readonly isMe: boolean;
+            readonly voted: boolean;
+            readonly candidateId: number | null;
+        }[];
         readonly createdAt: string;
     };
 

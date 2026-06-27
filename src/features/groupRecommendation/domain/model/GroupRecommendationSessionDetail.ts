@@ -19,12 +19,22 @@ export interface GroupRecommendationSessionProgress {
     readonly allReady?: boolean;
 }
 
+export interface GroupRecommendationSessionMemberVote {
+    readonly memberId: number;
+    readonly nickname: string;
+    readonly role: "OWNER" | "MEMBER";
+    readonly isMe: boolean;
+    readonly voted: boolean;
+    readonly candidateId: number | null;
+}
+
 export interface GroupRecommendationSessionDetail {
     readonly sessionId: number;
     readonly status: GroupRecommendationSessionStatus;
     readonly readiness: GroupRecommendationSessionProgress | null;
     readonly candidates: readonly GroupRecommendationSessionCandidate[];
     readonly voteProgress: GroupRecommendationSessionProgress | null;
+    readonly memberVotes: readonly GroupRecommendationSessionMemberVote[];
     readonly finalCandidate: GroupRecommendationSessionCandidate | null;
     readonly createdAt: string;
 }

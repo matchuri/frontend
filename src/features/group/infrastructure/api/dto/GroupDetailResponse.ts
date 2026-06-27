@@ -20,7 +20,7 @@ export interface GroupDetailResponse {
             readonly isMe: boolean;
         }[];
 
-        readonly activeRecommendation: {
+        readonly recentlyRecommendation: {
             readonly sessionId: number;
             readonly status: "PREPARING" | "OPEN" | "FINALIZED";
 
@@ -34,6 +34,7 @@ export interface GroupDetailResponse {
                 readonly candidateId: number;
                 readonly menuId: number;
                 readonly menuName: string;
+                readonly thumbnailUrl: string | null;
                 readonly rankNo: number;
                 readonly score: number;
                 readonly voteCount: number;
@@ -48,6 +49,7 @@ export interface GroupDetailResponse {
                 readonly candidateId: number;
                 readonly menuId: number;
                 readonly menuName: string;
+                readonly thumbnailUrl: string | null;
                 readonly rankNo: number;
                 readonly score: number;
                 readonly voteCount: number;
