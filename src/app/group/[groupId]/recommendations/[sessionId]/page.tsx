@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useAtomValue } from "jotai";
+import { useCallback, useRef, useState } from "react";
+import { useSetAtom, useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
+import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
+
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
-import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
+import {
+    accessTokenAtom,
+    memberAtom,
+} from "@/features/auth/application/selectors/authSelectors";
+import { groupRecommendationReadinessAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationReadinessAtom";
 
 import { useGroupRecommendationReadiness } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationReadiness";
 import { useCompleteGroupRecommendationPreparation } from "@/features/groupRecommendation/application/hooks/useCompleteGroupRecommendationPreparation";
+import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
+
 import {
     groupRecommendationReadinessAtomValue,
     isGroupRecommendationReadinessLoadingAtom,
@@ -40,7 +48,12 @@ export default function GroupRecommendationPreparationPage() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] =
         useState(false);
 
+    const handledReadinessUpdatedEventIds = useRef<Set<string>>(new Set());
+
+    const accessToken = useAtomValue(accessTokenAtom);
     const member = useAtomValue(memberAtom);
+
+    const setReadinessState = useSetAtom(groupRecommendationReadinessAtom);
 
     const { refetchReadiness } = useGroupRecommendationReadiness(
         groupId,
@@ -67,6 +80,59 @@ export default function GroupRecommendationPreparationPage() {
     const hasPreference =
         preferenceState.status === "SUCCESS" &&
         hasRequiredPreference(preferenceState.data);
+
+    const handleRecommendationReadinessUpdated = useCallback(
+        (event: GroupRecommendationReadinessUpdatedEvent) => {
+            if (handledReadinessUpdatedEventIds.current.has(event.eventId)) {
+                return;
+            }
+
+            handledReadinessUpdatedEventIds.current.add(event.eventId);
+
+            if (event.groupId !== groupId ||event.sessionId !== sessionId) {
+                return;
+            }
+
+            setReadinessState((prev) => {
+                if (prev.status !== "SUCCESS") {
+                    return prev;
+                }
+
+                return {
+                    status: "SUCCESS",
+                    data: {
+                        ...prev.data,
+                        status: event.payload.status,
+                        progress: {
+                            totalMemberCount:
+                                event.payload.readinessProgress.totalMemberCount,
+                            readyMemberCount:
+                                event.payload.readinessProgress.readyMemberCount,
+                            allReady:
+                                event.payload.readinessProgress.allReady,
+                        },
+                        members: prev.data.members.map((readinessMember) =>
+                            readinessMember.memberId ===
+                            event.payload.readyMemberId
+                                ? {
+                                      ...readinessMember,
+                                      ready: true,
+                                  }
+                                : readinessMember,
+                        ),
+                    },
+                };
+            });
+        },
+        [groupId, sessionId, setReadinessState],
+    );
+
+    useGroupRealtimeEvents({
+        accessToken,
+        groupId,
+        onRecommendationReadinessUpdated:
+            handleRecommendationReadinessUpdated,
+    });
 
     const handleClickEditPreference = () => {
         setIsPreferenceModalOpen(true);
