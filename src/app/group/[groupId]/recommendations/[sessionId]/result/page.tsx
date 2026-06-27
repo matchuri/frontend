@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -9,7 +8,6 @@ import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetai
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
-import { useGroupRecommendationReadiness } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationReadiness";
 import { useVoteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/hooks/useVoteGroupRecommendationCandidate";
 import { useFinalizeGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useFinalizeGroupRecommendation";
 
@@ -18,8 +16,6 @@ import {
     isGroupRecommendationSessionDetailLoadingAtom,
     groupRecommendationSessionDetailErrorMessageAtom,
 } from "@/features/groupRecommendation/application/selectors/groupRecommendationSessionDetailSelectors";
-import { groupRecommendationReadinessAtomValue } from "@/features/groupRecommendation/application/selectors/groupRecommendationReadinessSelectors";
-import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultVoteStatusCard";
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
@@ -28,78 +24,42 @@ import GroupRecommendationResultCandidateCard from "@/features/groupRecommendati
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
 export default function GroupRecommendationResultPage() {
-    const params = useParams<{
-        groupId: string;
-        sessionId: string;
-    }>();
-
+    const params = useParams<{ groupId: string; sessionId: string }>();
     const router = useRouter();
 
     const groupId = Number(params.groupId);
     const sessionId = Number(params.sessionId);
 
-    const [selectedCandidateId, setSelectedCandidateId] =
-        useState<number | null>(null);
-
-    const [isVoteClosed, setIsVoteClosed] = useState(false);
-
-    const member = useAtomValue(memberAtom);
-
-    // 새로고침/직접 진입 시에도 방장 여부를 알 수 있도록 그룹 상세 조회
     useGroupDetail(groupId);
-
-    // 그룹 상세 조회 결과를 기반으로 방장 여부 판단
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
-    // TODO: 나중에 확인 필요
-    // 결과 화면에서도 멤버 목록 확보를 위해 준비 상태 조회 (다른 api에서는 멤버 정보를 주는 게 없기 때문)
-    useGroupRecommendationReadiness(groupId, sessionId);
-
-    const readiness = useAtomValue(groupRecommendationReadinessAtomValue);
-
-    const { refetchSessionDetail } = useGroupRecommendationSessionDetail(
-        groupId,
-        sessionId,
-    );
+    const { refetchSessionDetail } = useGroupRecommendationSessionDetail(groupId, sessionId);
 
     const { isVoting, vote } = useVoteGroupRecommendationCandidate({
         onSuccess: async () => {
-            await refetchSessionDetail({
-                showLoading: false,
-            });
+            await refetchSessionDetail({ showLoading: false });
         },
     });
 
     const { isFinalizing, finalize } = useFinalizeGroupRecommendation({
         onSuccess: async () => {
-            await refetchSessionDetail({
-                showLoading: false,
-            });
+            await refetchSessionDetail({ showLoading: false });
         },
     });
 
-    const sessionDetail = useAtomValue(
-        groupRecommendationSessionDetailAtomValue,
-    );
-    const isSessionDetailLoading = useAtomValue(
-        isGroupRecommendationSessionDetailLoadingAtom,
-    );
-    const sessionDetailErrorMessage = useAtomValue(
-        groupRecommendationSessionDetailErrorMessageAtom,
-    );
+    const sessionDetail = useAtomValue(groupRecommendationSessionDetailAtomValue);
+    const isSessionDetailLoading = useAtomValue(isGroupRecommendationSessionDetailLoadingAtom);
+    const sessionDetailErrorMessage = useAtomValue(groupRecommendationSessionDetailErrorMessageAtom);
 
     const handleClickBack = () => {
         router.push(`/group?selectedGroupId=${groupId}`);
     };
 
     const handleClickVote = async (candidateId: number) => {
-        if (isVoteClosed || sessionDetail?.status === "FINALIZED") {
-            return;
-        }
+        if (sessionDetail?.status === "FINALIZED") return;
 
         try {
             await vote(groupId, sessionId, candidateId);
-            setSelectedCandidateId(candidateId);
         } catch {
             alert("투표에 실패했습니다.");
         }
@@ -108,8 +68,6 @@ export default function GroupRecommendationResultPage() {
     const handleClickCloseVote = async () => {
         try {
             await finalize(groupId, sessionId);
-
-            setIsVoteClosed(true);
         } catch {
             alert("투표 종료에 실패했습니다.");
         }
@@ -139,19 +97,13 @@ export default function GroupRecommendationResultPage() {
         );
     }
 
-    if (!sessionDetail) {
-        return null;
-    }
+    if (!sessionDetail) return null;
 
     if (sessionDetail.status === "PREPARING") {
         return (
             <main className={groupRecommendationResultPageStyles.container}>
                 <div className={groupRecommendationResultPageStyles.content}>
-                    <button
-                        type="button"
-                        onClick={handleClickBack}
-                        className={groupRecommendationResultPageStyles.backButton}
-                    >
+                    <button type="button" onClick={handleClickBack} className={groupRecommendationResultPageStyles.backButton}>
                         <ArrowLeft size={30} strokeWidth={2.5} />
                     </button>
 
@@ -163,39 +115,29 @@ export default function GroupRecommendationResultPage() {
         );
     }
 
-    const isFinalized =
-        sessionDetail.status === "FINALIZED" || isVoteClosed;
+    const isFinalized = sessionDetail.status === "FINALIZED";
+    const myVote = sessionDetail.memberVotes.find((memberVote) => memberVote.isMe);
+    const selectedCandidateId = myVote?.candidateId ?? null;
 
     const votedMemberCount = sessionDetail.voteProgress?.votedMemberCount ?? 0;
-
-    const totalMemberCount =
-        sessionDetail.voteProgress?.totalMemberCount ?? 0;
+    const totalMemberCount = sessionDetail.voteProgress?.totalMemberCount ?? 0;
 
     const candidates = sessionDetail.candidates.map((candidate) => ({
         ...candidate,
         selected: candidate.candidateId === selectedCandidateId,
     }));
 
-    const members =
-        readiness?.members.map((readinessMember) => {
-            const isMe = member?.id === readinessMember.memberId;
-
-            return {
-                memberId: readinessMember.memberId,
-                nickname: readinessMember.nickname,
-                isMe,
-                voted: isMe && selectedCandidateId !== null,
-            };
-        }) ?? [];
+    const members = sessionDetail.memberVotes.map((memberVote) => ({
+        memberId: memberVote.memberId,
+        nickname: memberVote.nickname,
+        isMe: memberVote.isMe,
+        voted: memberVote.voted,
+    }));
 
     return (
         <main className={groupRecommendationResultPageStyles.container}>
             <div className={groupRecommendationResultPageStyles.content}>
-                <button
-                    type="button"
-                    onClick={handleClickBack}
-                    className={groupRecommendationResultPageStyles.backButton}
-                >
+                <button type="button" onClick={handleClickBack} className={groupRecommendationResultPageStyles.backButton}>
                     <ArrowLeft size={30} strokeWidth={2.5} />
                 </button>
 
@@ -232,9 +174,7 @@ export default function GroupRecommendationResultPage() {
                             selected={candidate.selected}
                             isVoteClosed={isFinalized}
                             isVoting={isVoting}
-                            onClickVote={() =>
-                                handleClickVote(candidate.candidateId)
-                            }
+                            onClickVote={() => handleClickVote(candidate.candidateId)}
                         />
                     ))}
                 </section>
