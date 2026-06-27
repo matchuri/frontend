@@ -61,4 +61,6 @@ export const groupManagementPageStyles = {
         "p-10 text-sm font-medium text-slate-500",
     detailErrorBox:
         "p-10 text-sm font-medium text-red-500",
+    realtimeNotice:
+        "mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700",
 } as const;

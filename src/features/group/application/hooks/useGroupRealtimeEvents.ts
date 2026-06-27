@@ -3,8 +3,8 @@
 import { useEffect } from "react";
 
 import { createGroupRealtimeConnection } from "@/infrastructure/sse/groupRealtimeClient";
-
 import { GROUP_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/GroupRealtimeEventType";
+import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/GroupDeletedEvent";
 
 type GroupRealtimeEventSource = {
     readonly readyState: number;
@@ -22,11 +22,17 @@ type GroupRealtimeEventSource = {
 interface UseGroupRealtimeEventsProps {
     readonly accessToken: string | null;
     readonly groupId: number | null;
+    readonly onMemberJoined?: () => void;
+    readonly onMemberLeft?: () => void;
+    readonly onGroupDeleted?: (event: GroupDeletedEvent) => void;
 }
 
 export function useGroupRealtimeEvents({
     accessToken,
     groupId,
+    onMemberJoined,
+    onMemberLeft,
+    onGroupDeleted,
 }: UseGroupRealtimeEventsProps) {
     useEffect(() => {
         if (!accessToken || groupId === null) {
@@ -38,28 +44,72 @@ export function useGroupRealtimeEvents({
             groupId,
         ) as unknown as GroupRealtimeEventSource;
 
-        Object.values(GROUP_REALTIME_EVENT_TYPE).forEach((eventType) => {
-            eventSource.addEventListener(eventType, (event) => {
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.CONNECTED,
+            () => {
+                if (process.env.NODE_ENV === "development") {
+                    console.log("[GROUP SSE] connected");
+                }
+            },
+        );
+
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_MEMBER_JOINED,
+            (event) => {
                 if (process.env.NODE_ENV === "development") {
                     console.log(
-                        `[GROUP SSE] ${eventType}`,
+                        "[GROUP SSE] GROUP_MEMBER_JOINED",
                         JSON.parse(event.data),
                     );
                 }
-            });
-        });
 
-        eventSource.onerror = (error) => {
+                onMemberJoined?.();
+            },
+        );
+
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_MEMBER_LEFT,
+            (event) => {
+                if (process.env.NODE_ENV === "development") {
+                    console.log(
+                        "[GROUP SSE] GROUP_MEMBER_LEFT",
+                        JSON.parse(event.data),
+                    );
+                }
+
+                onMemberLeft?.();
+            },
+        );
+
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_DELETED,
+            (event) => {
+                const deletedEvent = JSON.parse(event.data) as GroupDeletedEvent;
+
+                if (process.env.NODE_ENV === "development") {
+                    console.log("[GROUP SSE] GROUP_DELETED", deletedEvent);
+                }
+
+                onGroupDeleted?.(deletedEvent);
+            },
+        );
+
+        eventSource.onerror = () => {
             if (process.env.NODE_ENV === "development") {
-                console.error(
-                    "그룹 실시간 이벤트 스트림 에러",
-                    error,
-                );
+                console.debug("그룹 실시간 이벤트 스트림 연결이 종료되었습니다.");
             }
+
+            eventSource.close();
         };
 
         return () => {
             eventSource.close();
         };
-    }, [accessToken, groupId]);
+    }, [
+        accessToken,
+        groupId,
+        onMemberJoined,
+        onMemberLeft,
+        onGroupDeleted,
+    ]);
 }

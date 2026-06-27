@@ -6,13 +6,34 @@ import { useSetAtom } from "jotai";
 import { groupDetailAtom } from "@/features/group/application/atoms/groupDetailAtom";
 import { fetchGroupDetail } from "@/features/group/application/usecase/fetchGroupDetail";
 
-export function useGroupDetail(groupId: number | null) {
+interface UseGroupDetailParams {
+    readonly onGroupNotFound?: () => void;
+}
+
+function isGroupNotFoundError(error: unknown) {
+    const httpError = error as {
+        status?: number;
+        body?: { error?: { code?: string } | null };
+        errorBody?: { error?: { code?: string } | null };
+        message?: string;
+    };
+
+    return (
+        httpError.status === 404 ||
+        httpError.body?.error?.code === "GROUP_NOT_FOUND" ||
+        httpError.errorBody?.error?.code === "GROUP_NOT_FOUND" ||
+        httpError.message?.includes("GROUP_NOT_FOUND")
+    );
+}
+
+export function useGroupDetail(
+    groupId: number | null,
+    { onGroupNotFound }: UseGroupDetailParams = {},
+) {
     const setGroupDetailState = useSetAtom(groupDetailAtom);
 
     const refetchGroupDetail = useCallback(async () => {
-        if (groupId === null) {
-            return;
-        }
+        if (groupId === null) return;
 
         try {
             setGroupDetailState({ status: "LOADING" });
@@ -25,6 +46,12 @@ export function useGroupDetail(groupId: number | null) {
                 data: groupDetail,
             });
         } catch (error) {
+            if (isGroupNotFoundError(error)) {
+                setGroupDetailState({ status: "LOADING" });
+                onGroupNotFound?.();
+                return;
+            }
+
             setGroupDetailState({
                 status: "ERROR",
                 message:
@@ -33,11 +60,16 @@ export function useGroupDetail(groupId: number | null) {
                         : "그룹 상세 정보를 불러오는데 실패했습니다.",
             });
         }
-    }, [groupId, setGroupDetailState]);
+    }, [groupId, onGroupNotFound, setGroupDetailState]);
 
     useEffect(() => {
+        if (groupId === null) {
+            setGroupDetailState({ status: "LOADING" });
+            return;
+        }
+
         refetchGroupDetail();
-    }, [refetchGroupDetail]);
+    }, [groupId, refetchGroupDetail, setGroupDetailState]);
 
     return {
         refetchGroupDetail,
