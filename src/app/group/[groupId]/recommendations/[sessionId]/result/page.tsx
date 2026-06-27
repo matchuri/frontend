@@ -1,12 +1,19 @@
 "use client";
 
-import { useAtomValue } from "jotai";
+import { useCallback, useRef } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
+import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 
+import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
+
+import type { GroupRecommendationVoteUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteUpdatedEvent";
+
+import { groupRecommendationSessionDetailAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationSessionDetailAtom";
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
 import { useVoteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/hooks/useVoteGroupRecommendationCandidate";
 import { useFinalizeGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useFinalizeGroupRecommendation";
@@ -29,8 +36,15 @@ export default function GroupRecommendationResultPage() {
 
     const groupId = Number(params.groupId);
     const sessionId = Number(params.sessionId);
+    const accessToken = useAtomValue(accessTokenAtom);
 
-    useGroupDetail(groupId);
+    // 중복 VOTE_UPDATED 이벤트 처리 방지용 ref
+    const handledVoteUpdatedEventIds = useRef<Set<string>>(new Set());
+
+    const setSessionDetailState = useSetAtom(groupRecommendationSessionDetailAtom);
+
+    const { refetchGroupDetail } = useGroupDetail(groupId);
+
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
     const { refetchSessionDetail } = useGroupRecommendationSessionDetail(groupId, sessionId);
@@ -50,6 +64,62 @@ export default function GroupRecommendationResultPage() {
     const sessionDetail = useAtomValue(groupRecommendationSessionDetailAtomValue);
     const isSessionDetailLoading = useAtomValue(isGroupRecommendationSessionDetailLoadingAtom);
     const sessionDetailErrorMessage = useAtomValue(groupRecommendationSessionDetailErrorMessageAtom);
+
+    // OUP_RECOMMENDATION_VOTE_UPDATED 이벤트 수신 시 투표 진행률 갱신
+    const handleRecommendationVoteUpdated = useCallback(
+        async (event: GroupRecommendationVoteUpdatedEvent) => {
+            if (handledVoteUpdatedEventIds.current.has(event.eventId)) {
+                return;
+            }
+
+            handledVoteUpdatedEventIds.current.add(event.eventId);
+
+            if (event.groupId !== groupId || event.sessionId !== sessionId) {
+                return;
+            }
+
+            setSessionDetailState((prev) => {
+                if (prev.status !== "SUCCESS") {
+                    return prev;
+                }
+
+                return {
+                    status: "SUCCESS",
+                    data: {
+                        ...prev.data,
+                        voteProgress: {
+                            totalMemberCount:
+                                event.payload.voteProgress.totalMemberCount,
+                            votedMemberCount:
+                                event.payload.voteProgress.votedMemberCount,
+                            allReady: undefined,
+                        },
+                    },
+                };
+            });
+
+            //  VOTE_UPDATED 이벤트에는 누가 투표했는지 정보가 없기 때문에
+            // 멤버별 투표 완료 표시를 갱신하려면 세션 상세를 다시 조회해야 함
+            await refetchSessionDetail({
+                showLoading: false,
+            });
+
+            await refetchGroupDetail();
+        },
+        [
+            groupId,
+            refetchGroupDetail,
+            refetchSessionDetail,
+            sessionId,
+            setSessionDetailState,
+        ],
+    );
+
+    useGroupRealtimeEvents({
+        accessToken,
+        groupId,
+        onRecommendationVoteUpdated: handleRecommendationVoteUpdated,
+    });
 
     const handleClickBack = () => {
         router.push(`/group?selectedGroupId=${groupId}`);
