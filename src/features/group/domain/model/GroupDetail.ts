@@ -22,6 +22,7 @@ export interface GroupDetailRecommendationCandidate {
     readonly candidateId: number;
     readonly menuId: number;
     readonly menuName: string;
+    readonly thumbnailUrl: string | null;
     readonly rankNo: number;
     readonly score: number;
     readonly voteCount: number;
@@ -43,5 +44,5 @@ export interface GroupDetail {
     readonly inviteCode: string;
     readonly location: GroupDetailLocation;
     readonly members: readonly GroupDetailMember[];
-    readonly activeRecommendation: GroupDetailRecommendation | null;
+    readonly recentlyRecommendation: GroupDetailRecommendation | null;
 }

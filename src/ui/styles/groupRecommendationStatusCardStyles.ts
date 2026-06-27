@@ -11,5 +11,5 @@ export const groupRecommendationStatusCardStyles = {
     openProgressFill: "h-full rounded-full bg-emerald-700",
 
     mapButton:
-        "mt-6 h-12 w-full rounded-full bg-sky-500 text-base font-bold text-white transition-colors hover:bg-sky-600 active:bg-sky-700",
+        "mt-6 h-12 w-full cursor-pointer rounded-full bg-sky-500 text-base font-bold text-white transition-colors hover:bg-sky-600 active:bg-sky-700",
 } as const;

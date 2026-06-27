@@ -45,7 +45,7 @@ export default function GroupDetailPanel({
     const visibleMembers = group.members.slice(0, 3);
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
-    const activeRecommendation = group.activeRecommendation;
+    const recentlyRecommendation = group.recentlyRecommendation;
 
     return (
         <aside className={groupDetailPanelStyles.panel}>
@@ -80,19 +80,19 @@ export default function GroupDetailPanel({
                     )}
                 </section>
 
-                {!activeRecommendation && isOwner && (
+                {!recentlyRecommendation && isOwner && (
                     <GroupRecommendationStartButton
                         onClick={onClickStartRecommendation}
                     />
                 )}
 
-                {!activeRecommendation && !isOwner && (
+                {!recentlyRecommendation && !isOwner && (
                     <p className={groupDetailPanelStyles.recommendationGuideText}>
                         방장이 추천을 시작하면 참여할 수 있어요.
                     </p>
                 )}
 
-                {activeRecommendation?.status === "PREPARING" && (
+                {recentlyRecommendation?.status === "PREPARING" && (
                     <GroupRecommendationStartButton
                         label="진행중인 메뉴 추천 페이지로 이동"
                         variant="preparing"
@@ -100,7 +100,7 @@ export default function GroupDetailPanel({
                     />
                 )}
 
-                {activeRecommendation?.status === "OPEN" && (
+                {recentlyRecommendation?.status === "OPEN" && (
                     <>
                         <GroupRecommendationStartButton
                             label="투표 현황 확인하기"
@@ -109,13 +109,13 @@ export default function GroupDetailPanel({
                         />
 
                         <GroupRecommendationStatusCard
-                            recommendation={activeRecommendation}
+                            recommendation={recentlyRecommendation}
                             onClickOpenRestaurantMap={onClickOpenRestaurantMap}
                         />
                     </>
                 )}
 
-                {activeRecommendation?.status === "FINALIZED" && (
+                {recentlyRecommendation?.status === "FINALIZED" && (
                     <>
                         {isOwner ? (
                             <GroupRecommendationStartButton
@@ -128,7 +128,7 @@ export default function GroupDetailPanel({
                         )}
 
                         <GroupRecommendationStatusCard
-                            recommendation={activeRecommendation}
+                            recommendation={recentlyRecommendation}
                             onClickOpenRestaurantMap={onClickOpenRestaurantMap}
                         />
                     </>

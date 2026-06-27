@@ -317,13 +317,13 @@ export default function GroupPage() {
     };
 
     const handleMoveActiveRecommendation = () => {
-        if (selectedGroupId === null || !groupDetail?.activeRecommendation) {
+        if (selectedGroupId === null || !groupDetail?.recentlyRecommendation) {
             return;
         }
 
-        const sessionId = groupDetail.activeRecommendation.sessionId;
+        const { sessionId, status } = groupDetail.recentlyRecommendation;
 
-        if (groupDetail.activeRecommendation.status === "PREPARING") {
+        if (status === "PREPARING") {
             router.push(`/group/${selectedGroupId}/recommendations/${sessionId}`);
             return;
         }
@@ -336,7 +336,11 @@ export default function GroupPage() {
             return;
         }
 
-        if (groupDetail.activeRecommendation) {
+        const runningRecommendation =
+            groupDetail.recentlyRecommendation?.status === "PREPARING" ||
+            groupDetail.recentlyRecommendation?.status === "OPEN";
+
+        if (runningRecommendation) {
             handleMoveActiveRecommendation();
             return;
         }
@@ -350,7 +354,7 @@ export default function GroupPage() {
             latitude: groupDetail.location.latitude,
             longitude: groupDetail.location.longitude,
             address: groupDetail.location.address,
-            radiusMeters: 1000,
+            radiusMeters: groupDetail.location.radiusMeters,
         });
     };
 
