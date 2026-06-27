@@ -59,6 +59,21 @@ function shouldTryRefresh(path: string, isRetry: boolean) {
     return true;
 }
 
+function shouldSilenceErrorLog(
+    path: string,
+    errorBody: ErrorResponseBody | null,
+) {
+    if (SILENT_ERROR_LOG_PATHS.includes(path)) {
+        return true;
+    }
+
+    // 삭제된 그룹 상세 조회는 화면에서 fallback 처리하므로 로그 제외
+    if (errorBody?.error?.code === "GROUP_NOT_FOUND") {
+        return true;
+    }
+
+    return false;
+}
 async function refreshAccessToken(): Promise<RefreshResult> {
     const response = await fetch(`${clientEnv.apiBaseUrl}/api/v1/auth/refresh`, {
         method: "POST",
@@ -122,7 +137,7 @@ async function request<T>(
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         //  refresh는 로그 안 찍음
-        if (!SILENT_ERROR_LOG_PATHS.includes(path)) {
+        if (!shouldSilenceErrorLog(path, errorBody)) {
             console.error("[httpClient] 요청 실패 응답:", {
                 path,
                 status: response.status,

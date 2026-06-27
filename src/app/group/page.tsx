@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
@@ -19,6 +19,7 @@ import { useLeaveGroup } from "@/features/group/application/hooks/useLeaveGroup"
 import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useStartGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useStartGroupRecommendation";
 import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
+import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/GroupDeletedEvent";
 
 import {
     groupsAtom,
@@ -38,7 +39,10 @@ import {
     isGroupDetailLoadingAtom,
     groupDetailErrorMessageAtom,
 } from "@/features/group/application/selectors/groupDetailSelectors";
-import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
+import {
+    accessTokenAtom,
+    memberAtom,
+} from "@/features/auth/application/selectors/authSelectors";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
@@ -73,43 +77,100 @@ export default function GroupPage() {
     const [editingGroupName, setEditingGroupName] = useState("");
     const [editingLocation, setEditingLocation] = useState<LocationSetting | null>(null);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+    const [realtimeNoticeMessage, setRealtimeNoticeMessage] = useState<string | null>(null);
 
     const accessToken = useAtomValue(accessTokenAtom);
-    useMyRealtimeEvents(accessToken);
-
-    const { refetchGroups } = useGroupList();
-    const { refetchInvites } = useGroupInvites();
-    const { refetchGroupDetail } = useGroupDetail(selectedGroupId);
-
-    useGroupRealtimeEvents({
-        accessToken,
-        groupId: selectedGroupId,
-
-        onMemberJoined: () => {
-            refetchGroups();
-            refetchGroupDetail();
-        },
-
-        onMemberLeft: () => {
-            refetchGroups();
-            refetchGroupDetail();
-        },
-    });
+    const member = useAtomValue(memberAtom);
 
     const groups = useAtomValue(groupsAtom);
     const hasGroups = useAtomValue(hasGroupsAtom);
     const isGroupListLoading = useAtomValue(isGroupListLoadingAtom);
     const groupListErrorMessage = useAtomValue(groupListErrorMessageAtom);
 
+    const groupDetail = useAtomValue(groupDetailAtomValue);
+    const isGroupDetailLoading = useAtomValue(isGroupDetailLoadingAtom);
+    const groupDetailErrorMessage = useAtomValue(groupDetailErrorMessageAtom);
+
+    useMyRealtimeEvents(accessToken);
+
+    const { refetchGroups } = useGroupList();
+    const { refetchInvites } = useGroupInvites();
+
+    const handleGroupNotFound = useCallback(() => {
+        setSelectedGroupId(null);
+
+        refetchGroups();
+
+        setRealtimeNoticeMessage(
+            "그룹이 삭제되어 더 이상 접근할 수 없습니다.",
+        );
+    }, [refetchGroups]);
+
+    const { refetchGroupDetail } = useGroupDetail(selectedGroupId, {
+        onGroupNotFound: handleGroupNotFound,
+    });
+
+    const handleMemberJoined = useCallback(() => {
+        refetchGroups();
+        refetchGroupDetail();
+    }, [refetchGroups, refetchGroupDetail]);
+
+    const handleMemberLeft = useCallback(() => {
+        refetchGroups();
+        refetchGroupDetail();
+    }, [refetchGroups, refetchGroupDetail]);
+
+    const handleGroupDeleted = useCallback(
+        (event: GroupDeletedEvent) => {
+            const isCurrentGroupDeleted =
+                selectedGroupId === event.payload.groupId;
+
+            if (isCurrentGroupDeleted) {
+                setSelectedGroupId(null);
+
+                const isDeletedByMe =
+                    member?.id === event.payload.deletedByMemberId;
+
+                if (!isDeletedByMe) {
+                    setRealtimeNoticeMessage(
+                        "그룹이 삭제되어 더 이상 접근할 수 없습니다.",
+                    );
+                }
+            }
+
+            refetchGroups();
+        },
+        [member?.id, refetchGroups, selectedGroupId],
+    );
+
+    useGroupRealtimeEvents({
+        accessToken,
+        groupId: selectedGroupId,
+        onMemberJoined: handleMemberJoined,
+        onMemberLeft: handleMemberLeft,
+        onGroupDeleted: handleGroupDeleted,
+    });
+
+    // 실시간 그룹 삭제 안내 메시지 3초 후 자동 제거
+    useEffect(() => {
+        if (!realtimeNoticeMessage) {
+            return;
+        }
+
+        const timer = window.setTimeout(() => {
+            setRealtimeNoticeMessage(null);
+        }, 3000);
+
+        return () => {
+            window.clearTimeout(timer);
+        };
+    }, [realtimeNoticeMessage]);
+
     const invites = useAtomValue(invitesAtom);
     const hasInvites = useAtomValue(hasInvitesAtom);
     const isInviteListLoading = useAtomValue(isInviteListLoadingAtom);
     const inviteListErrorMessage = useAtomValue(inviteListErrorMessageAtom);
     const showViewAllButton = useAtomValue(shouldShowInviteViewAllButtonAtom);
-
-    const groupDetail = useAtomValue(groupDetailAtomValue);
-    const isGroupDetailLoading = useAtomValue(isGroupDetailLoadingAtom);
-    const groupDetailErrorMessage = useAtomValue(groupDetailErrorMessageAtom);
 
     const { start } = useStartGroupRecommendation({
         onSuccess: (sessionId) => {
@@ -349,6 +410,12 @@ export default function GroupPage() {
                 <div className={groupManagementPageStyles.layout}>
                     <div className={groupManagementPageStyles.mainContent}>
                         <div className={groupManagementPageStyles.content}>
+                            {realtimeNoticeMessage && (
+                                <div className={groupManagementPageStyles.realtimeNotice}>
+                                    {realtimeNoticeMessage}
+                                </div>
+                            )}
+
                             <GroupManagementHeader
                                 onClickCreate={() => setIsCreateModalOpen(true)}
                             />
