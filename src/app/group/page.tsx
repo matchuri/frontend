@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
@@ -20,6 +20,7 @@ import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRea
 import { useStartGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useStartGroupRecommendation";
 import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/GroupDeletedEvent";
+import type { GroupRecommendationStartedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationStartedEvent";
 
 import {
     groupsAtom,
@@ -78,6 +79,8 @@ export default function GroupPage() {
     const [editingLocation, setEditingLocation] = useState<LocationSetting | null>(null);
     const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
     const [realtimeNoticeMessage, setRealtimeNoticeMessage] = useState<string | null>(null);
+
+    const handledRecommendationStartedEventIds = useRef<Set<string>>(new Set());
 
     const accessToken = useAtomValue(accessTokenAtom);
     const member = useAtomValue(memberAtom);
@@ -143,12 +146,46 @@ export default function GroupPage() {
         [member?.id, refetchGroups, selectedGroupId],
     );
 
+    const handleRecommendationStarted = useCallback(
+        async (event: GroupRecommendationStartedEvent) => {
+            if (handledRecommendationStartedEventIds.current.has(event.eventId)) {
+                return;
+            }
+
+            handledRecommendationStartedEventIds.current.add(event.eventId);
+
+            refetchGroups();
+
+            if (selectedGroupId !== event.groupId) {
+                return;
+            }
+
+            await refetchGroupDetail();
+
+            const isStartedByMe = member?.id === event.actorMemberId;
+
+            if (!isStartedByMe) {
+                router.push(
+                    `/group/${event.groupId}/recommendations/${event.sessionId}`,
+                );
+            }
+        },
+        [
+            member?.id,
+            refetchGroupDetail,
+            refetchGroups,
+            router,
+            selectedGroupId,
+        ],
+    );
+
     useGroupRealtimeEvents({
         accessToken,
         groupId: selectedGroupId,
         onMemberJoined: handleMemberJoined,
         onMemberLeft: handleMemberLeft,
         onGroupDeleted: handleGroupDeleted,
+        onRecommendationStarted: handleRecommendationStarted,
     });
 
     // 실시간 그룹 삭제 안내 메시지 3초 후 자동 제거
