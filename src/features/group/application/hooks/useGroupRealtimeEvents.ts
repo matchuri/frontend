@@ -7,6 +7,7 @@ import { GROUP_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/GroupRe
 
 import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/GroupDeletedEvent";
 import type { GroupRecommendationStartedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationStartedEvent";
+import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
 
 type GroupRealtimeEventSource = {
     readonly readyState: number;
@@ -28,6 +29,7 @@ interface UseGroupRealtimeEventsProps {
     readonly onMemberLeft?: () => void;
     readonly onGroupDeleted?: (event: GroupDeletedEvent) => void;
     readonly onRecommendationStarted?: (event: GroupRecommendationStartedEvent) => void;
+    readonly onRecommendationReadinessUpdated?: (event: GroupRecommendationReadinessUpdatedEvent) => void;
 }
 
 export function useGroupRealtimeEvents({
@@ -37,6 +39,7 @@ export function useGroupRealtimeEvents({
     onMemberLeft,
     onGroupDeleted,
     onRecommendationStarted,
+    onRecommendationReadinessUpdated,
 }: UseGroupRealtimeEventsProps) {
     useEffect(() => {
         if (!accessToken || groupId === null) {
@@ -116,6 +119,24 @@ export function useGroupRealtimeEvents({
             },
         );
 
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_RECOMMENDATION_READINESS_UPDATED,
+            (event) => {
+                const readinessUpdatedEvent = JSON.parse(
+                    event.data,
+                ) as GroupRecommendationReadinessUpdatedEvent;
+
+                if (process.env.NODE_ENV === "development") {
+                    console.log(
+                        "[GROUP SSE] GROUP_RECOMMENDATION_READINESS_UPDATED",
+                        readinessUpdatedEvent,
+                    );
+                }
+
+                onRecommendationReadinessUpdated?.(readinessUpdatedEvent);
+            },
+        );
+
         eventSource.onerror = () => {
             if (process.env.NODE_ENV === "development") {
                 console.debug("그룹 실시간 이벤트 스트림 연결이 종료되었습니다.");
@@ -134,5 +155,6 @@ export function useGroupRealtimeEvents({
         onMemberLeft,
         onGroupDeleted,
         onRecommendationStarted,
+        onRecommendationReadinessUpdated,
     ]);
 }
