@@ -94,7 +94,7 @@ export default function GroupPage() {
     const isGroupDetailLoading = useAtomValue(isGroupDetailLoadingAtom);
     const groupDetailErrorMessage = useAtomValue(groupDetailErrorMessageAtom);
 
-    useMyRealtimeEvents(accessToken);
+    useMyRealtimeEvents({accessToken});
 
     const { refetchGroups } = useGroupList();
     const { refetchInvites } = useGroupInvites();

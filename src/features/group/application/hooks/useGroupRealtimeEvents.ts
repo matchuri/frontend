@@ -9,6 +9,7 @@ import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/
 import type { GroupRecommendationStartedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationStartedEvent";
 import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
 import type { GroupRecommendationOpenedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationOpenedEvent";
+import type { GroupRecommendationVoteUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteUpdatedEvent";
 
 type GroupRealtimeEventSource = {
     readonly readyState: number;
@@ -32,6 +33,7 @@ interface UseGroupRealtimeEventsProps {
     readonly onRecommendationStarted?: (event: GroupRecommendationStartedEvent) => void;
     readonly onRecommendationReadinessUpdated?: (event: GroupRecommendationReadinessUpdatedEvent) => void;
     readonly onRecommendationOpened?: (event: GroupRecommendationOpenedEvent) => void;
+    readonly onRecommendationVoteUpdated?: (event: GroupRecommendationVoteUpdatedEvent) => void;
 }
 
 export function useGroupRealtimeEvents({
@@ -43,6 +45,7 @@ export function useGroupRealtimeEvents({
     onRecommendationStarted,
     onRecommendationReadinessUpdated,
     onRecommendationOpened,
+    onRecommendationVoteUpdated,
 }: UseGroupRealtimeEventsProps) {
     useEffect(() => {
         if (!accessToken || groupId === null) {
@@ -158,6 +161,24 @@ export function useGroupRealtimeEvents({
             },
         );
 
+        eventSource.addEventListener(
+            GROUP_REALTIME_EVENT_TYPE.GROUP_RECOMMENDATION_VOTE_UPDATED,
+            (event) => {
+                const voteUpdatedEvent = JSON.parse(
+                    event.data,
+                ) as GroupRecommendationVoteUpdatedEvent;
+
+                if (process.env.NODE_ENV === "development") {
+                    console.log(
+                        "[GROUP SSE] GROUP_RECOMMENDATION_VOTE_UPDATED",
+                        voteUpdatedEvent,
+                    );
+                }
+
+                onRecommendationVoteUpdated?.(voteUpdatedEvent);
+            },
+        );
+
         eventSource.onerror = () => {
             if (process.env.NODE_ENV === "development") {
                 console.debug("그룹 실시간 이벤트 스트림 연결이 종료되었습니다.");
@@ -178,5 +199,6 @@ export function useGroupRealtimeEvents({
         onRecommendationStarted,
         onRecommendationReadinessUpdated,
         onRecommendationOpened,
+        onRecommendationVoteUpdated,
     ]);
 }
