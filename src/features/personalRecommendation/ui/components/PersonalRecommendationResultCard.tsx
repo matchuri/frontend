@@ -7,6 +7,7 @@ interface PersonalRecommendationResultCardProps {
     readonly selected: boolean;
     readonly disabled?: boolean;
     readonly onSelect: (candidateId: number) => void;
+    readonly onClickRestaurant: (candidateId: number) => void;
 }
 
 export default function PersonalRecommendationResultCard({
@@ -16,6 +17,7 @@ export default function PersonalRecommendationResultCard({
     selected,
     disabled = false,
     onSelect,
+    onClickRestaurant,
 }: PersonalRecommendationResultCardProps) {
     const handleSelect = () => {
         if (disabled) return;
@@ -51,10 +53,14 @@ export default function PersonalRecommendationResultCard({
 
                 <button
                     type="button"
-                    disabled={disabled}
-                    className={personalRecommendationResultCardStyles.restaurantButton}
+                    className={
+                        personalRecommendationResultCardStyles.restaurantButton
+                    }
                     onClick={(event) => {
+                        // 카드 선택 이벤트가 실행되지 않도록 막음
                         event.stopPropagation();
+
+                        onClickRestaurant(candidateId);
                     }}
                 >
                     맛집 보기

@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
+import { groupDetailAtomValue } from "@/features/group/application/selectors/groupDetailSelectors";
 
 import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
@@ -41,6 +42,7 @@ export default function GroupRecommendationResultPage() {
     const groupId = Number(params.groupId);
     const sessionId = Number(params.sessionId);
     const accessToken = useAtomValue(accessTokenAtom);
+    const groupDetail = useAtomValue(groupDetailAtomValue);
 
     // 중복 VOTE_UPDATED 이벤트 처리 방지용 ref
     const handledVoteUpdatedEventIds = useRef<Set<string>>(new Set());
@@ -232,7 +234,22 @@ export default function GroupRecommendationResultPage() {
     };
 
     const handleClickMoveVoteResult = () => {
-        alert("투표 결과 상세 화면 구현 예정");
+        const finalCandidate = sessionDetail?.finalCandidate;
+
+        if (!finalCandidate || !groupDetail) {
+            alert("최종 추천 메뉴 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        const searchParams = new URLSearchParams({
+            menuName: finalCandidate.menuName,
+            latitude: String(groupDetail.location.latitude),
+            longitude: String(groupDetail.location.longitude),
+            level: "4",
+            source: "group",
+        });
+
+        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
     };
 
     if (isSessionDetailLoading) {
