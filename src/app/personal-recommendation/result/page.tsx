@@ -50,6 +50,23 @@ export default function PersonalRecommendationResultPage() {
         await completeSelection(recommendation.requestId, selectedCandidateId);
     };
 
+    // 맛집 보기 버튼 클릭
+    const handleClickRestaurant = (candidateId: number) => {
+        const candidate = recommendation.candidates.find(
+            (item) => item.id === candidateId,
+        );
+
+        if (!candidate) {
+            return;
+        }
+
+        router.push(
+            `/recommendation-restaurants?menuName=${encodeURIComponent(
+                candidate.menuName,
+            )}&source=personal`,
+        );
+    };
+
     return (
         <main className={personalRecommendationResultPageStyles.container}>
             <button
@@ -88,7 +105,11 @@ export default function PersonalRecommendationResultPage() {
                             </span>
                         ))
                     ) : (
-                        <span className={personalRecommendationResultPageStyles.emptyText}>
+                        <span
+                            className={
+                                personalRecommendationResultPageStyles.emptyText
+                            }
+                        >
                             표시할 취향 정보가 없습니다.
                         </span>
                     )}
@@ -105,6 +126,7 @@ export default function PersonalRecommendationResultPage() {
                         selected={selectedCandidateId === candidate.id}
                         disabled={isClosed}
                         onSelect={setSelectedCandidateId}
+                        onClickRestaurant={handleClickRestaurant}
                     />
                 ))}
             </section>

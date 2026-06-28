@@ -395,6 +395,23 @@ export default function GroupPage() {
         });
     };
 
+    const handleOpenRestaurantMap = () => {
+        if (!groupDetail?.recentlyRecommendation?.finalCandidate) {
+            alert("최종 추천 메뉴 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        const searchParams = new URLSearchParams({
+            menuName: groupDetail.recentlyRecommendation.finalCandidate.menuName,
+            latitude: String(groupDetail.location.latitude),
+            longitude: String(groupDetail.location.longitude),
+            level: "4",
+            source: "group",
+        });
+
+        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+    };
+
     const openDeleteModal = () => {
         setIsDeleteModalOpen(true);
     };
@@ -540,7 +557,7 @@ export default function GroupPage() {
                             onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
                             onClickStartRecommendation={handleStartRecommendation}
                             onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
-                            onClickOpenRestaurantMap={() => alert("기능 준비중입니다.")}
+                            onClickOpenRestaurantMap={handleOpenRestaurantMap}
                         />
                     )}
                 </div>
