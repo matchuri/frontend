@@ -19,11 +19,24 @@ declare global {
 
             getCenter(): LatLng;
             setCenter(latlng: LatLng): void;
+            panTo(latlng: LatLng): void;
 
             getBounds(): LatLngBounds;
             getLevel(): number;
+            setLevel(level: number): void;
 
             relayout(): void;
+        }
+
+        class Marker {
+            constructor(options: MarkerOptions);
+            setMap(map: Map | null): void;
+        }
+
+        class InfoWindow {
+            constructor(options: InfoWindowOptions);
+            open(map: Map, marker: Marker): void;
+            close(): void;
         }
 
         class LatLngBounds {
@@ -36,9 +49,18 @@ declare global {
             level: number;
         }
 
+        interface MarkerOptions {
+            map?: Map;
+            position: LatLng;
+        }
+
+        interface InfoWindowOptions {
+            content: string;
+        }
+
         namespace event {
             function addListener(
-                target: Map,
+                target: Map | Marker,
                 type: string,
                 callback: () => void,
             ): void;
@@ -49,6 +71,10 @@ declare global {
                 readonly OK: string;
                 readonly ZERO_RESULT: string;
                 readonly ERROR: string;
+            };
+
+            const SortBy: {
+                readonly DISTANCE: string;
             };
 
             class Geocoder {
@@ -69,7 +95,14 @@ declare global {
                         result: readonly PlaceSearchResult[],
                         status: string,
                     ) => void,
+                    options?: KeywordSearchOptions,
                 ): void;
+            }
+
+            interface KeywordSearchOptions {
+                readonly location?: LatLng;
+                readonly radius?: number;
+                readonly sort?: string;
             }
 
             interface CoordAddressResult {
@@ -82,9 +115,13 @@ declare global {
             }
 
             interface PlaceSearchResult {
+                readonly id: string;
                 readonly place_name: string;
                 readonly address_name: string;
                 readonly road_address_name: string;
+                readonly phone: string;
+                readonly place_url: string;
+                readonly distance?: string;
                 readonly x: string;
                 readonly y: string;
             }

@@ -1,19 +1,30 @@
-import { Star } from "lucide-react";
+import { MapPin, Phone } from "lucide-react";
 
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
 
 interface RecommendationRestaurantCardProps {
     readonly restaurant: RecommendationRestaurant;
+    readonly selected: boolean;
+    readonly onClick: () => void;
 }
 
 export default function RecommendationRestaurantCard({
     restaurant,
+    selected,
+    onClick,
 }: RecommendationRestaurantCardProps) {
-    return (
-        <article className={recommendationRestaurantPageStyles.restaurantCard}>
-            <div className={recommendationRestaurantPageStyles.restaurantThumbnail} />
+    const address = restaurant.roadAddress || restaurant.address;
 
+    return (
+        <article
+            onClick={onClick}
+            className={
+                selected
+                    ? recommendationRestaurantPageStyles.selectedRestaurantCard
+                    : recommendationRestaurantPageStyles.restaurantCard
+            }
+        >
             <div className={recommendationRestaurantPageStyles.restaurantInfo}>
                 <h2 className={recommendationRestaurantPageStyles.restaurantName}>
                     {restaurant.name}
@@ -22,14 +33,21 @@ export default function RecommendationRestaurantCard({
                 <p className={recommendationRestaurantPageStyles.restaurantDistance}>
                     {restaurant.distanceText}
                 </p>
-            </div>
 
-            {restaurant.rating !== null && (
-                <span className={recommendationRestaurantPageStyles.ratingBadge}>
-                    {restaurant.rating.toFixed(1)}
-                    <Star size={13} fill="currentColor" />
-                </span>
-            )}
+                {address && (
+                    <p className={recommendationRestaurantPageStyles.restaurantAddress}>
+                        <MapPin size={14} />
+                        <span>{address}</span>
+                    </p>
+                )}
+
+                {restaurant.phone && (
+                    <p className={recommendationRestaurantPageStyles.restaurantPhone}>
+                        <Phone size={14} />
+                        <span>{restaurant.phone}</span>
+                    </p>
+                )}
+            </div>
         </article>
     );
 }

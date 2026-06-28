@@ -5,21 +5,35 @@ import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 
+import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 import { personalRecommendationResultAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { userPreferenceAtom } from "@/features/preference/application/selectors/preferenceSelectors";
 import { getPreferenceSummaryKeywords } from "@/features/preference/application/mapper/getPreferenceSummaryKeywords";
 import { useCompletePersonalRecommendationSelection } from "@/features/personalRecommendation/application/hooks/useCompletePersonalRecommendationSelection";
+import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
+import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
 import PersonalRecommendationResultActionButtons from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultActionButtons";
 
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
 
+const PERSONAL_RECOMMENDATION_LOCATION_KEY =
+    "personal-recommendation-location";
+
 export default function PersonalRecommendationResultPage() {
     const router = useRouter();
 
+    const member = useAtomValue(memberAtom);
     const recommendation = useAtomValue(personalRecommendationResultAtom);
     const preference = useAtomValue(userPreferenceAtom);
+
+    const locationStorageKey = createLocationStorageKey(
+        PERSONAL_RECOMMENDATION_LOCATION_KEY,
+        member?.id ?? "unknown",
+    );
+
+    const { location } = useLocationSetting(locationStorageKey);
 
     const { isCompleting, completeSelection } =
         useCompletePersonalRecommendationSelection();
@@ -50,7 +64,6 @@ export default function PersonalRecommendationResultPage() {
         await completeSelection(recommendation.requestId, selectedCandidateId);
     };
 
-    // 맛집 보기 버튼 클릭
     const handleClickRestaurant = (candidateId: number) => {
         const candidate = recommendation.candidates.find(
             (item) => item.id === candidateId,
@@ -60,11 +73,20 @@ export default function PersonalRecommendationResultPage() {
             return;
         }
 
-        router.push(
-            `/recommendation-restaurants?menuName=${encodeURIComponent(
-                candidate.menuName,
-            )}&source=personal`,
-        );
+        if (!location) {
+            alert("위치 정보를 먼저 설정해주세요.");
+            return;
+        }
+
+        const searchParams = new URLSearchParams({
+            menuName: candidate.menuName,
+            latitude: String(location.latitude),
+            longitude: String(location.longitude),
+            level: "4",
+            source: "personal",
+        });
+
+        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
     };
 
     return (
