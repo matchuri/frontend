@@ -12,7 +12,7 @@ export const personalRecommendationPageStyles = {
     heroTitle: "text-3xl font-semibold text-zinc-950",
     heroDescription: "mt-3 text-base font-medium text-zinc-900",
     primaryButton:
-        "h-16 w-[300px] rounded-full bg-black text-base font-semibold text-white shadow-md transition hover:bg-zinc-800",
+        "h-16 w-[300px] rounded-full cursor-pointer bg-black text-base font-semibold text-white shadow-md transition hover:bg-zinc-800",
     locationCard:
         "flex min-h-[300px] flex-col justify-between rounded-[28px] bg-[#e9e9e9] px-10 py-9 shadow-md",
     preferenceCard:
@@ -25,7 +25,7 @@ export const personalRecommendationPageStyles = {
     cardTitle: "text-base font-semibold text-zinc-950",
     cardDescription: "text-base font-medium text-zinc-600",
     smallButton:
-        "h-12 w-[180px] rounded-full bg-black text-base font-semibold text-white transition hover:bg-zinc-800",
+        "h-12 w-[180px] cursor-pointer rounded-full bg-black text-base font-semibold text-white transition hover:bg-zinc-800",
     historyPanel:
         "flex min-h-[630px] rounded-[32px] border border-zinc-200 bg-white px-8 py-10 shadow-sm",
     emptyHistory:
@@ -36,5 +36,5 @@ export const personalRecommendationPageStyles = {
     historyItem:
         "flex items-center justify-between rounded-2xl bg-zinc-100 px-5 py-4 text-left text-zinc-500 transition hover:bg-zinc-200",
     historyDetailButton:
-        "text-sm font-semibold text-orange-500",
+        "text-sm cursor-pointer font-semibold text-orange-500",
 } as const;
