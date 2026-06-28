@@ -13,6 +13,7 @@ import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGr
 
 import type { GroupRecommendationVoteUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteUpdatedEvent";
 import type { GroupRecommendationVoteCompletedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteCompletedEvent";
+import type { GroupRecommendationFinalizedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationFinalizedEvent";
 
 import { groupRecommendationSessionDetailAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationSessionDetailAtom";
 
@@ -45,6 +46,7 @@ export default function GroupRecommendationResultPage() {
     const handledVoteUpdatedEventIds = useRef<Set<string>>(new Set());
     // 전원 투표 완료 이벤트 중복 처리 방지
     const handledVoteCompletedEventIds = useRef<Set<string>>(new Set());
+    const handledFinalizedEventIds = useRef<Set<string>>(new Set());
 
     const setSessionDetailState = useSetAtom(groupRecommendationSessionDetailAtom);
 
@@ -139,10 +141,66 @@ export default function GroupRecommendationResultPage() {
         [groupId, refetchSessionDetail, sessionId],
     );
 
+    const handleRecommendationFinalized = useCallback(
+        async (event: GroupRecommendationFinalizedEvent) => {
+            if (handledFinalizedEventIds.current.has(event.eventId)) {
+                return;
+            }
+
+            handledFinalizedEventIds.current.add(event.eventId);
+
+            if (event.groupId !== groupId || event.sessionId !== sessionId) {
+                return;
+            }
+
+            setSessionDetailState((prev) => {
+                if (prev.status !== "SUCCESS") {
+                    return prev;
+                }
+
+                const finalCandidate = prev.data.candidates.find(
+                    (candidate) =>
+                        candidate.candidateId ===
+                        event.payload.finalCandidate.candidateId,
+                );
+
+                return {
+                    status: "SUCCESS",
+                    data: {
+                        ...prev.data,
+                        status: event.payload.status,
+                        finalCandidate:
+                            finalCandidate ??
+                            {
+                                candidateId:
+                                    event.payload.finalCandidate.candidateId,
+                                menuId:
+                                    event.payload.finalCandidate.menuItemId,
+                                menuName:
+                                    event.payload.finalCandidate.menuName,
+                                rankNo: 1,
+                                score: 0,
+                                voteCount: 0,
+                            },
+                    },
+                };
+            });
+
+            await refetchGroupDetail();
+        },
+        [
+            groupId,
+            refetchGroupDetail,
+            sessionId,
+            setSessionDetailState,
+        ],
+    );
+
     useGroupRealtimeEvents({
         accessToken,
         groupId,
         onRecommendationVoteUpdated: handleRecommendationVoteUpdated,
+        onRecommendationFinalized: handleRecommendationFinalized,
     });
 
     useMyRealtimeEvents({
