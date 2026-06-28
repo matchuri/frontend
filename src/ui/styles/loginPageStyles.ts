@@ -6,7 +6,7 @@ export const loginPageStyles = {
   inputGroup: "flex flex-col gap-1",
   label: "text-sm font-medium text-zinc-700",
   input: "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-400",
-  loginButton: "w-full rounded-md bg-blue-500 py-2 text-white font-semibold hover:bg-blue-600 transition",
+  loginButton: "w-full cursor-pointer rounded-md bg-blue-500 py-2 text-white font-semibold hover:bg-blue-600 transition",
   divider: "flex items-center gap-3 text-sm text-zinc-400",
   dividerLine: "flex-1 h-px bg-zinc-300",
   buttonGroup: "flex flex-col gap-3 text-sm font-semibold ",
