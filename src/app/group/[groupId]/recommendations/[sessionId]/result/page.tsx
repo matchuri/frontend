@@ -5,15 +5,18 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
-import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
-
 import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
 
+import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
+import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
+
 import type { GroupRecommendationVoteUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteUpdatedEvent";
+import type { GroupRecommendationVoteCompletedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteCompletedEvent";
 
 import { groupRecommendationSessionDetailAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationSessionDetailAtom";
+
+import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
 import { useVoteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/hooks/useVoteGroupRecommendationCandidate";
 import { useFinalizeGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useFinalizeGroupRecommendation";
@@ -40,6 +43,8 @@ export default function GroupRecommendationResultPage() {
 
     // 중복 VOTE_UPDATED 이벤트 처리 방지용 ref
     const handledVoteUpdatedEventIds = useRef<Set<string>>(new Set());
+    // 전원 투표 완료 이벤트 중복 처리 방지
+    const handledVoteCompletedEventIds = useRef<Set<string>>(new Set());
 
     const setSessionDetailState = useSetAtom(groupRecommendationSessionDetailAtom);
 
@@ -115,10 +120,35 @@ export default function GroupRecommendationResultPage() {
         ],
     );
 
+    const handleRecommendationVoteCompleted = useCallback(
+        async (event: GroupRecommendationVoteCompletedEvent) => {
+            if (handledVoteCompletedEventIds.current.has(event.eventId)) {
+                return;
+            }
+
+            handledVoteCompletedEventIds.current.add(event.eventId);
+
+            if (event.groupId !== groupId || event.sessionId !== sessionId) {
+                return;
+            }
+
+            await refetchSessionDetail({
+                showLoading: false,
+            });
+        },
+        [groupId, refetchSessionDetail, sessionId],
+    );
+
     useGroupRealtimeEvents({
         accessToken,
         groupId,
         onRecommendationVoteUpdated: handleRecommendationVoteUpdated,
+    });
+
+    useMyRealtimeEvents({
+        accessToken,
+        onRecommendationVoteCompleted:
+            handleRecommendationVoteCompleted,
     });
 
     const handleClickBack = () => {
