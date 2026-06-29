@@ -145,6 +145,7 @@ export default function PersonalRecommendationResultPage() {
                         candidateId={candidate.id}
                         menuName={candidate.menuName}
                         score={candidate.score}
+                        thumbnailUrl={candidate.thumbnailUrl}
                         selected={selectedCandidateId === candidate.id}
                         disabled={isClosed}
                         onSelect={setSelectedCandidateId}

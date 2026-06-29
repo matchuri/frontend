@@ -19,6 +19,7 @@ export function mapPersonalRecommendation(
             menuName: candidate.menuName,
             rankNo: candidate.rankNo,
             score: candidate.score,
+            thumbnailUrl: candidate.thumbnailUrl,
         })),
     };
 }

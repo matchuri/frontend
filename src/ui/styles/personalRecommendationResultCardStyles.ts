@@ -1,18 +1,20 @@
 export const personalRecommendationResultCardStyles = {
-    card:
-        "overflow-hidden rounded-3xl bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg",
+    card: "overflow-hidden rounded-3xl cursor-pointer bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg",
     selectedCard:
         "overflow-hidden rounded-3xl bg-white shadow-md ring-4 ring-blue-400 transition hover:-translate-y-1 hover:shadow-lg",
     imagePlaceholder:
-        "relative flex h-[260px] items-center justify-center bg-zinc-200",
+        "relative flex h-56 items-center justify-center overflow-hidden bg-zinc-100",
+
     matchBadge:
-        "absolute left-5 top-5 rounded-full bg-orange-700 px-5 py-2 text-sm font-semibold text-white",
+        "absolute left-4 top-4 rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-blue-600",
     selectedBadge:
-        "absolute right-5 top-5 rounded-full bg-blue-500 px-5 py-2 text-sm font-semibold text-white",
-    content:
-        "flex flex-col gap-5 px-7 py-7",
-    menuName:
-        "text-lg font-semibold text-zinc-900",
+        "absolute right-4 top-4 rounded-full bg-blue-500 px-4 py-2 text-sm font-bold text-white",
+
+    menuImage: "object-cover",
+    imageFallbackText: "text-sm font-semibold text-zinc-400",
+
+    content: "px-7 py-6",
+    menuName: "text-2xl font-bold text-zinc-950",
     restaurantButton:
-        "h-14 rounded-full bg-green-200 text-base font-semibold text-zinc-900 transition hover:bg-green-300",
+        "mt-6 h-14 rounded-full cursor-pointer bg-zinc-950 px-8 text-base font-bold text-white transition hover:bg-zinc-800",
 } as const;

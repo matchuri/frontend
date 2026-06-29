@@ -4,6 +4,7 @@ export interface PersonalRecommendationDetailCandidateResponse {
     readonly menuName: string;
     readonly rankNo: number;
     readonly score: number;
+    readonly thumbnailUrl: string | null;
 }
 
 export interface PersonalRecommendationDetailData {
