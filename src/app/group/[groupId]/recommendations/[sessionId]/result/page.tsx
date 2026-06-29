@@ -183,6 +183,8 @@ export default function GroupRecommendationResultPage() {
                                 rankNo: 1,
                                 score: 0,
                                 voteCount: 0,
+                                thumbnailUrl:
+                                    event.payload.finalCandidate.thumbnailUrl ?? null,
                             },
                     },
                 };
@@ -346,6 +348,7 @@ export default function GroupRecommendationResultPage() {
                             key={candidate.candidateId}
                             menuName={candidate.menuName}
                             matchPercent={Math.round(candidate.score)}
+                            thumbnailUrl={candidate.thumbnailUrl}
                             selected={candidate.selected}
                             isVoteClosed={isFinalized}
                             isVoting={isVoting}

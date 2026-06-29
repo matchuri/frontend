@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
 interface GroupRecommendationResultCandidateCardProps {
@@ -5,9 +7,9 @@ interface GroupRecommendationResultCandidateCardProps {
     readonly matchPercent: number;
     readonly selected: boolean;
     readonly isVoteClosed: boolean;
-
     // 투표 API 요청 중인지 여부
     readonly isVoting: boolean;
+    readonly thumbnailUrl: string | null;
 
     readonly onClickVote: () => void;
 }
@@ -18,6 +20,7 @@ export default function GroupRecommendationResultCandidateCard({
     selected,
     isVoteClosed,
     isVoting,
+    thumbnailUrl,
     onClickVote,
 }: GroupRecommendationResultCandidateCardProps) {
     const isVoteButtonDisabled = isVoteClosed || isVoting;
@@ -31,6 +34,20 @@ export default function GroupRecommendationResultCandidateCard({
             }
         >
             <div className={groupRecommendationResultPageStyles.candidateImagePlaceholder}>
+                {thumbnailUrl ? (
+                    <Image
+                        src={thumbnailUrl}
+                        alt={`${menuName} 이미지`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className={groupRecommendationResultPageStyles.candidateImage}
+                    />
+                ) : (
+                    <span className={groupRecommendationResultPageStyles.candidateImageFallbackText}>
+                        이미지 준비중입니다
+                    </span>
+                )}
+
                 <span className={groupRecommendationResultPageStyles.matchBadge}>
                     {matchPercent}% Match
                 </span>

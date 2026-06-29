@@ -16,6 +16,7 @@ export interface GroupRecommendationSessionDetailResponse {
             readonly rankNo: number;
             readonly score: number;
             readonly voteCount: number;
+            readonly thumbnailUrl: string | null;
         }[];
         readonly voteProgress: {
             readonly totalMemberCount: number;
@@ -28,6 +29,7 @@ export interface GroupRecommendationSessionDetailResponse {
             readonly rankNo: number;
             readonly score: number;
             readonly voteCount: number;
+            readonly thumbnailUrl: string | null;
         } | null;
         readonly memberVotes: readonly {
             readonly memberId: number;
