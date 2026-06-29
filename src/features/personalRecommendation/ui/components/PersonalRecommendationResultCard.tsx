@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { personalRecommendationResultCardStyles } from "@/ui/styles/personalRecommendationResultCardStyles";
 
 interface PersonalRecommendationResultCardProps {
@@ -6,6 +8,7 @@ interface PersonalRecommendationResultCardProps {
     readonly score: number;
     readonly selected: boolean;
     readonly disabled?: boolean;
+    readonly thumbnailUrl: string | null;
     readonly onSelect: (candidateId: number) => void;
     readonly onClickRestaurant: (candidateId: number) => void;
 }
@@ -16,6 +19,7 @@ export default function PersonalRecommendationResultCard({
     score,
     selected,
     disabled = false,
+    thumbnailUrl,
     onSelect,
     onClickRestaurant,
 }: PersonalRecommendationResultCardProps) {
@@ -35,6 +39,20 @@ export default function PersonalRecommendationResultCard({
             }
         >
             <div className={personalRecommendationResultCardStyles.imagePlaceholder}>
+                {thumbnailUrl ? (
+                    <Image
+                        src={thumbnailUrl}
+                        alt={`${menuName} 이미지`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className={personalRecommendationResultCardStyles.menuImage}
+                    />
+                ) : (
+                    <span className={personalRecommendationResultCardStyles.imageFallbackText}>
+                        이미지 준비중입니다
+                    </span>
+                )}
+
                 <span className={personalRecommendationResultCardStyles.matchBadge}>
                     {Math.round(score)}% Match
                 </span>
@@ -53,13 +71,9 @@ export default function PersonalRecommendationResultCard({
 
                 <button
                     type="button"
-                    className={
-                        personalRecommendationResultCardStyles.restaurantButton
-                    }
+                    className={personalRecommendationResultCardStyles.restaurantButton}
                     onClick={(event) => {
-                        // 카드 선택 이벤트가 실행되지 않도록 막음
                         event.stopPropagation();
-
                         onClickRestaurant(candidateId);
                     }}
                 >

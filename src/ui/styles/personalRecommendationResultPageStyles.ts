@@ -2,7 +2,7 @@ export const personalRecommendationResultPageStyles = {
     container:
         "min-h-screen bg-[#fbf9f9] px-12 py-10",
     backButton:
-        "flex h-10 w-10 items-center justify-center rounded-full text-zinc-800 transition hover:bg-zinc-100",
+        "flex h-10 w-10 items-center cursor-pointer justify-center rounded-full text-zinc-800 transition hover:bg-zinc-100",
     title:
         "mt-8 text-4xl font-semibold text-zinc-950",
     closedMessage:

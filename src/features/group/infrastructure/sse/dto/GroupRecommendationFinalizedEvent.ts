@@ -13,6 +13,7 @@ export interface GroupRecommendationFinalizedEvent {
             readonly candidateId: number;
             readonly menuItemId: number;
             readonly menuName: string;
+            readonly thumbnailUrl: string | null;
             readonly reason: string;
         };
     };

@@ -16,6 +16,7 @@ export function mapPersonalRecommendationDetail(
             menuName: candidate.menuName,
             rankNo: candidate.rankNo,
             score: candidate.score,
+            thumbnailUrl: candidate.thumbnailUrl,
         })),
     };
 }

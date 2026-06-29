@@ -45,4 +45,6 @@ export const groupRecommendationResultPageStyles = {
         "mt-5 h-14 w-full rounded-full bg-slate-100 text-lg font-semibold text-zinc-900 transition-colors hover:bg-blue-200 hover:text-blue-700 active:bg-blue-200",
     disabledVoteButton:
         "mt-5 h-14 w-full cursor-not-allowed rounded-full bg-zinc-300 text-lg font-semibold text-zinc-500",
+    candidateImage: "h-full w-full object-cover",
+    candidateImageFallbackText: "text-sm font-semibold text-zinc-400",
 } as const;

@@ -174,6 +174,7 @@ export default function GroupRecommendationPreparationPage() {
                             rankNo: index + 1,
                             score: 0,
                             voteCount: 0,
+                            thumbnailUrl: candidate.thumbnailUrl ?? null,
                         }),
                     ),
                     voteProgress: {

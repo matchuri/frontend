@@ -16,6 +16,7 @@ export interface CompleteGroupRecommendationPreparationResponse {
             readonly rankNo: number;
             readonly score: number;
             readonly voteCount: number;
+            readonly thumbnailUrl: string | null;
         }[];
     };
 
