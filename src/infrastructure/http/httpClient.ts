@@ -6,6 +6,7 @@ import {
 } from "@/features/auth/application/store/authStore";
 import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
 import type { LoginMember } from "@/features/auth/domain/model/LoginMember";
+import { logger } from "@/shared/lib/logger";
 
 interface ErrorResponseBody {
     readonly success?: boolean;
@@ -83,7 +84,7 @@ async function refreshAccessToken(): Promise<RefreshResult> {
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
 
-        console.error("[httpClient] refresh 실패 응답:", {
+        logger.error("[httpClient] refresh 실패 응답:", {
             status: response.status,
             statusText: response.statusText,
             body: errorBody,
@@ -128,7 +129,7 @@ async function request<T>(
 
             return request<T>(path, options, true);
         } catch (error) {
-            console.warn("[httpClient] refresh 실패 → 인증 상태 해제", error);
+            logger.warn("[httpClient] refresh 실패 → 인증 상태 해제", error);
             clearAuth();
             throw new HttpError(401, "Unauthorized");
         }
@@ -138,7 +139,7 @@ async function request<T>(
         const errorBody = await response.json().catch(() => null);
         //  refresh는 로그 안 찍음
         if (!shouldSilenceErrorLog(path, errorBody)) {
-            console.error("[httpClient] 요청 실패 응답:", {
+            logger.error("[httpClient] 요청 실패 응답:", {
                 path,
                 status: response.status,
                 statusText: response.statusText,

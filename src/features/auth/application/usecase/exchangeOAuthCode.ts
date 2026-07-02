@@ -5,17 +5,18 @@ import {
     setAuthenticated,
     setAuthLoading,
 } from "@/features/auth/application/store/authStore";
+import { logger } from "@/shared/lib/logger";
 
 export async function exchangeOAuthCode(
     provider: AuthProvider,
     code: string,
 ) {
-    console.log("🚀 exchangeOAuthCode 호출:", { provider, code });
+    logger.log("🚀 exchangeOAuthCode 호출:", { provider, code });
     setAuthLoading();
 
     try {
         const response = await authApi.exchangeCode(provider, code);
-        console.log("✅ exchange 응답:", response);
+        logger.log("✅ exchange 응답:", response);
         const accessToken = response.data.accessToken;
         const onboarding = response.data.onboarding;
 
@@ -25,8 +26,8 @@ export async function exchangeOAuthCode(
             response.data.member,
         );
 
-        console.log("accessToken 저장 완료:", accessToken);
-        console.log("onboarding:", onboarding);
+        logger.log("accessToken 저장 완료:", accessToken);
+        logger.log("onboarding:", onboarding);
 
         return response;
     } catch (error) {

@@ -5,6 +5,8 @@ import { useEffect } from "react";
 import { createGroupRealtimeConnection } from "@/infrastructure/sse/groupRealtimeClient";
 import { GROUP_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/GroupRealtimeEventType";
 
+import { logger } from "@/shared/lib/logger";
+
 import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/GroupDeletedEvent";
 import type { GroupRecommendationStartedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationStartedEvent";
 import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
@@ -63,21 +65,17 @@ export function useGroupRealtimeEvents({
         eventSource.addEventListener(
             GROUP_REALTIME_EVENT_TYPE.CONNECTED,
             () => {
-                if (process.env.NODE_ENV === "development") {
-                    console.log("[GROUP SSE] connected");
-                }
+                logger.log("[GROUP SSE] connected");
             },
         );
 
         eventSource.addEventListener(
             GROUP_REALTIME_EVENT_TYPE.GROUP_MEMBER_JOINED,
             (event) => {
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_MEMBER_JOINED",
-                        JSON.parse(event.data),
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_MEMBER_JOINED",
+                    JSON.parse(event.data),
+                );
 
                 onMemberJoined?.();
             },
@@ -86,12 +84,10 @@ export function useGroupRealtimeEvents({
         eventSource.addEventListener(
             GROUP_REALTIME_EVENT_TYPE.GROUP_MEMBER_LEFT,
             (event) => {
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_MEMBER_LEFT",
-                        JSON.parse(event.data),
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_MEMBER_LEFT",
+                    JSON.parse(event.data),
+                );
 
                 onMemberLeft?.();
             },
@@ -102,9 +98,7 @@ export function useGroupRealtimeEvents({
             (event) => {
                 const deletedEvent = JSON.parse(event.data) as GroupDeletedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log("[GROUP SSE] GROUP_DELETED", deletedEvent);
-                }
+                logger.log("[GROUP SSE] GROUP_DELETED", deletedEvent);
 
                 onGroupDeleted?.(deletedEvent);
             },
@@ -117,12 +111,10 @@ export function useGroupRealtimeEvents({
                     event.data,
                 ) as GroupRecommendationStartedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_RECOMMENDATION_STARTED",
-                        startedEvent,
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_RECOMMENDATION_STARTED",
+                    startedEvent,
+                );
 
                 onRecommendationStarted?.(startedEvent);
             },
@@ -135,12 +127,10 @@ export function useGroupRealtimeEvents({
                     event.data,
                 ) as GroupRecommendationReadinessUpdatedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_RECOMMENDATION_READINESS_UPDATED",
-                        readinessUpdatedEvent,
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_RECOMMENDATION_READINESS_UPDATED",
+                    readinessUpdatedEvent,
+                );
 
                 onRecommendationReadinessUpdated?.(readinessUpdatedEvent);
             },
@@ -153,12 +143,10 @@ export function useGroupRealtimeEvents({
                     event.data,
                 ) as GroupRecommendationOpenedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_RECOMMENDATION_OPENED",
-                        openedEvent,
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_RECOMMENDATION_OPENED",
+                    openedEvent,
+                );
 
                 onRecommendationOpened?.(openedEvent);
             },
@@ -171,12 +159,10 @@ export function useGroupRealtimeEvents({
                     event.data,
                 ) as GroupRecommendationVoteUpdatedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_RECOMMENDATION_VOTE_UPDATED",
-                        voteUpdatedEvent,
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_RECOMMENDATION_VOTE_UPDATED",
+                    voteUpdatedEvent,
+                );
 
                 onRecommendationVoteUpdated?.(voteUpdatedEvent);
             },
@@ -189,21 +175,17 @@ export function useGroupRealtimeEvents({
                     event.data,
                 ) as GroupRecommendationFinalizedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[GROUP SSE] GROUP_RECOMMENDATION_FINALIZED",
-                        finalizedEvent,
-                    );
-                }
+                logger.log(
+                    "[GROUP SSE] GROUP_RECOMMENDATION_FINALIZED",
+                    finalizedEvent,
+                );
 
                 onRecommendationFinalized?.(finalizedEvent);
             },
         );
 
         eventSource.onerror = () => {
-            if (process.env.NODE_ENV === "development") {
-                console.debug("그룹 실시간 이벤트 스트림 연결이 종료되었습니다.");
-            }
+            logger.debug("그룹 실시간 이벤트 스트림 연결이 종료되었습니다.");
 
             eventSource.close();
         };

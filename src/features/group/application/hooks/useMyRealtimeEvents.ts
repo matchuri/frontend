@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useSetAtom } from "jotai";
 
+import { logger } from "@/shared/lib/logger";
+
 import { inviteAtom } from "@/features/group/application/atoms/inviteAtom";
 import { MY_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/MyRealtimeEventType";
 import { createMyRealtimeConnection } from "@/infrastructure/sse/myRealtimeClient";
@@ -38,9 +40,7 @@ export function useMyRealtimeEvents({
         const eventSource = createMyRealtimeConnection(accessToken) as unknown as MyRealtimeEventSource;
 
         eventSource.addEventListener(MY_REALTIME_EVENT_TYPE.CONNECTED, () => {
-            if (process.env.NODE_ENV === "development") {
-                console.log("나의 실시간 이벤트 스트림 연결 완료");
-            }
+            logger.log("나의 실시간 이벤트 스트림 연결 완료");
         });
 
         eventSource.addEventListener(MY_REALTIME_EVENT_TYPE.GROUP_INVITE_CREATED, (event) => {
@@ -77,21 +77,17 @@ export function useMyRealtimeEvents({
                     event.data,
                 ) as GroupRecommendationVoteCompletedEvent;
 
-                if (process.env.NODE_ENV === "development") {
-                    console.log(
-                        "[MY SSE] GROUP_RECOMMENDATION_VOTE_COMPLETED",
-                        voteCompletedEvent,
-                    );
-                }
+                logger.log(
+                    "[MY SSE] GROUP_RECOMMENDATION_VOTE_COMPLETED",
+                    voteCompletedEvent,
+                );
 
                 onRecommendationVoteCompleted?.(voteCompletedEvent);
             },
         );
 
         eventSource.onerror = (error) => {
-            if (process.env.NODE_ENV === "development") {
-                console.error("나의 실시간 이벤트 스트림 에러", error);
-            }
+            logger.error("나의 실시간 이벤트 스트림 에러", error);
         };
 
         return () => {
