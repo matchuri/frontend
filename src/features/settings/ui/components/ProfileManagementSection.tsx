@@ -8,10 +8,12 @@ import { updateNickname } from "@/features/settings/infrastructure/api/settingsA
 
 interface ProfileManagementSectionProps {
     nickname: string;
+    isLoading?: boolean;
 }
 
 export default function ProfileManagementSection({
     nickname: initialNickname,
+    isLoading = false,
 }: ProfileManagementSectionProps) {
     const {
         nickname,
@@ -30,6 +32,7 @@ export default function ProfileManagementSection({
     const handleNicknameSave = async () => {
         const trimmedNickname = nickname.trim();
 
+        if (isLoading) return;
         if (trimmedNickname === currentNickname) return;
         if (!canSaveNickname) return;
 
@@ -58,31 +61,39 @@ export default function ProfileManagementSection({
                 프로필 관리
             </h2>
 
-            {/* 프로필 영역 */}
             <div className={settingsPageStyles.profileImageWrapper}>
-                <User size={64} className={settingsPageStyles.profileIcon} />
+                {isLoading ? (
+                    <div className={settingsPageStyles.skeletonProfileIcon} />
+                ) : (
+                    <>
+                        <User size={64} className={settingsPageStyles.profileIcon} />
 
-                <button type="button" className={settingsPageStyles.editButton}>
-                    <Camera size={16} />
-                </button>
+                        <button type="button" className={settingsPageStyles.editButton}>
+                            <Camera size={16} />
+                        </button>
+                    </>
+                )}
             </div>
 
-            {/* 닉네임 */}
             <div className={settingsPageStyles.formGroup}>
                 <label className={settingsPageStyles.label}>닉네임</label>
-                <input
-                    type="text"
-                    value={nickname}
-                    className={settingsPageStyles.input}
-                    onChange={(event) =>
-                        handleNicknameChange(event.target.value)
-//                         validateNickname(nextNickname);
-                    }
-                    onBlur={() => validateNickname(nickname)} // TODO: 나중에 onChange 안에 있는 걸로 수정 필요
-                    maxLength={100}
-                />
 
-                {message && (
+                {isLoading ? (
+                    <div className={settingsPageStyles.skeletonInput} />
+                ) : (
+                    <input
+                        type="text"
+                        value={nickname}
+                        className={settingsPageStyles.input}
+                        onChange={(event) =>
+                            handleNicknameChange(event.target.value)
+                        }
+                        onBlur={() => validateNickname(nickname)}
+                        maxLength={100}
+                    />
+                )}
+
+                {!isLoading && message && (
                     <p
                         className={
                             status === "AVAILABLE"
@@ -96,19 +107,23 @@ export default function ProfileManagementSection({
             </div>
 
             <div className={settingsPageStyles.saveButtonWrapper}>
-                <button
-                    type="button"
-                    onClick={handleNicknameSave}
-                    disabled={
-                        isSaving ||
-                        nickname.trim() === currentNickname ||
-                        !canSaveNickname
-                    }
-                    className={`${settingsPageStyles.saveButton} disabled:cursor-not-allowed disabled:opacity-50`}
-                >
-                    {isSaving ? "저장 중..." : "저장"}
-                    <Check size={18} />
-                </button>
+                {isLoading ? (
+                    <div className={settingsPageStyles.skeletonSaveButton} />
+                ) : (
+                    <button
+                        type="button"
+                        onClick={handleNicknameSave}
+                        disabled={
+                            isSaving ||
+                            nickname.trim() === currentNickname ||
+                            !canSaveNickname
+                        }
+                        className={`${settingsPageStyles.saveButton} disabled:cursor-not-allowed disabled:opacity-50`}
+                    >
+                        {isSaving ? "저장 중..." : "저장"}
+                        <Check size={18} />
+                    </button>
+                )}
             </div>
         </section>
     );

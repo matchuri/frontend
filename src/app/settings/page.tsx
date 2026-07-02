@@ -17,31 +17,9 @@ export default function SettingsPage() {
     const settingsState = useAtomValue(settingsAtom);
     const isLocalLogin = useAtomValue(isLocalLoginAtom);
 
-    if (isAuthLoading || !canAccess) {
-        return (
-            <main className={settingsPageStyles.page}>
-                로그인 상태를 확인하는 중...
-            </main>
-        );
-    }
-
-    if (settingsState.status === "LOADING") {
-        return (
-            <main className={settingsPageStyles.page}>
-                설정 정보를 불러오는 중...
-            </main>
-        );
-    }
-
-    if (settingsState.status === "ERROR") {
-        return (
-            <main className={settingsPageStyles.page}>
-                {settingsState.message}
-            </main>
-        );
-    }
-
-    const profile = settingsState.data;
+    const profile = "data" in settingsState ? settingsState.data : null;
+    const isLoading = isAuthLoading || !canAccess || settingsState.status === "LOADING" || !profile;
+    const isError = settingsState.status === "ERROR" && !profile;
 
     return (
         <main className={settingsPageStyles.page}>
@@ -50,13 +28,26 @@ export default function SettingsPage() {
                 프로필 정보 및 계정 보안 설정을 관리하세요.
             </p>
 
-            <ProfileManagementSection nickname={profile.nickname} />
+            {isError ? (
+                <section className={settingsPageStyles.section}>
+                    <p className="text-sm text-red-500">{settingsState.message}</p>
+                </section>
+            ) : (
+                <>
+                    <ProfileManagementSection
+                        key={profile?.id ?? "profile-loading"}
+                        nickname={profile?.nickname ?? ""}
+                        isLoading={isLoading}
+                    />
 
-            <AccountManagementSection
-                userId={profile.id}
-                email={profile.email}
-                showPasswordFields={isLocalLogin}
-            />
+                    <AccountManagementSection
+                        userId={profile?.id}
+                        email={profile?.email}
+                        showPasswordFields={profile ? isLocalLogin : false}
+                        isLoading={isLoading}
+                    />
+                </>
+            )}
         </main>
     );
 }

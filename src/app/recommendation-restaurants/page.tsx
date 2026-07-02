@@ -4,7 +4,7 @@ import RecommendationRestaurantPageContent from "@/features/recommendationRestau
 
 export default function RecommendationRestaurantPage() {
     return (
-        <Suspense>
+        <Suspense fallback={<main className="min-h-screen bg-[#EEF7FC] px-16 py-12">맛집 정보를 불러오는 중입니다.</main>}>
             <RecommendationRestaurantPageContent />
         </Suspense>
     );

@@ -24,4 +24,15 @@ export const settingsPageStyles = {
     dangerDescription: "mt-1 text-sm text-gray-600",
     dangerButton:
         "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold",
+
+    skeletonProfileIcon:
+        "h-16 w-16 animate-pulse rounded-full bg-[#c7d2df]",
+    skeletonInput:
+        "h-14 animate-pulse rounded-2xl bg-white",
+    skeletonDisabledInput:
+        "h-20 animate-pulse rounded-2xl bg-[#d8d8d8]",
+    skeletonDisabledInputWithMargin:
+        "mb-4 h-20 animate-pulse rounded-2xl bg-[#d8d8d8]",
+    skeletonSaveButton:
+        "h-12 w-44 animate-pulse rounded-full bg-[#c7d2df]",
 };

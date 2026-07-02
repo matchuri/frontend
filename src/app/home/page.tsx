@@ -16,7 +16,13 @@ export default function HomePage() {
     const member = useAtomValue(memberAtom);
 
     if (!canAccess) {
-        return null;
+        return (
+            <main className={homeMemberPageStyles.container}>
+                <div className={homeMemberPageStyles.content}>
+                    <p>화면을 준비하는 중...</p>
+                </div>
+            </main>
+        );
     }
 
     const nickname = member?.nickname ?? "사용자";
