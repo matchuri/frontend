@@ -1,5 +1,8 @@
 import { authAtom } from "@/features/auth/application/atom/authAtom";
 import { jotaiStore } from "@/shared/lib/jotaiStore";
+
+import { logger } from "@/shared/lib/logger";
+
 import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
 import type { LoginMember } from "@/features/auth/domain/model/LoginMember";
 
@@ -12,7 +15,7 @@ export function setAuthenticated(
     onboarding: OnboardingState,
     member: LoginMember,
 ) {
-    console.log("[setAuthenticated]", { accessToken, onboarding, member });
+    logger.log("[setAuthenticated]", { accessToken, onboarding, member });
     jotaiStore.set(authAtom, {
         status: "AUTHENTICATED",
         accessToken,

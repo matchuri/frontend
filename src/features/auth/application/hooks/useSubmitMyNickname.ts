@@ -3,6 +3,8 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { logger } from "@/shared/lib/logger";
+
 import { onboardingApi } from "@/features/auth/infrastructure/api/onboardingApi";
 import { updateOnboarding } from "@/features/auth/application/store/authStore";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
@@ -22,8 +24,8 @@ export function useSubmitMyNickname() {
                     nickname,
                 });
 
-                console.log("닉네임 완료 응답:", response.data.onboarding);
-                console.log(
+                logger.log("닉네임 완료 응답:", response.data.onboarding);
+                logger.log(
                     "이동 경로:",
                     getOnboardingRoute(response.data.onboarding.nextStep)
                 );

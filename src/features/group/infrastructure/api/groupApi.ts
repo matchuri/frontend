@@ -14,6 +14,8 @@ import type { GroupLeaveResponse } from "@/features/group/infrastructure/api/dto
 import { mapGroupListToGroups } from "@/features/group/infrastructure/api/mapper/groupListMapper";
 import { mapGroupDetail } from "@/features/group/infrastructure/api/mapper/groupDetailMapper";
 
+import { logger } from "@/shared/lib/logger";
+
 export const groupApi = {
     async fetchMyGroups(): Promise<readonly Group[]> {
         const response =
@@ -21,7 +23,7 @@ export const groupApi = {
                 "/api/v1/groups",
             );
 
-        console.log("그룹 목록 조회 응답", response);
+        logger.log("그룹 목록 조회 응답", response);
 
         if (!response.success) {
             throw new Error(
@@ -76,7 +78,7 @@ export const groupApi = {
         groupId: number,
         request: GroupUpdateRequest,
     ) {
-        console.log("PATCH 요청", {
+        logger.log("PATCH 요청", {
             groupId,
             request,
         });
@@ -86,7 +88,7 @@ export const groupApi = {
                 request,
             );
 
-        console.log("그룹 수정 성공 response:", response.data);
+        logger.log("그룹 수정 성공 response:", response.data);
 
         if (!response.success) {
             throw new Error(

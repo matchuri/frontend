@@ -4,6 +4,8 @@ import { useCallback, useState } from "react";
 import { useSetAtom } from "jotai";
 import { useRouter } from "next/navigation";
 
+import { logger } from "@/shared/lib/logger";
+
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 import { personalRecommendationAtom } from "@/features/personalRecommendation/application/atoms/personalRecommendationAtom";
 import { personalRecommendationApi } from "@/features/personalRecommendation/infrastructure/api/personalRecommendationApi";
@@ -51,7 +53,7 @@ export function usePersonalRecommendationStart({
                 wait(MIN_LOADING_TIME_MS),
             ]);
 
-            console.log(
+            logger.log(
                 "[personalRecommendation] 추천 결과:",
                 recommendation,
             );

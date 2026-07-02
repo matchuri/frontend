@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { logger } from "@/shared/lib/logger";
 import { AuthProviderMap } from "@/features/auth/domain/model/AuthProviderMap";
 import { exchangeOAuthCode } from "@/features/auth/application/usecase/exchangeOAuthCode";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
@@ -22,7 +23,7 @@ export function useOAuthCallback() {
             const providerParam = params.provider;
             const normalizedProvider = AuthProviderMap[providerParam];
 
-            console.log("📌 callback params:", {
+            logger.log("📌 callback params:", {
                 loginResult,
                 code,
                 errorCode,
@@ -59,25 +60,25 @@ export function useOAuthCallback() {
             const processingCode = sessionStorage.getItem(OAUTH_PROCESSING_CODE_KEY);
 
             if (processingCode === code) {
-                console.warn("이미 처리 중인 OAuth code입니다. 중복 exchange를 막습니다.");
+                logger.warn("이미 처리 중인 OAuth code입니다. 중복 exchange를 막습니다.");
                 return;
             }
 
             sessionStorage.setItem(OAUTH_PROCESSING_CODE_KEY, code);
 
             try {
-                console.log("🚀 exchange 요청 직전");
+                logger.log("🚀 exchange 요청 직전");
 
                 // 5. 서버에 code 전달 → 토큰 + onboarding 받기
                 const response = await exchangeOAuthCode(normalizedProvider, code);
 
-                console.log("✅ exchange 성공:", response);
+                logger.log("✅ exchange 성공:", response);
 
                 // 6. onboarding 기준으로 분기
                 const nextStep = response.data.onboarding.nextStep;
                 router.replace(getOnboardingRoute(nextStep));
             } catch (error) {
-                console.error("🚫OAuth exchange 실패:", error);
+                logger.error("🚫OAuth exchange 실패:", error);
 
                 // 디버깅 중에는 이동 막기
 //                 router.replace("/auth/login?error=exchange_failed");
