@@ -18,29 +18,28 @@ export function useAuthGuard(redirectPath: string = "/login") {
     const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
 
     useEffect(() => {
-        // 아직 인증 상태 확인 중이면 아무것도 안 함
         if (isAuthLoading) return;
 
-        // 로그인 안 되어 있으면 리다이렉트
         if (!isAuthenticated) {
             router.replace(redirectPath);
+            return;
         }
 
         if (!isOnboardingReady) {
-          router.replace(redirectPath);
+            router.replace(redirectPath);
         }
     }, [
         isAuthLoading,
         isAuthenticated,
         isOnboardingReady,
         router,
-        redirectPath
+        redirectPath,
     ]);
 
     return {
         isAuthenticated,
         isAuthLoading,
         isOnboardingReady,
-        canAccess: isAuthenticated && isOnboardingReady,
+        canAccess: !isAuthLoading && isAuthenticated && isOnboardingReady,
     };
 }
