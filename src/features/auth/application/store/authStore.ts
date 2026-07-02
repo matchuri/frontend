@@ -35,6 +35,20 @@ export function updateOnboarding(onboarding: OnboardingState) {
     });
 }
 
+export function updateMemberNickname(nickname: string) {
+    const auth = jotaiStore.get(authAtom);
+
+    if (auth.status !== "AUTHENTICATED") return;
+
+    jotaiStore.set(authAtom, {
+        ...auth,
+        member: {
+            ...auth.member,
+            nickname,
+        },
+    });
+}
+
 export function clearAuth() {
     jotaiStore.set(authAtom, { status: "UNAUTHENTICATED" });
 }

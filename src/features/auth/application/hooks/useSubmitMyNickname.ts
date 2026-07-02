@@ -6,7 +6,10 @@ import { useRouter } from "next/navigation";
 import { logger } from "@/shared/lib/logger";
 
 import { onboardingApi } from "@/features/auth/infrastructure/api/onboardingApi";
-import { updateOnboarding } from "@/features/auth/application/store/authStore";
+import {
+    updateMemberNickname,
+    updateOnboarding,
+} from "@/features/auth/application/store/authStore";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export function useSubmitMyNickname() {
@@ -20,20 +23,21 @@ export function useSubmitMyNickname() {
             setIsSubmitting(true);
 
             try {
+                const trimmedNickname = nickname.trim();
+
                 const response = await onboardingApi.updateOnboardingNickname({
-                    nickname,
+                    nickname: trimmedNickname,
                 });
 
                 logger.log("닉네임 완료 응답:", response.data.onboarding);
                 logger.log(
                     "이동 경로:",
-                    getOnboardingRoute(response.data.onboarding.nextStep)
+                    getOnboardingRoute(response.data.onboarding.nextStep),
                 );
 
-                // onboarding 상태 업데이트
                 updateOnboarding(response.data.onboarding);
+                updateMemberNickname(trimmedNickname);
 
-                // 다음 단계 이동 (READY → /home)
                 router.replace(
                     getOnboardingRoute(response.data.onboarding.nextStep),
                 );
