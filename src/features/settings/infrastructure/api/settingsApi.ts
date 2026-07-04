@@ -33,6 +33,17 @@ interface UpdateNicknameResponse {
     readonly error: ApiError | null;
 }
 
+interface DeleteMemberData {
+    readonly id: number;
+    readonly status: "INACTIVE";
+}
+
+interface DeleteMemberResponse {
+    readonly success: boolean;
+    readonly data: DeleteMemberData;
+    readonly error: ApiError | null;
+}
+
 export async function fetchSettingsProfile(): Promise<SettingsProfile> {
     const response = await httpClient.get<MemberMeResponse>("/api/v1/members/me");
 
@@ -58,6 +69,21 @@ export async function updateNickname(
     if (!response.success) {
         throw new Error(
             response.error?.message || "닉네임 변경에 실패했습니다.",
+        );
+    }
+
+    return response.data;
+}
+
+export async function deleteMember(): Promise<DeleteMemberData> {
+    const response = await httpClient.delete<DeleteMemberResponse>(
+        "/api/v1/members/me",
+    );
+
+    if (!response.success) {
+        throw new Error(
+            response.error?.message ||
+                "회원 탈퇴를 진행할 수 없습니다. 다시 시도해보세요",
         );
     }
 

@@ -8,6 +8,7 @@ interface AccountManagementSectionProps {
     email?: string;
     showPasswordFields: boolean;
     isLoading?: boolean;
+    onClickDeleteMember: () => void;
 }
 
 export default function AccountManagementSection({
@@ -15,6 +16,7 @@ export default function AccountManagementSection({
     email,
     showPasswordFields,
     isLoading = false,
+    onClickDeleteMember,
 }: AccountManagementSectionProps) {
     return (
         <section className={settingsPageStyles.section}>
@@ -98,7 +100,8 @@ export default function AccountManagementSection({
                 <button
                     type="button"
                     disabled={isLoading}
-                    className={`${settingsPageStyles.dangerButton} disabled:cursor-not-allowed disabled:opacity-50`}
+                    onClick={onClickDeleteMember}
+                    className={settingsPageStyles.deleteMemberButton}
                 >
                     회원 탈퇴
                 </button>

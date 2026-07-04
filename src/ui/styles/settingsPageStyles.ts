@@ -24,6 +24,25 @@ export const settingsPageStyles = {
     dangerDescription: "mt-1 text-sm text-gray-600",
     dangerButton:
         "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold",
+    deleteMemberButton:
+        "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold cursor-pointer transition hover:bg-red-50 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50",
+
+    modalOverlay:
+        "fixed inset-0 z-50 flex items-center justify-center bg-black/40",
+    modalBox:
+        "w-[420px] rounded-[32px] bg-white p-8 shadow-xl",
+    modalTitleWrapper:
+        "mb-4 flex items-center gap-2 text-red-500",
+    modalTitle:
+        "text-lg font-bold",
+    modalDescription:
+        "text-sm leading-6 text-zinc-700",
+    modalButtonWrapper:
+        "mt-6 flex justify-end gap-3",
+    modalCancelButton:
+        "rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 cursor-pointer transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50",
+    modalDangerButton:
+        "rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white cursor-pointer transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50",
 
     skeletonProfileIcon:
         "h-16 w-16 animate-pulse rounded-full bg-[#c7d2df]",
