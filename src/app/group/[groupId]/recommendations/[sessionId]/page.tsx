@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useSetAtom, useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
 import type { GroupRecommendationOpenedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationOpenedEvent";
@@ -236,6 +237,10 @@ function GroupRecommendationPreparationPageContent() {
         );
     };
 
+    const handleClickBack = () => {
+        router.push(`/group?selectedGroupId=${groupId}`);
+    };
+
     const handleClickCompletePreparation = async () => {
         if (!member) {
             alert("회원 정보를 불러오는 중입니다.");
@@ -317,6 +322,14 @@ function GroupRecommendationPreparationPageContent() {
         <>
             <main className={groupRecommendationPreparationPageStyles.container}>
                 <div className={groupRecommendationPreparationPageStyles.content}>
+                    <button
+                        type="button"
+                        onClick={handleClickBack}
+                        className={groupRecommendationPreparationPageStyles.backButton}
+                    >
+                        <ArrowLeft size={30} strokeWidth={2.5} />
+                    </button>
+
                     <h1 className={groupRecommendationPreparationPageStyles.title}>
                         그룹 메뉴 추천
                     </h1>

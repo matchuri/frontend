@@ -2,6 +2,8 @@ export const groupRecommendationPreparationPageStyles = {
     container: "min-h-screen bg-white",
     content: "mx-auto w-full max-w-[1280px] px-16 py-20",
 
+    backButton:
+        "mb-8 flex h-12 w-12 items-center justify-center rounded-full bg-white text-zinc-900 shadow-sm transition hover:bg-zinc-100 cursor-pointer",
     title: "text-4xl font-bold text-zinc-900",
 
     layout: "mt-20 grid grid-cols-[minmax(0,1fr)_380px] gap-14",
