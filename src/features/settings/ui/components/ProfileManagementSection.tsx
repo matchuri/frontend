@@ -5,6 +5,9 @@ import { User, Camera, Check } from "lucide-react";
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 import { useNicknameValidation } from "@/features/nickname/application/hooks/useNicknameValidation";
 import { updateNickname } from "@/features/settings/infrastructure/api/settingsApi";
+import { updateMemberNickname } from "@/features/auth/application/store/authStore";
+import { useSetAtom } from "jotai";
+import { settingsAtom } from "@/features/settings/application/atoms/settingsAtom";
 
 interface ProfileManagementSectionProps {
     nickname: string;
@@ -26,6 +29,7 @@ export default function ProfileManagementSection({
         initialNickname,
     });
 
+    const setSettings = useSetAtom(settingsAtom);
     const [currentNickname, setCurrentNickname] = useState(initialNickname);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -42,6 +46,20 @@ export default function ProfileManagementSection({
             await updateNickname(trimmedNickname);
 
             setCurrentNickname(trimmedNickname);
+            updateMemberNickname(trimmedNickname);
+
+            setSettings((prev) => {
+                if (!("data" in prev) || !prev.data) return prev;
+
+                return {
+                    ...prev,
+                    data: {
+                        ...prev.data,
+                        nickname: trimmedNickname,
+                    },
+                };
+            });
+
             alert("닉네임이 변경되었습니다.");
         } catch (error) {
             alert(
@@ -85,10 +103,11 @@ export default function ProfileManagementSection({
                         type="text"
                         value={nickname}
                         className={settingsPageStyles.input}
-                        onChange={(event) =>
-                            handleNicknameChange(event.target.value)
-                        }
-                        onBlur={() => validateNickname(nickname)}
+                        onChange={(e) => {
+                            const nextNickname = e.target.value;
+                            handleNicknameChange(nextNickname);
+                            validateNickname(nextNickname);
+                        }}
                         maxLength={100}
                     />
                 )}
