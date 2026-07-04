@@ -30,12 +30,21 @@ import PreferenceModal from "@/features/preference/ui/components/PreferenceModal
 import GroupRecommendationPreparationStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationStatusCard";
 import GroupRecommendationPreparationInfoCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationInfoCard";
 import GroupRecommendationPreparationMemberCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationMemberCard";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { mockGroupRecommendationPreparation } from "@/features/groupRecommendation/ui/mock/mockGroupRecommendationPreparation";
 
 import { groupRecommendationPreparationPageStyles } from "@/ui/styles/groupRecommendationPreparationPageStyles";
 
 export default function GroupRecommendationPreparationPage() {
+    return (
+        <AuthRequiredGuard>
+            <GroupRecommendationPreparationPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function GroupRecommendationPreparationPageContent() {
     const params = useParams<{
         groupId: string;
         sessionId: string;

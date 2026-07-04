@@ -11,6 +11,7 @@ import PersonalRecommendationPreferenceCard from "@/features/personalRecommendat
 import PersonalRecommendationHistoryPanel from "@/features/personalRecommendation/ui/components/PersonalRecommendationHistoryPanel";
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
@@ -30,6 +31,14 @@ import { personalRecommendationHistoryToPanelItemsMapper } from "@/features/pers
 const PERSONAL_RECOMMENDATION_LOCATION_KEY = "personal-recommendation-location";
 
 export default function PersonalRecommendationPage() {
+    return (
+        <AuthRequiredGuard>
+            <PersonalRecommendationPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function PersonalRecommendationPageContent() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
