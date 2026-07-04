@@ -8,7 +8,7 @@ export const settingsPageStyles = {
         "relative mb-10 flex h-32 w-32 items-center justify-center rounded-full bg-[#d9e2ec]",
     profileIcon: "text-[#6b7c93]",
     editButton:
-        "absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#37639f] text-white shadow-md",
+        "absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#37639f] text-white shadow-md cursor-pointer",
     formGroup: "flex flex-col gap-3",
     label: "text-sm font-semibold text-gray-800",
     input:
@@ -17,7 +17,7 @@ export const settingsPageStyles = {
         "h-20 rounded-2xl bg-[#d8d8d8] px-5 py-4 text-sm text-gray-500 outline-none",
     saveButtonWrapper: "mt-10 flex justify-end",
     saveButton:
-        "flex h-12 w-44 items-center justify-center gap-8 rounded-full bg-[#37639f] text-white",
+        "flex h-12 w-44 items-center justify-center gap-8 rounded-full bg-[#37639f] text-white cursor-pointer",
     accountRow: "flex items-center justify-between",
     divider: "my-10 border-t border-gray-300",
     dangerTitle: "font-bold text-red-500",
@@ -26,6 +26,10 @@ export const settingsPageStyles = {
         "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold",
     deleteMemberButton:
         "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold cursor-pointer transition hover:bg-red-50 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50",
+
+    passwordInputWrapper: "relative w-full",
+    passwordToggleButton: "absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-zinc-500 transition-colors hover:text-zinc-700",
+    passwordInput: "w-full pr-12",
 
     modalOverlay:
         "fixed inset-0 z-50 flex items-center justify-center bg-black/40",

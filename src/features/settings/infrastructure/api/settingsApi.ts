@@ -44,6 +44,21 @@ interface DeleteMemberResponse {
     readonly error: ApiError | null;
 }
 
+interface ChangePasswordRequest {
+    readonly currentPassword: string;
+    readonly newPassword: string;
+}
+
+interface ChangePasswordData {
+    readonly passwordChanged: boolean;
+}
+
+interface ChangePasswordResponse {
+    readonly success: boolean;
+    readonly data: ChangePasswordData;
+    readonly error: ApiError | null;
+}
+
 export async function fetchSettingsProfile(): Promise<SettingsProfile> {
     const response = await httpClient.get<MemberMeResponse>("/api/v1/members/me");
 
@@ -85,6 +100,21 @@ export async function deleteMember(): Promise<DeleteMemberData> {
             response.error?.message ||
                 "회원 탈퇴를 진행할 수 없습니다. 다시 시도해보세요",
         );
+    }
+
+    return response.data;
+}
+
+export async function changePassword(
+    request: ChangePasswordRequest,
+): Promise<ChangePasswordData> {
+    const response = await httpClient.patch<ChangePasswordResponse>(
+        "/api/v1/members/me/password",
+        request,
+    );
+
+    if (!response.success) {
+        throw new Error("비밀번호 변경에 실패했습니다.");
     }
 
     return response.data;
