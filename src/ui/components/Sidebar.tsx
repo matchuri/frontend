@@ -23,11 +23,6 @@ const MENUS = [
 export default function Sidebar() {
     const pathname = usePathname();
 
-    const isGroupRecommendationPage =
-        pathname.startsWith("/group/") &&
-        pathname.includes("/recommendations/") &&
-        !pathname.endsWith("/result");
-
     const isRecommendationLoading = useAtomValue(
         isPersonalRecommendationLoadingAtom,
     );
@@ -40,12 +35,6 @@ export default function Sidebar() {
         event: React.MouseEvent<HTMLAnchorElement>,
         href: string,
     ) => {
-        // 그룹 메뉴 추천 진행중에는 페이지 이동 차단
-        if (isGroupRecommendationPage) {
-            event.preventDefault();
-            alert("그룹 메뉴 추천이 진행 중에는 다른 페이지로 이동할 수 없습니다.");
-            return;
-        }
         if (!isRecommendationLoading) return;
 
         if (href === "/personal-recommendation") {
