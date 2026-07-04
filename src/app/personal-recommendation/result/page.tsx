@@ -17,6 +17,7 @@ import { createLocationStorageKey } from "@/features/locationSetting/application
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
 import PersonalRecommendationResultActionButtons from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultActionButtons";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
 
@@ -24,6 +25,14 @@ const PERSONAL_RECOMMENDATION_LOCATION_KEY =
     "personal-recommendation-location";
 
 export default function PersonalRecommendationResultPage() {
+    return (
+        <AuthRequiredGuard>
+            <PersonalRecommendationResultPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function PersonalRecommendationResultPageContent() {
     const router = useRouter();
 
     const member = useAtomValue(memberAtom);

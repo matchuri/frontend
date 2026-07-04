@@ -58,10 +58,19 @@ import GroupNameEditModal from "@/features/group/ui/components/GroupNameEditModa
 import GroupLocationEditModal from "@/features/group/ui/components/GroupLocationEditModal";
 import GroupDeleteModal from "@/features/group/ui/components/GroupDeleteModal";
 import GroupLeaveModal from "@/features/group/ui/components/GroupLeaveModal";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 export default function GroupPage() {
+    return (
+        <AuthRequiredGuard>
+            <GroupPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function GroupPageContent() {
     const router = useRouter();
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

@@ -1,32 +1,33 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 
 import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
-import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
-import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
 
-export function useSignupNicknameGuard() {
+export function useTermsGuard() {
     const router = useRouter();
     const onboarding = useAtomValue(onboardingAtom);
 
-    useEffect(() => {
+    const canAccess = useMemo(() => {
         const account = accountStorage.load();
-        const savedAgreements = termsStorage.load();
 
         const isGeneralSignup =
             !!account &&
             !!account.email &&
-            !!account.emailVerificationToken &&
-            !!savedAgreements &&
-            savedAgreements.length > 0;
+            !!account.emailVerificationToken;
 
-        if (isGeneralSignup) return;
+        return (
+            isGeneralSignup ||
+            onboarding?.nextStep === "REQUIRED_AGREEMENTS"
+        );
+    }, [onboarding]);
 
-        if (onboarding?.nextStep === "REQUIRED_NICKNAME") return;
+    useEffect(() => {
+        if (canAccess) return;
 
         if (onboarding?.nextStep) {
             router.replace(getOnboardingRoute(onboarding.nextStep));
@@ -34,5 +35,9 @@ export function useSignupNicknameGuard() {
         }
 
         router.replace("/signup");
-    }, [router, onboarding]);
+    }, [canAccess, onboarding, router]);
+
+    return {
+        canAccess,
+    };
 }

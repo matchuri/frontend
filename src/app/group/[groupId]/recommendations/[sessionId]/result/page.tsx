@@ -32,10 +32,19 @@ import {
 import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultVoteStatusCard";
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
 import GroupRecommendationResultCandidateCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultCandidateCard";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
 export default function GroupRecommendationResultPage() {
+    return (
+        <AuthRequiredGuard>
+            <GroupRecommendationResultPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function GroupRecommendationResultPageContent() {
     const params = useParams<{ groupId: string; sessionId: string }>();
     const router = useRouter();
 
