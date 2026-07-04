@@ -181,7 +181,7 @@ export default function PreferenceModal({
                     </section>
                 </div>
 
-                <footer className={preferenceModalStyles.footer}>
+                <div className={preferenceModalStyles.footer}>
                     <button
                         type="button"
                         onClick={savePreference}
@@ -190,7 +190,7 @@ export default function PreferenceModal({
                     >
                         {isSaving ? "저장 중..." : "저장하기"}
                     </button>
-                </footer>
+                </div>
             </div>
         </div>
     );

@@ -33,26 +33,34 @@ export default function PersonalRecommendationPage() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
+    // 로그인한 회원 정보 조회
     const member = useAtomValue(memberAtom);
 
+    // 회원별로 위치 저장 key를 분리하기 위한 storage key 생성
     const locationStorageKey = createLocationStorageKey(
         PERSONAL_RECOMMENDATION_LOCATION_KEY,
         member?.id ?? "unknown",
     );
 
+    // 개인 추천에 사용할 위치 정보
     const { location, saveLocation } = useLocationSetting(locationStorageKey);
+
+    // 취향 프로필 조회
     const { preferenceState } = usePreferenceList();
 
+    // 개인 추천 생성/재요청 중 로딩 화면 표시 여부
     const isRecommendationLoading = useAtomValue(
         isPersonalRecommendationLoadingAtom,
     );
 
+    // 개인 추천 이력 조회
     const { histories } = usePersonalRecommendationHistories();
 
+    // 이력 데이터를 화면 표시용 데이터로 변환
     const historyPanelItems =
         personalRecommendationHistoryToPanelItemsMapper(histories);
 
-    // 추천 결과 화면 이동
+    // 추천 결과 상세 조회 후 결과 페이지로 이동
     const { moveToRecommendationResult } =
         usePersonalRecommendationResultNavigation();
 
@@ -61,6 +69,7 @@ export default function PersonalRecommendationPage() {
         (history) => history.status === "OPEN",
     );
 
+    // 필수 취향 정보가 모두 등록되어 있는지 확인
     const hasPreference =
         preferenceState.status === "SUCCESS" &&
         hasRequiredPreference(preferenceState.data);
@@ -75,7 +84,7 @@ export default function PersonalRecommendationPage() {
         hasPreference,
     });
 
-    // 진행 중 추천이 있으면 새 추천 대신 기존 결과 이동
+    // 진행 중 추천이 있으면 새 추천 생성 대신 기존 추천 결과 화면으로 이동
     const handleClickHeroButton = openRecommendation
         ? () => moveToRecommendationResult(openRecommendation.id)
         : startRecommendation;

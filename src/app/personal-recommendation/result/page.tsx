@@ -11,6 +11,8 @@ import { userPreferenceAtom } from "@/features/preference/application/selectors/
 import { getPreferenceSummaryKeywords } from "@/features/preference/application/mapper/getPreferenceSummaryKeywords";
 import { useCompletePersonalRecommendationSelection } from "@/features/personalRecommendation/application/hooks/useCompletePersonalRecommendationSelection";
 import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
+import { useRerollPersonalRecommendation } from "@/features/personalRecommendation/application/hooks/useRerollPersonalRecommendation";
+
 import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
@@ -37,6 +39,9 @@ export default function PersonalRecommendationResultPage() {
 
     const { isCompleting, completeSelection } =
         useCompletePersonalRecommendationSelection();
+
+    const { isRerolling, rerollRecommendation } =
+        useRerollPersonalRecommendation();
 
     const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
         recommendation?.selectedCandidateId ?? null,
@@ -87,6 +92,17 @@ export default function PersonalRecommendationResultPage() {
         });
 
         router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+    };
+
+    const handleRetryRecommendation = async () => {
+        const nextRecommendation = await rerollRecommendation(
+            recommendation.requestId,
+            "NOT_SATISFIED",
+        );
+
+        if (nextRecommendation) {
+            setSelectedCandidateId(null);
+        }
     };
 
     return (
@@ -155,11 +171,10 @@ export default function PersonalRecommendationResultPage() {
             </section>
 
             <PersonalRecommendationResultActionButtons
-                onRetryRecommendation={() => {
-                    console.log("재요청");
-                }}
+                onRetryRecommendation={handleRetryRecommendation}
                 onCompleteSelection={handleCompleteSelection}
                 canCompleteSelection={selectedCandidateId !== null}
+                isRetryRecommendationLoading={isRerolling}
                 isCompleteSelectionLoading={isCompleting}
                 isClosed={isClosed}
             />
