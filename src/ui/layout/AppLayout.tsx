@@ -2,6 +2,7 @@
 
 import { Provider, useAtomValue } from "jotai";
 import type { ReactNode } from "react";
+import { usePathname } from "next/navigation";
 
 import { jotaiStore } from "@/shared/lib/jotaiStore";
 import AuthInitializer from "@/features/auth/ui/components/AuthInitializer";
@@ -14,13 +15,26 @@ import {
 import Navbar from "@/ui/components/Navbar";
 import Sidebar from "@/ui/components/Sidebar";
 
+const authNavigationHiddenPaths = [
+    "/login",
+    "/signup",
+    "/terms",
+    "/signup/nickname",
+    "/auth/find-id",
+    "/auth/find-password",
+];
+
 function AppContent({ children }: { children: ReactNode }) {
+    const pathname = usePathname();
+
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
     const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
 
     const showMemberLayout =
-      !isAuthLoading && isAuthenticated && isOnboardingReady;
+        !isAuthLoading && isAuthenticated && isOnboardingReady;
+
+    const hideNavbar = authNavigationHiddenPaths.includes(pathname);
 
     if (isAuthLoading) {
         return null;
@@ -28,7 +42,7 @@ function AppContent({ children }: { children: ReactNode }) {
 
     return (
         <>
-            <Navbar />
+            {!hideNavbar && <Navbar />}
             {showMemberLayout && <Sidebar />}
 
             <main
@@ -37,7 +51,7 @@ function AppContent({ children }: { children: ReactNode }) {
                     showMemberLayout ? "ml-[280px]" : "",
                 ].join(" ")}
             >
-            {children}
+                {children}
             </main>
         </>
     );
