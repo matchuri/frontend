@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 
 import { signupPageStyles } from "@/ui/styles/signupPageStyles";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+
 import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
+import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
 
 import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
 import { useLoginIdValidation } from "@/features/signup/application/hooks/useLoginIdValidation";
@@ -130,10 +132,7 @@ export default function SignupPage() {
 
     return (
         <div className={signupPageStyles.container}>
-            {/* 로고 */}
-            <div className="absolute top-20 flex items-center gap-2 text-2xl font-semibold text-black">
-                <span>Matchuri</span>
-            </div>
+            <HomeNavigationButton />
 
             <div className={signupPageStyles.card}>
                 {/* 제목 */}

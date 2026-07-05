@@ -11,7 +11,9 @@ import { signupApi } from "@/features/signup/infrastructure/api/signupApi"
 import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
 import { useSubmitMyNickname } from "@/features/auth/application/hooks/useSubmitMyNickname";
 import { useNicknameValidation } from "@/features/nickname/application/hooks/useNicknameValidation";
-import { useSignupNicknameGuard } from "@/features/signup/application/hooks/useSignupNicknameGuard"; // ✅ 추가
+import { useSignupNicknameGuard } from "@/features/signup/application/hooks/useSignupNicknameGuard";
+
+import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
 
 export default function NicknamePage() {
     const router = useRouter();
@@ -98,6 +100,8 @@ export default function NicknamePage() {
 
     return (
         <div className={nicknamePageStyles.container}>
+            <HomeNavigationButton />
+
             <div className={nicknamePageStyles.card}>
                 <div className="flex flex-col gap-1 w-full">
                     <h1 className={nicknamePageStyles.title}>닉네임 설정</h1>

@@ -13,6 +13,8 @@ import { onboardingAtom } from "@/features/auth/application/selectors/authSelect
 import { useSubmitRequiredAgreements } from "@/features/auth/application/hooks/useSubmitRequiredAgreements";
 import { useTermsGuard } from "@/features/routeGuard/application/hooks/useTermsGuard";
 
+import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
+
 export default function TermsPage() {
     const router = useRouter();
     const terms = getTerms();
@@ -74,6 +76,8 @@ export default function TermsPage() {
 
     return (
         <div className={termsPageStyles.container}>
+            <HomeNavigationButton />
+
             <div className={termsPageStyles.card}>
                 <div className="flex flex-col items-center gap-2">
                     <h1 className={termsPageStyles.title}>약관 동의</h1>

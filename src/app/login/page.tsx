@@ -13,6 +13,7 @@ import {
     isAuthenticatedAtom,
     isAuthLoadingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
+import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
@@ -52,6 +53,8 @@ export default function LoginPage() {
 
     return (
         <div className={loginPageStyles.container}>
+            <HomeNavigationButton />
+
             <div className={loginPageStyles.card}>
                 <div className="flex w-full flex-col gap-1">
                     <h1 className={loginPageStyles.title}>로그인</h1>
