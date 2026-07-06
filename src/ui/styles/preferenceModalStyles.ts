@@ -7,7 +7,7 @@ export const preferenceModalStyles = {
         "flex items-center justify-between border-b border-zinc-200 px-8 py-6",
     headerLeft: "flex items-center gap-3",
     iconButton:
-        "flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 hover:bg-zinc-200",
+        "flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 cursor-pointer hover:bg-zinc-200",
     title: "text-2xl font-bold text-zinc-900",
     content:
         "flex-1 overflow-y-auto px-8 py-8",
@@ -26,5 +26,5 @@ export const preferenceModalStyles = {
     footer:
         "shrink-0 border-t border-zinc-200 bg-white px-8 py-5",
     saveButton:
-        "w-full rounded-full bg-[#ff7043] py-4 text-base font-semibold text-white transition hover:bg-[#f45f30] disabled:bg-zinc-300",
+        "w-full rounded-full bg-[#ff7043] py-4 text-base font-semibold text-white transition cursor-pointer hover:bg-[#f45f30] disabled:bg-zinc-300",
 } as const;

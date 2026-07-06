@@ -7,7 +7,7 @@ export const findIdPageStyles = {
     label: "mb-3 text-base font-semibold text-slate-950",
     input: "h-14 rounded-xl border border-slate-300 px-4 text-base text-zinc-900 outline-none focus:border-slate-500",
     button:
-        "mt-10 flex h-14 items-center justify-center rounded-xl bg-slate-500 text-base font-semibold text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50",
+        "mt-10 flex h-14 items-center justify-center rounded-xl bg-slate-500 text-base font-semibold text-white cursor-pointer hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-50",
     resultBox: "mt-24 flex flex-col items-center text-center",
     resultLabel: "text-xl font-semibold text-slate-950",
     resultValue: "mt-8 text-3xl font-bold text-slate-950",

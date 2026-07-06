@@ -8,7 +8,7 @@ export const signupPageStyles = {
   input:
     "w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400",
   nextButton:
-    "px-6 py-2 rounded-full bg-slate-500 text-white text-sm font-semibold hover:bg-slate-600 transition",
+    "px-6 py-2 rounded-full bg-slate-500 text-white text-sm font-semibold hover:bg-slate-600 transition cursor-pointer disabled:cursor-not-allowed",
   divider: "flex items-center gap-3 text-sm text-zinc-400",
   dividerLine: "flex-1 h-px bg-zinc-300",
   socialGroup: "flex justify-center gap-4",
