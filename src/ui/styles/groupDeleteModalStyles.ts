@@ -5,8 +5,8 @@ export const groupDeleteModalStyles = {
     description: "mt-3 text-sm leading-relaxed text-slate-600",
     actions: "mt-8 flex justify-end gap-3",
     cancelButton:
-        "h-11 rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition hover:bg-slate-100",
+        "h-11 rounded-full border border-slate-300 px-6 text-sm font-semibold text-slate-700 transition cursor-pointer hover:bg-slate-100",
 
     deleteButton:
-        "h-11 rounded-full bg-red-600 px-6 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300",
+        "h-11 rounded-full bg-red-600 px-6 text-sm font-semibold text-white transition cursor-pointer hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-red-300",
 } as const;

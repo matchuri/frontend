@@ -37,12 +37,12 @@ export default function PersonalRecommendationResultActionButtons({
             <button
                 type="button"
                 onClick={onCompleteSelection}
-                disabled={
-                    isActionLoading || !canCompleteSelection || isClosed
-                }
-                className={
-                    personalRecommendationResultActionButtonsStyles.completeSelectionButton
-                }
+                disabled={isActionLoading || !canCompleteSelection || isClosed}
+                className={`${personalRecommendationResultActionButtonsStyles.completeSelectionButton} ${
+                    canCompleteSelection && !isClosed
+                        ? personalRecommendationResultActionButtonsStyles.completeSelectionButtonEnabled
+                        : personalRecommendationResultActionButtonsStyles.completeSelectionButtonDisabled
+                }`}
             >
                 {isClosed ? "선택 완료됨" : "선택 완료"}
             </button>

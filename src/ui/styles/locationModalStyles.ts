@@ -6,7 +6,7 @@ export const locationModalStyles = {
     header:
         "flex items-start gap-5 px-10 py-8",
     backButton:
-        "flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 transition hover:bg-zinc-200",
+        "flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 transition cursor-pointer hover:bg-zinc-200",
     title:
         "text-3xl font-semibold text-zinc-950",
     description:
@@ -18,9 +18,9 @@ export const locationModalStyles = {
     searchInput:
         "w-full text-base font-medium text-zinc-700 outline-none placeholder:text-zinc-400",
     searchErrorMessage:
-        "absolute left-6 top-[72px] text-xs font-semibold text-red-500",
+        "absolute left-0 top-[58px] w-full rounded-xl bg-white px-4 py-2 text-sm text-red-500 shadow-md",
     locationButton:
-        "flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-600",
+        "flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition cursor-pointer hover:bg-slate-100",
     mapContainer:
         "relative h-full w-full bg-zinc-200",
     emptyMapArea:
@@ -38,5 +38,5 @@ export const locationModalStyles = {
     guideBox:
         "flex items-center gap-2 text-sm font-medium text-zinc-600",
     saveButton:
-        "flex h-14 w-[150px] items-center justify-center gap-2 rounded-full bg-[#4f46e5] text-base font-semibold text-white shadow-lg transition hover:bg-[#4338ca]",
+        "flex h-14 w-[150px] items-center justify-center gap-2 rounded-full bg-[#4f46e5] text-base font-semibold text-white shadow-lg transition cursor-pointer hover:bg-[#4338ca]",
 } as const;

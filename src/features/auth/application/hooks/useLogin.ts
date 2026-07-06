@@ -35,7 +35,7 @@ export function useLogin() {
             if (error instanceof HttpError && error.status === 401) {
                 setErrorMessage("아이디 또는 비밀번호가 올바르지 않습니다.");
             } else {
-                setErrorMessage("로그인 중 문제가 발생했습니다.");
+                setErrorMessage("로그인에 실패했습니다.");
             }
         } finally {
             setIsSubmitting(false);

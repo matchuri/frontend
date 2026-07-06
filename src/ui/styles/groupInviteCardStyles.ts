@@ -8,7 +8,7 @@ export const groupInviteCardStyles = {
     groupName: "mt-1 text-sm text-slate-600",
     actions: "flex gap-2",
     acceptButton:
-        "rounded-full bg-blue-800 px-5 py-2 text-sm font-bold text-white",
+        "rounded-full bg-blue-800 px-5 py-2 text-sm font-bold text-white cursor-pointer",
     declineButton:
-        "rounded-full border border-blue-800 px-5 py-2 text-sm font-bold text-blue-800",
+        "rounded-full border border-blue-800 px-5 py-2 text-sm font-bold text-blue-800 cursor-pointer",
 } as const;

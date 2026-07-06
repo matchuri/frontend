@@ -8,5 +8,5 @@ export const personalRecommendationStartAlertModalStyles = {
     description:
         "mt-4 text-sm font-medium leading-6 text-zinc-600",
     confirmButton:
-        "mt-8 h-12 w-full rounded-full bg-black text-sm font-semibold text-white transition hover:bg-zinc-800",
+        "mt-8 h-12 w-full rounded-full bg-black text-sm font-semibold text-white transition cursor-pointer hover:bg-zinc-800",
 } as const;
