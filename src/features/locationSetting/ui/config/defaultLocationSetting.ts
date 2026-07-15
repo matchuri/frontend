@@ -6,5 +6,6 @@ export const defaultLocationSetting: LocationSetting = {
     latitude: 37.497942,
     longitude: 127.027621,
 
+    radiusMeters: 1000,
     level: 4,
 };

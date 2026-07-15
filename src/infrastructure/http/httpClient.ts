@@ -1,11 +1,14 @@
 import { clientEnv } from "@/infrastructure/config/env";
+
 import {
     clearAuth,
     getAccessToken,
     setAuthenticated,
 } from "@/features/auth/application/store/authStore";
+
 import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
 import type { LoginMember } from "@/features/auth/domain/model/LoginMember";
+
 import { logger } from "@/shared/lib/logger";
 
 interface ErrorResponseBody {
@@ -28,6 +31,7 @@ class HttpError extends Error {
         public readonly body?: ErrorResponseBody,
     ) {
         super(`[httpClient] ${status} ${statusText}`);
+
         this.name = "HttpError";
     }
 }
@@ -53,9 +57,19 @@ const SILENT_ERROR_LOG_PATHS = [
     "/api/v1/groups/invites/nickname",
 ];
 
+const SILENT_ERROR_CODES = [
+    "GROUP_NOT_FOUND",
+    "MEMBER_LOCATION_NOT_FOUND",
+];
+
 function shouldTryRefresh(path: string, isRetry: boolean) {
-    if (isRetry) return false;
-    if (NO_REFRESH_PATHS.includes(path)) return false;
+    if (isRetry) {
+        return false;
+    }
+
+    if (NO_REFRESH_PATHS.includes(path)) {
+        return false;
+    }
 
     return true;
 }
@@ -68,18 +82,23 @@ function shouldSilenceErrorLog(
         return true;
     }
 
-    // 삭제된 그룹 상세 조회는 화면에서 fallback 처리하므로 로그 제외
-    if (errorBody?.error?.code === "GROUP_NOT_FOUND") {
+    const errorCode = errorBody?.error?.code;
+
+    if (errorCode && SILENT_ERROR_CODES.includes(errorCode)) {
         return true;
     }
 
     return false;
 }
+
 async function refreshAccessToken(): Promise<RefreshResult> {
-    const response = await fetch(`${clientEnv.apiBaseUrl}/api/v1/auth/refresh`, {
-        method: "POST",
-        credentials: "include",
-    });
+    const response = await fetch(
+        `${clientEnv.apiBaseUrl}/api/v1/auth/refresh`,
+        {
+            method: "POST",
+            credentials: "include",
+        },
+    );
 
     if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
@@ -109,35 +128,51 @@ async function request<T>(
 ): Promise<T> {
     const accessToken = getAccessToken();
 
-    const response = await fetch(`${clientEnv.apiBaseUrl}${path}`, {
-        ...options,
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            ...(accessToken && {
-                Authorization: `Bearer ${accessToken}`,
-            }),
-            ...options?.headers,
+    const response = await fetch(
+        `${clientEnv.apiBaseUrl}${path}`,
+        {
+            ...options,
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                ...(accessToken && {
+                    Authorization: `Bearer ${accessToken}`,
+                }),
+                ...options?.headers,
+            },
         },
-    });
+    );
 
-    if (response.status === 401 && shouldTryRefresh(path, isRetry)) {
+    if (
+        response.status === 401 &&
+        shouldTryRefresh(path, isRetry)
+    ) {
         try {
             const refreshed = await refreshAccessToken();
 
-            setAuthenticated(refreshed.accessToken, refreshed.onboarding, refreshed.member,);
+            setAuthenticated(
+                refreshed.accessToken,
+                refreshed.onboarding,
+                refreshed.member,
+            );
 
             return request<T>(path, options, true);
         } catch (error) {
-            logger.warn("[httpClient] refresh 실패 → 인증 상태 해제", error);
+            logger.warn(
+                "[httpClient] refresh 실패 → 인증 상태 해제",
+                error,
+            );
+
             clearAuth();
+
             throw new HttpError(401, "Unauthorized");
         }
     }
 
     if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
-        //  refresh는 로그 안 찍음
+        const errorBody: ErrorResponseBody | null =
+            await response.json().catch(() => null);
+
         if (!shouldSilenceErrorLog(path, errorBody)) {
             logger.error("[httpClient] 요청 실패 응답:", {
                 path,
@@ -146,11 +181,19 @@ async function request<T>(
                 body: errorBody,
             });
         }
-        throw new HttpError(response.status, response.statusText, errorBody,);
+
+        throw new HttpError(
+            response.status,
+            response.statusText,
+            errorBody ?? undefined,
+        );
     }
 
     const text = await response.text();
-    return text ? JSON.parse(text) : (undefined as T);
+
+    return text
+        ? JSON.parse(text)
+        : (undefined as T);
 }
 
 export const httpClient = {
@@ -161,26 +204,37 @@ export const httpClient = {
     post<T>(path: string, body?: unknown): Promise<T> {
         return request<T>(path, {
             method: "POST",
-            body: body ? JSON.stringify(body) : undefined,
+            body:
+                body !== undefined
+                    ? JSON.stringify(body)
+                    : undefined,
         });
     },
 
     put<T>(path: string, body?: unknown): Promise<T> {
         return request<T>(path, {
             method: "PUT",
-            body: body ? JSON.stringify(body) : undefined,
+            body:
+                body !== undefined
+                    ? JSON.stringify(body)
+                    : undefined,
         });
     },
 
     patch<T>(path: string, body?: unknown): Promise<T> {
         return request<T>(path, {
             method: "PATCH",
-            body: body ? JSON.stringify(body) : undefined,
+            body:
+                body !== undefined
+                    ? JSON.stringify(body)
+                    : undefined,
         });
     },
 
     delete<T>(path: string): Promise<T> {
-        return request<T>(path, { method: "DELETE" });
+        return request<T>(path, {
+            method: "DELETE",
+        });
     },
 };
 

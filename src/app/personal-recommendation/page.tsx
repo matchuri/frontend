@@ -11,24 +11,22 @@ import PersonalRecommendationPreferenceCard from "@/features/personalRecommendat
 import PersonalRecommendationHistoryPanel from "@/features/personalRecommendation/ui/components/PersonalRecommendationHistoryPanel";
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
-import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
-
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
+
 import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
-import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePersonalRecommendationStart } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationStart";
 import { usePersonalRecommendationHistories } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationHistories";
 import { usePersonalRecommendationResultNavigation } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationResultNavigation";
 
-import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
 import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
-import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
+import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
 import { personalRecommendationHistoryToPanelItemsMapper } from "@/features/personalRecommendation/ui/mapper/personalRecommendationHistoryToPanelItemsMapper";
 
-const PERSONAL_RECOMMENDATION_LOCATION_KEY = "personal-recommendation-location";
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
 export default function PersonalRecommendationPage() {
     return (
@@ -42,22 +40,18 @@ function PersonalRecommendationPageContent() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
-    // 로그인한 회원 정보 조회
-    const member = useAtomValue(memberAtom);
-
-    // 회원별로 위치 저장 key를 분리하기 위한 storage key 생성
-    const locationStorageKey = createLocationStorageKey(
-        PERSONAL_RECOMMENDATION_LOCATION_KEY,
-        member?.id ?? "unknown",
-    );
-
-    // 개인 추천에 사용할 위치 정보
-    const { location, saveLocation } = useLocationSetting(locationStorageKey);
+    // 서버에 저장된 개인 위치 조회 및 저장
+    const {
+        location,
+        isLoading: isLocationLoading,
+        isSaving: isLocationSaving,
+        saveLocation,
+    } = useLocationSetting();
 
     // 취향 프로필 조회
     const { preferenceState } = usePreferenceList();
 
-    // 개인 추천 생성/재요청 중 로딩 화면 표시 여부
+    // 개인 추천 생성 및 재요청 중 로딩 화면 표시 여부
     const isRecommendationLoading = useAtomValue(
         isPersonalRecommendationLoadingAtom,
     );
@@ -93,18 +87,34 @@ function PersonalRecommendationPageContent() {
         hasPreference,
     });
 
-    // 진행 중 추천이 있으면 새 추천 생성 대신 기존 추천 결과 화면으로 이동
-    const handleClickHeroButton = openRecommendation
-        ? () => moveToRecommendationResult(openRecommendation.id)
-        : startRecommendation;
+    const handleClickHeroButton = () => {
+        // 진행 중인 추천이 있으면 위치 조회 여부와 관계없이
+        // 기존 추천 결과 화면으로 이동
+        if (openRecommendation) {
+            void moveToRecommendationResult(openRecommendation.id);
+            return;
+        }
 
-    if (!member) {
-        return (
-            <main className={personalRecommendationPageStyles.container}>
-                <p>회원 정보를 불러오는 중...</p>
-            </main>
-        );
-    }
+        // 개인 위치 조회가 완료된 후 추천 시작 여부 판단
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        void startRecommendation();
+    };
+
+    const handleSaveLocation = async (
+        nextLocation: LocationSetting,
+    ) => {
+        const isSaved = await saveLocation(nextLocation);
+
+        if (isSaved) {
+            setIsLocationModalOpen(false);
+        }
+
+        return isSaved;
+    };
 
     if (isRecommendationLoading) {
         return <PersonalRecommendationLoadingView />;
@@ -139,8 +149,10 @@ function PersonalRecommendationPageContent() {
                             <div className={personalRecommendationPageStyles.cardGrid}>
                                 <PersonalRecommendationLocationCard
                                     address={
-                                        location?.address ??
-                                        "설정된 위치가 없습니다."
+                                        isLocationLoading
+                                            ? "위치 정보를 불러오는 중입니다."
+                                            : location?.address ??
+                                              "설정된 위치가 없습니다."
                                     }
                                     onClickEdit={() =>
                                         setIsLocationModalOpen(true)
@@ -165,12 +177,14 @@ function PersonalRecommendationPageContent() {
 
             <LocationModal
                 isOpen={isLocationModalOpen}
-                onClose={() => setIsLocationModalOpen(false)}
-                initialLocation={location}
-                onSave={(nextLocation) => {
-                    saveLocation(nextLocation);
-                    setIsLocationModalOpen(false);
+                onClose={() => {
+                    if (!isLocationSaving) {
+                        setIsLocationModalOpen(false);
+                    }
                 }}
+                initialLocation={location}
+                isSaving={isLocationSaving}
+                onSave={handleSaveLocation}
             />
 
             <PreferenceModal
