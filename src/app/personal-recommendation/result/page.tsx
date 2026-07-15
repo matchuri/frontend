@@ -5,24 +5,21 @@ import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { ArrowLeft } from "lucide-react";
 
-import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 import { personalRecommendationResultAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 import { userPreferenceAtom } from "@/features/preference/application/selectors/preferenceSelectors";
 import { getPreferenceSummaryKeywords } from "@/features/preference/application/mapper/getPreferenceSummaryKeywords";
+
 import { useCompletePersonalRecommendationSelection } from "@/features/personalRecommendation/application/hooks/useCompletePersonalRecommendationSelection";
-import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
 import { useRerollPersonalRecommendation } from "@/features/personalRecommendation/application/hooks/useRerollPersonalRecommendation";
 
-import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
+import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
 import PersonalRecommendationResultActionButtons from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultActionButtons";
+
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
-
-const PERSONAL_RECOMMENDATION_LOCATION_KEY =
-    "personal-recommendation-location";
 
 export default function PersonalRecommendationResultPage() {
     return (
@@ -35,16 +32,14 @@ export default function PersonalRecommendationResultPage() {
 function PersonalRecommendationResultPageContent() {
     const router = useRouter();
 
-    const member = useAtomValue(memberAtom);
     const recommendation = useAtomValue(personalRecommendationResultAtom);
     const preference = useAtomValue(userPreferenceAtom);
 
-    const locationStorageKey = createLocationStorageKey(
-        PERSONAL_RECOMMENDATION_LOCATION_KEY,
-        member?.id ?? "unknown",
-    );
-
-    const { location } = useLocationSetting(locationStorageKey);
+    // 서버에 저장된 개인 위치 조회
+    const {
+        location,
+        isLoading: isLocationLoading,
+    } = useLocationSetting();
 
     const { isCompleting, completeSelection } =
         useCompletePersonalRecommendationSelection();
@@ -52,9 +47,8 @@ function PersonalRecommendationResultPageContent() {
     const { isRerolling, rerollRecommendation } =
         useRerollPersonalRecommendation();
 
-    const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
-        recommendation?.selectedCandidateId ?? null,
-    );
+    const [selectedCandidateId, setSelectedCandidateId] =
+        useState<number | null>(recommendation?.selectedCandidateId ?? null);
 
     useEffect(() => {
         if (!recommendation) {
@@ -75,7 +69,10 @@ function PersonalRecommendationResultPageContent() {
             return;
         }
 
-        await completeSelection(recommendation.requestId, selectedCandidateId);
+        await completeSelection(
+            recommendation.requestId,
+            selectedCandidateId,
+        );
     };
 
     const handleClickRestaurant = (candidateId: number) => {
@@ -87,8 +84,15 @@ function PersonalRecommendationResultPageContent() {
             return;
         }
 
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
         if (!location) {
-            alert("위치 정보를 먼저 설정해주세요.");
+            alert(
+                "설정된 위치가 없습니다. 위치를 설정해주세요.",
+            );
             return;
         }
 
@@ -96,11 +100,14 @@ function PersonalRecommendationResultPageContent() {
             menuName: candidate.menuName,
             latitude: String(location.latitude),
             longitude: String(location.longitude),
+            radiusMeters: String(location.radiusMeters),
             level: "4",
             source: "personal",
         });
 
-        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+        router.push(
+            `/recommendation-restaurants?${searchParams.toString()}`,
+        );
     };
 
     const handleRetryRecommendation = async () => {

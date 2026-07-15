@@ -327,6 +327,7 @@ function GroupPageContent() {
             latitude: groupDetail.location.latitude,
             longitude: groupDetail.location.longitude,
             address: groupDetail.location.address,
+            radiusMeters: 1000,
             level: 4,
         });
 

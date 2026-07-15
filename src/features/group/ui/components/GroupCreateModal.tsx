@@ -36,12 +36,14 @@ export default function GroupCreateModal({
         handleSearchFailed,
     } = useLocationSearch();
 
-    const [selectedLocation, setSelectedLocation] = useState({
-        address: defaultLocationSetting.address,
-        latitude: defaultLocationSetting.latitude,
-        longitude: defaultLocationSetting.longitude,
-        level: 4,
-    });
+    const [selectedLocation, setSelectedLocation] =
+        useState<LocationSetting>({
+            address: defaultLocationSetting.address,
+            latitude: defaultLocationSetting.latitude,
+            longitude: defaultLocationSetting.longitude,
+            radiusMeters: 1000,
+            level: 4,
+        });
 
     if (!isOpen) return null;
 
@@ -53,7 +55,11 @@ export default function GroupCreateModal({
     const handleCreate = async () => {
         if (isDisabled) return;
 
-        await onCreate(selectedLocation);
+        await onCreate({
+            ...selectedLocation,
+            radiusMeters: 1000,
+            level: 4,
+        });
     };
 
     return (
@@ -129,7 +135,8 @@ export default function GroupCreateModal({
                                     ...prev,
                                     latitude: center.latitude,
                                     longitude: center.longitude,
-                                    level: 4, //TODO: 후에 반경 설정 할 수 있도록 변경 필요
+                                    radiusMeters: 1000, //TODO: 후에 반경 설정 할 수 있도록 변경 필요
+                                    level: 4,
                                 }));
                             }}
                             onAddressChanged={(address) => {

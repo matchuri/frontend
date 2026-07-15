@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-    Check,
-    ChevronLeft,
-    Crosshair,
-    Info,
-    MapPin,
-    Search,
-} from "lucide-react";
+import {Check, ChevronLeft, Crosshair, Info, MapPin, Search } from "lucide-react";
 
 import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
@@ -20,7 +13,15 @@ interface LocationModalProps {
     readonly isOpen: boolean;
     readonly onClose: () => void;
     readonly initialLocation: LocationSetting | null;
-    readonly onSave: (location: LocationSetting) => void;
+    readonly onSave: (location: LocationSetting) => Promise<boolean>;
+    readonly isSaving?: boolean;
+}
+
+interface LocationModalContentProps {
+    readonly onClose: () => void;
+    readonly initialLocation: LocationSetting | null;
+    readonly onSave: (location: LocationSetting) => Promise<boolean>;
+    readonly isSaving: boolean;
 }
 
 export default function LocationModal({
@@ -28,7 +29,28 @@ export default function LocationModal({
     onClose,
     initialLocation,
     onSave,
+    isSaving = false,
 }: LocationModalProps) {
+    if (!isOpen) {
+        return null;
+    }
+
+    return (
+        <LocationModalContent
+            onClose={onClose}
+            initialLocation={initialLocation}
+            onSave={onSave}
+            isSaving={isSaving}
+        />
+    );
+}
+
+function LocationModalContent({
+    onClose,
+    initialLocation,
+    onSave,
+    isSaving,
+}: LocationModalContentProps) {
     const baseLocation = initialLocation ?? defaultLocationSetting;
 
     const {
@@ -40,17 +62,18 @@ export default function LocationModal({
         handleSearchFailed,
     } = useLocationSearch();
 
-    const [selectedLocation, setSelectedLocation] = useState<LocationSetting>({
-        address: baseLocation.address,
-        latitude: baseLocation.latitude,
-        longitude: baseLocation.longitude,
-        level: baseLocation.level,
-    });
+    const [selectedLocation, setSelectedLocation] =
+        useState<LocationSetting>(baseLocation);
 
-    if (!isOpen) return null;
+    const handleSave = async () => {
+        if (isSaving) {
+            return;
+        }
 
-    const handleSave = () => {
-        onSave(selectedLocation);
+        await onSave({
+            ...selectedLocation,
+            radiusMeters: 1000,
+        });
     };
 
     return (
@@ -60,6 +83,7 @@ export default function LocationModal({
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={isSaving}
                         className={locationModalStyles.backButton}
                     >
                         <ChevronLeft size={24} />
@@ -93,6 +117,7 @@ export default function LocationModal({
 
                         <button
                             type="submit"
+                            disabled={isSaving}
                             className={locationModalStyles.locationButton}
                         >
                             <Crosshair size={20} />
@@ -112,24 +137,18 @@ export default function LocationModal({
                             level={baseLocation.level}
                             searchKeyword={searchKeyword}
                             onCenterChanged={(center) => {
-                                setSelectedLocation(
-                                    (prev) => ({
-                                        ...prev,
-                                        latitude:
-                                            center.latitude,
-                                        longitude:
-                                            center.longitude,
-                                        level: center.level,
-                                    }),
-                                );
+                                setSelectedLocation((prev) => ({
+                                    ...prev,
+                                    latitude: center.latitude,
+                                    longitude: center.longitude,
+                                    level: 4,
+                                }));
                             }}
-                            onAddressChanged={(address,) => {
-                                setSelectedLocation(
-                                    (prev) => ({
-                                        ...prev,
-                                        address,
-                                    }),
-                                );
+                            onAddressChanged={(address) => {
+                                setSelectedLocation((prev) => ({
+                                    ...prev,
+                                    address,
+                                }));
                             }}
                             onSearchFailed={handleSearchFailed}
                         />
@@ -155,16 +174,19 @@ export default function LocationModal({
                         <Info size={18} />
 
                         <span>
-                            지도를 드래그하거나 확대/축소하여 추천 범위를 조정하세요.
+                            지도를 드래그하거나 검색하여 원하는 위치를 설정하세요.
                         </span>
                     </div>
 
                     <button
                         type="button"
-                        onClick={handleSave}
+                        onClick={() => {
+                            void handleSave();
+                        }}
+                        disabled={isSaving}
                         className={locationModalStyles.saveButton}
                     >
-                        등록
+                        {isSaving ? "저장 중..." : "등록"}
                         <Check size={18} />
                     </button>
                 </footer>
