@@ -7,5 +7,16 @@ export const isPersonalRecommendationLoadingAtom = atom(
 
 export const personalRecommendationResultAtom = atom((get) => {
     const state = get(personalRecommendationAtom);
-    return state.status === "SUCCESS" ? state.data : null;
+
+    return state.status === "SUCCESS"
+        ? state.data
+        : null;
+});
+
+export const personalRecommendationErrorAtom = atom((get) => {
+    const state = get(personalRecommendationAtom);
+
+    return state.status === "ERROR"
+        ? state.message
+        : null;
 });
