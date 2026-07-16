@@ -29,15 +29,23 @@ export function usePersonalRecommendationStart({
 }: UsePersonalRecommendationStartParams) {
     const router = useRouter();
 
-    const setRecommendationState = useSetAtom(personalRecommendationAtom);
+    const setRecommendationState = useSetAtom(
+        personalRecommendationAtom,
+    );
 
-    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-    const [isCreating, setIsCreating] = useState(false);
+    const [isAlertModalOpen, setIsAlertModalOpen] =
+        useState(false);
 
-    const canStartRecommendation = hasPreference && location !== null;
+    const [isCreating, setIsCreating] =
+        useState(false);
+
+    const canStartRecommendation =
+        hasPreference && location !== null;
 
     const startRecommendation = useCallback(async () => {
-        if (isCreating) return;
+        if (isCreating) {
+            return;
+        }
 
         if (!canStartRecommendation) {
             setIsAlertModalOpen(true);
@@ -45,7 +53,9 @@ export function usePersonalRecommendationStart({
         }
 
         setIsCreating(true);
-        setRecommendationState({ status: "LOADING" });
+        setRecommendationState({
+            status: "LOADING",
+        });
 
         try {
             const [recommendation] = await Promise.all([
@@ -63,7 +73,9 @@ export function usePersonalRecommendationStart({
                 data: recommendation,
             });
 
-            router.push("/personal-recommendation/result");
+            router.push(
+                `/personal-recommendation/${recommendation.requestId}/result`,
+            );
         } catch (error) {
             setRecommendationState({
                 status: "ERROR",
@@ -78,7 +90,8 @@ export function usePersonalRecommendationStart({
                     ? error.message
                     : "개인 메뉴 추천 요청에 실패했습니다.",
             );
-        } finally {
+
+            // 실패한 경우에만 현재 페이지에서 다시 시도할 수 있도록 해제
             setIsCreating(false);
         }
     }, [

@@ -63,7 +63,7 @@ function PersonalRecommendationPageContent() {
     const historyPanelItems =
         personalRecommendationHistoryToPanelItemsMapper(histories);
 
-    // 추천 결과 상세 조회 후 결과 페이지로 이동
+    // requestId 기반 추천 결과 페이지로 이동
     const { moveToRecommendationResult } =
         usePersonalRecommendationResultNavigation();
 
@@ -116,7 +116,7 @@ function PersonalRecommendationPageContent() {
         return isSaved;
     };
 
-    if (isRecommendationLoading) {
+    if (isRecommendationLoading || isCreating) {
         return <PersonalRecommendationLoadingView />;
     }
 
