@@ -38,7 +38,7 @@ export function useLogin() {
             const response = await login({
                 loginId: loginId.trim(),
                 password,
-                recaptchaToken,
+                captchaToken: recaptchaToken,
             });
 
             router.replace(getOnboardingRoute(response.data.onboarding.nextStep));
