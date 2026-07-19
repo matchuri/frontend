@@ -23,3 +23,7 @@ body {
     color: var(--foreground);
     font-family: var(--font-noto-sans), Arial, Helvetica, sans-serif;
 }
+
+.grecaptcha-badge {
+    visibility: hidden;
+}
