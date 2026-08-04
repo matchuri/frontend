@@ -13,8 +13,8 @@ function createRequest(
         latitude: location.latitude,
         longitude: location.longitude,
 
-        radiusMeters: 1000,
-        address: location.address,
+        radiusMeters: location.radiusMeters,
+        address: location.address.trim(),
     };
 }
 

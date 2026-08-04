@@ -7,6 +7,11 @@ import RecommendationRestaurantCard from "@/features/recommendationRestaurant/ui
 import RecommendationRestaurantMap from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantMap";
 import { useRecommendationRestaurants } from "@/features/recommendationRestaurant/application/hooks/useRecommendationRestaurants";
 
+import {
+    DEFAULT_LOCATION_RADIUS_METERS,
+    isLocationRadiusMeters,
+} from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
 
 export default function RecommendationRestaurantPageContent() {
@@ -17,6 +22,16 @@ export default function RecommendationRestaurantPageContent() {
     const latitude = Number(searchParams.get("latitude"));
     const longitude = Number(searchParams.get("longitude"));
     const level = Number(searchParams.get("level") ?? 4);
+
+    const radiusMetersParam = Number(
+        searchParams.get("radiusMeters"),
+    );
+
+    const baseRadiusMeters = isLocationRadiusMeters(
+        radiusMetersParam,
+    )
+        ? radiusMetersParam
+        : DEFAULT_LOCATION_RADIUS_METERS;
 
     const source = searchParams.get("source") ?? "personal";
     const isGroupRecommendation = source === "group";
@@ -32,6 +47,7 @@ export default function RecommendationRestaurantPageContent() {
         menuName,
         latitude,
         longitude,
+        baseRadiusMeters,
     });
 
     if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
@@ -104,7 +120,9 @@ export default function RecommendationRestaurantPageContent() {
                                 key={restaurant.id}
                                 restaurant={restaurant}
                                 selected={restaurant.id === selectedRestaurantId}
-                                onClick={() => selectRestaurant(restaurant.id)}
+                                onClick={() =>
+                                    selectRestaurant(restaurant.id)
+                                }
                             />
                         ))}
                     </div>

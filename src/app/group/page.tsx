@@ -5,6 +5,7 @@ import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+import { DEFAULT_MAP_LEVEL } from "@/features/map/domain/config/mapPolicy";
 
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
 import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
@@ -321,14 +322,16 @@ function GroupPageContent() {
     };
 
     const openLocationEditModal = () => {
-        if (!groupDetail) return;
+        if (!groupDetail) {
+            return;
+        }
 
         setEditingLocation({
             latitude: groupDetail.location.latitude,
             longitude: groupDetail.location.longitude,
             address: groupDetail.location.address,
-            radiusMeters: 1000,
-            level: 4,
+            radiusMeters: groupDetail.location.radiusMeters,
+            level: DEFAULT_MAP_LEVEL,
         });
 
         clearLocationUpdateMessage();
@@ -340,19 +343,17 @@ function GroupPageContent() {
     ) => {
         if (selectedGroupId === null) return;
 
-        console.log("수정 요청 위치", {
-            groupId: selectedGroupId,
-            latitude: location.latitude,
-            longitude: location.longitude,
-            address: location.address,
-            level: location.level,
-        });
+//         console.log("수정 요청 위치", {
+//             groupId: selectedGroupId,
+//             latitude: location.latitude,
+//             longitude: location.longitude,
+//             address: location.address,
+//             level: location.level,
+//         });
 
         await updateLocation(
             selectedGroupId,
-            location.latitude,
-            location.longitude,
-            location.address,
+            location,
         );
 
         // 위치 수정 후 최신 상세 정보를 다시 조회
@@ -415,6 +416,7 @@ function GroupPageContent() {
             menuName: groupDetail.recentlyRecommendation.finalCandidate.menuName,
             latitude: String(groupDetail.location.latitude),
             longitude: String(groupDetail.location.longitude),
+            radiusMeters: String(groupDetail.location.radiusMeters),
             level: "4",
             source: "group",
         });

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+
 import { updateGroupLocation } from "@/features/group/application/usecase/updateGroupLocation";
 
 interface UseUpdateGroupLocationParams {
@@ -16,9 +18,7 @@ export function useUpdateGroupLocation({
 
     const update = async (
         groupId: number,
-        latitude: number,
-        longitude: number,
-        address: string,
+        location: LocationSetting,
     ) => {
         try {
             setIsUpdating(true);
@@ -26,9 +26,7 @@ export function useUpdateGroupLocation({
 
             await updateGroupLocation(
                 groupId,
-                latitude,
-                longitude,
-                address,
+                location,
             );
 
             setMessage("그룹 위치가 수정되었습니다.");
@@ -39,6 +37,8 @@ export function useUpdateGroupLocation({
                     ? error.message
                     : "그룹 위치 수정에 실패했습니다.",
             );
+
+            throw error;
         } finally {
             setIsUpdating(false);
         }

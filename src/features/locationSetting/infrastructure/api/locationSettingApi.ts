@@ -5,15 +5,14 @@ import type { MemberLocationResponse } from "@/features/locationSetting/infrastr
 import type { SaveMemberLocationRequest } from "@/features/locationSetting/infrastructure/api/dto/SaveMemberLocationRequest";
 
 import { mapMemberLocation } from "@/features/locationSetting/infrastructure/api/mapper/memberLocationMapper";
-
-const DEFAULT_RADIUS_METERS = 1000;
-const DEFAULT_MAP_LEVEL = 4;
+import { DEFAULT_MAP_LEVEL } from "@/features/map/domain/config/mapPolicy";
 
 export const locationSettingApi = {
     async fetchMyLocation(): Promise<LocationSetting | null> {
-        const response = await httpClient.get<MemberLocationResponse>(
-            "/api/v1/members/me/location",
-        );
+        const response =
+            await httpClient.get<MemberLocationResponse>(
+                "/api/v1/members/me/location",
+            );
 
         if (!response.success) {
             throw new Error(
@@ -38,7 +37,7 @@ export const locationSettingApi = {
         const request: SaveMemberLocationRequest = {
             latitude: location.latitude,
             longitude: location.longitude,
-            radiusMeters: DEFAULT_RADIUS_METERS,
+            radiusMeters: location.radiusMeters,
             address: location.address.trim(),
         };
 

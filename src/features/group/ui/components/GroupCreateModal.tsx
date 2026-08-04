@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Check, Crosshair, Info, MapPin, Search, } from "lucide-react";
+import { ArrowLeft, Check, Crosshair, Info, MapPin, Search } from "lucide-react";
 
 import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 import { useLocationSearch } from "@/features/locationSetting/application/hooks/useLocationSearch";
@@ -38,14 +38,12 @@ export default function GroupCreateModal({
 
     const [selectedLocation, setSelectedLocation] =
         useState<LocationSetting>({
-            address: defaultLocationSetting.address,
-            latitude: defaultLocationSetting.latitude,
-            longitude: defaultLocationSetting.longitude,
-            radiusMeters: 1000,
-            level: 4,
+            ...defaultLocationSetting,
         });
 
-    if (!isOpen) return null;
+    if (!isOpen) {
+        return null;
+    }
 
     const isDisabled =
         groupName.trim().length === 0 ||
@@ -53,13 +51,11 @@ export default function GroupCreateModal({
         isCreating;
 
     const handleCreate = async () => {
-        if (isDisabled) return;
+        if (isDisabled) {
+            return;
+        }
 
-        await onCreate({
-            ...selectedLocation,
-            radiusMeters: 1000,
-            level: 4,
-        });
+        await onCreate(selectedLocation);
     };
 
     return (
@@ -69,6 +65,7 @@ export default function GroupCreateModal({
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={isCreating}
                         className={groupCreateModalStyles.backButton}
                     >
                         <ArrowLeft size={24} />
@@ -80,7 +77,8 @@ export default function GroupCreateModal({
                         </h2>
 
                         <p className={groupCreateModalStyles.description}>
-                            그룹명을 입력하고 주변 맛집 추천을 위해 위치를 등록해주세요.
+                            그룹명을 입력하고 주변 맛집 추천을 위해 위치를
+                            등록해주세요.
                         </p>
                     </div>
                 </header>
@@ -90,6 +88,7 @@ export default function GroupCreateModal({
                     value={groupName}
                     onChange={(event) => onChangeGroupName(event.target.value)}
                     placeholder="그룹명을 입력하세요."
+                    disabled={isCreating}
                     className={groupCreateModalStyles.groupNameInput}
                 />
 
@@ -107,11 +106,13 @@ export default function GroupCreateModal({
                                 setInputKeyword(event.target.value)
                             }
                             placeholder="주소 또는 장소 이름 검색"
+                            disabled={isCreating}
                             className={groupCreateModalStyles.searchInput}
                         />
 
                         <button
                             type="submit"
+                            disabled={isCreating}
                             className={groupCreateModalStyles.locationButton}
                         >
                             <Crosshair size={20} />
@@ -135,8 +136,7 @@ export default function GroupCreateModal({
                                     ...prev,
                                     latitude: center.latitude,
                                     longitude: center.longitude,
-                                    radiusMeters: 1000, //TODO: 후에 반경 설정 할 수 있도록 변경 필요
-                                    level: 4,
+                                    level: center.level,
                                 }));
                             }}
                             onAddressChanged={(address) => {
@@ -169,7 +169,7 @@ export default function GroupCreateModal({
                         <Info size={18} />
 
                         <span>
-                            지도를 드래그하거나 확대/축소하여 추천 범위를 조정하세요.
+                            지도를 드래그하거나 주소를 검색해 그룹 위치를 설정하세요.
                         </span>
                     </div>
 

@@ -265,6 +265,7 @@ function GroupRecommendationResultPageContent() {
             menuName: finalCandidate.menuName,
             latitude: String(groupDetail.location.latitude),
             longitude: String(groupDetail.location.longitude),
+            radiusMeters: String(groupDetail.location.radiusMeters),
             level: "4",
             source: "group",
         });

@@ -70,10 +70,7 @@ function LocationModalContent({
             return;
         }
 
-        await onSave({
-            ...selectedLocation,
-            radiusMeters: 1000,
-        });
+        await onSave(selectedLocation);
     };
 
     return (
