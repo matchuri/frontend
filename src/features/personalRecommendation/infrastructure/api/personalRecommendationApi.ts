@@ -4,6 +4,7 @@ import type { PersonalRecommendationHistory } from "@/features/personalRecommend
 import type { PersonalRecommendationRerollType } from "@/features/personalRecommendation/domain/model/PersonalRecommendationRerollType";
 
 import type { CreatePersonalRecommendationResponse } from "@/features/personalRecommendation/infrastructure/api/dto/CreatePersonalRecommendationResponse";
+import type { SelectPersonalRecommendationCandidateRequest } from "@/features/personalRecommendation/infrastructure/api/dto/SelectPersonalRecommendationCandidateRequest";
 import type { SelectPersonalRecommendationCandidateResponse } from "@/features/personalRecommendation/infrastructure/api/dto/SelectPersonalRecommendationCandidateResponse";
 import type { PersonalRecommendationHistoryResponse } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationHistoryResponse";
 import type { PersonalRecommendationDetailResponse } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationDetailResponse";
@@ -43,13 +44,14 @@ export const personalRecommendationApi = {
         return mapPersonalRecommendation(response.data);
     },
 
-    async selectCandidate(requestId: number, selectedCandidateId: number) {
+    async selectCandidate(
+        requestId: number,
+        request: SelectPersonalRecommendationCandidateRequest,
+    ) {
         const response =
             await httpClient.patch<SelectPersonalRecommendationCandidateResponse>(
                 `/api/v1/personal/recommendations/${requestId}`,
-                {
-                    selectedCandidateId,
-                },
+                request,
             );
 
         if (!response.success || !response.data) {

@@ -237,8 +237,17 @@ function GroupRecommendationResultPageContent() {
     };
 
     const handleClickCloseVote = async () => {
+        if (!groupDetail) {
+            alert("그룹 위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
         try {
-            await finalize(groupId, sessionId);
+            await finalize(
+                groupId,
+                sessionId,
+                groupDetail.location,
+            );
         } catch {
             alert("투표 종료에 실패했습니다.");
         }

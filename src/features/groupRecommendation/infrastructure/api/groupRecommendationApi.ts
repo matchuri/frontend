@@ -7,6 +7,7 @@ import type { CompleteGroupRecommendationPreparationResponse } from "@/features/
 import type { GroupRecommendationSessionDetailResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationSessionDetailResponse";
 import type { GroupRecommendationVoteRequest } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteRequest";
 import type { GroupRecommendationVoteResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteResponse";
+import type { FinalizeGroupRecommendationRequest } from "@/features/groupRecommendation/infrastructure/api/dto/FinalizeGroupRecommendationRequest";
 import type { FinalizeGroupRecommendationResponse } from "@/features/groupRecommendation/infrastructure/api/dto/FinalizeGroupRecommendationResponse";
 
 import type { GroupRecommendationReadiness } from "@/features/groupRecommendation/domain/model/GroupRecommendationReadiness";
@@ -114,10 +115,12 @@ export const groupRecommendationApi = {
     async finalizeRecommendation(
         groupId: number,
         sessionId: number,
+        request: FinalizeGroupRecommendationRequest,
     ) {
         const response =
             await httpClient.patch<FinalizeGroupRecommendationResponse>(
                 `/api/v1/groups/${groupId}/recommendations/${sessionId}/finalize`,
+                request,
             );
 
         if (!response.success) {

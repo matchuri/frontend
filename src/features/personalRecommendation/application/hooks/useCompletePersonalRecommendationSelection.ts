@@ -6,6 +6,8 @@ import { useSetAtom } from "jotai";
 import { personalRecommendationAtom } from "@/features/personalRecommendation/application/atoms/personalRecommendationAtom";
 import { personalRecommendationApi } from "@/features/personalRecommendation/infrastructure/api/personalRecommendationApi";
 
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+
 export function useCompletePersonalRecommendationSelection() {
     const setRecommendationState = useSetAtom(personalRecommendationAtom);
     const [isCompleting, setIsCompleting] = useState(false);
@@ -13,6 +15,7 @@ export function useCompletePersonalRecommendationSelection() {
     const completeSelection = async (
         requestId: number,
         selectedCandidateId: number,
+        location: LocationSetting,
     ) => {
         if (isCompleting) return;
 
@@ -21,7 +24,13 @@ export function useCompletePersonalRecommendationSelection() {
         try {
             const result = await personalRecommendationApi.selectCandidate(
                 requestId,
-                selectedCandidateId,
+                {
+                    selectedCandidateId,
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    radiusMeters: location.radiusMeters,
+                    address: location.address,
+                },
             );
 
             setRecommendationState((prev) => {

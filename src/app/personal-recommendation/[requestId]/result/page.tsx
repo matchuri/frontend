@@ -142,9 +142,20 @@ function PersonalRecommendationResultPageContent() {
     const handleCompleteSelection = async (
         selectedCandidateId: number,
     ) => {
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        if (!location) {
+            alert("설정된 위치가 없습니다. 위치를 설정해주세요.");
+            return;
+        }
+
         await completeSelection(
             recommendation.requestId,
             selectedCandidateId,
+            location,
         );
     };
 
