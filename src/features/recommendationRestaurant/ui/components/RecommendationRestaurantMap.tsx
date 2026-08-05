@@ -21,6 +21,8 @@ interface RecommendationRestaurantMapProps {
     readonly restaurants: readonly RecommendationRestaurant[];
     readonly selectedRestaurant: RecommendationRestaurant | null;
     readonly onSelectRestaurant: (restaurantId: string) => void;
+    readonly sectionClassName?: string;
+    readonly mapClassName?: string;
 }
 
 export default function RecommendationRestaurantMap({
@@ -30,6 +32,8 @@ export default function RecommendationRestaurantMap({
     restaurants,
     selectedRestaurant,
     onSelectRestaurant,
+    sectionClassName,
+    mapClassName,
 }: RecommendationRestaurantMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<kakao.maps.Map | null>(null);
@@ -77,11 +81,22 @@ export default function RecommendationRestaurantMap({
             marker.setMap(null);
         });
 
+        const bounds = new window.kakao.maps.LatLngBounds();
+
+        bounds.extend(
+            new window.kakao.maps.LatLng(
+                latitude,
+                longitude,
+            ),
+        );
+
         markerRecordsRef.current = restaurants.map((restaurant) => {
             const position = new window.kakao.maps.LatLng(
                 restaurant.latitude,
                 restaurant.longitude,
             );
+
+            bounds.extend(position);
 
             const marker = new window.kakao.maps.Marker({
                 map,
@@ -123,6 +138,10 @@ export default function RecommendationRestaurantMap({
             };
         });
 
+        if (restaurants.length > 0) {
+            map.setBounds(bounds);
+        }
+
         return () => {
             markerRecordsRef.current.forEach(({ marker, infoWindow }) => {
                 infoWindow?.close();
@@ -131,7 +150,12 @@ export default function RecommendationRestaurantMap({
 
             markerRecordsRef.current = [];
         };
-    }, [onSelectRestaurant, restaurants]);
+    }, [
+        latitude,
+        longitude,
+        onSelectRestaurant,
+        restaurants,
+    ]);
 
     useEffect(() => {
         const map = mapRef.current;
@@ -161,10 +185,18 @@ export default function RecommendationRestaurantMap({
     }, [selectedRestaurant]);
 
     return (
-        <section className={recommendationRestaurantPageStyles.mapArea}>
+        <section
+            className={
+                sectionClassName ??
+                recommendationRestaurantPageStyles.mapArea
+            }
+        >
             <div
                 ref={mapContainerRef}
-                className={recommendationRestaurantPageStyles.mapContainer}
+                className={
+                    mapClassName ??
+                    recommendationRestaurantPageStyles.mapContainer
+                }
             />
         </section>
     );

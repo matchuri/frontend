@@ -237,8 +237,17 @@ function GroupRecommendationResultPageContent() {
     };
 
     const handleClickCloseVote = async () => {
+        if (!groupDetail) {
+            alert("그룹 위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
         try {
-            await finalize(groupId, sessionId);
+            await finalize(
+                groupId,
+                sessionId,
+                groupDetail.location,
+            );
         } catch {
             alert("투표 종료에 실패했습니다.");
         }
@@ -256,6 +265,7 @@ function GroupRecommendationResultPageContent() {
             menuName: finalCandidate.menuName,
             latitude: String(groupDetail.location.latitude),
             longitude: String(groupDetail.location.longitude),
+            radiusMeters: String(groupDetail.location.radiusMeters),
             level: "4",
             source: "group",
         });

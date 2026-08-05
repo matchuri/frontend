@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 
@@ -27,6 +27,9 @@ import { parsePersonalRecommendationRequestId } from "@/features/personalRecomme
 import PersonalRecommendationResultContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultContent";
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
 
+import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 export default function PersonalRecommendationResultPage() {
@@ -40,6 +43,11 @@ export default function PersonalRecommendationResultPage() {
 function PersonalRecommendationResultPageContent() {
     const router = useRouter();
     const params = useParams<{ requestId: string }>();
+
+    const [
+        isLocationModalOpen,
+        setIsLocationModalOpen,
+    ] = useState(false);
 
     const requestId =
         parsePersonalRecommendationRequestId(
@@ -76,10 +84,12 @@ function PersonalRecommendationResultPageContent() {
         isPreferenceLoadingAtom,
     );
 
-    // 서버에 저장된 개인 위치 조회
+    // 서버에 저장된 개인 위치 조회 및 저장
     const {
         location,
         isLoading: isLocationLoading,
+        isSaving: isLocationSaving,
+        saveLocation,
     } = useLocationSetting();
 
     // 추천 메뉴 선택 완료
@@ -142,9 +152,20 @@ function PersonalRecommendationResultPageContent() {
     const handleCompleteSelection = async (
         selectedCandidateId: number,
     ) => {
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        if (!location) {
+            alert("설정된 위치가 없습니다. 위치를 설정해주세요.");
+            return;
+        }
+
         await completeSelection(
             recommendation.requestId,
             selectedCandidateId,
+            location,
         );
     };
 
@@ -171,6 +192,7 @@ function PersonalRecommendationResultPageContent() {
             menuName: candidate.menuName,
             latitude: String(location.latitude),
             longitude: String(location.longitude),
+            address: location.address,
             radiusMeters: String(location.radiusMeters),
             level: "4",
             source: "personal",
@@ -197,17 +219,49 @@ function PersonalRecommendationResultPageContent() {
         );
     };
 
+    const handleSaveLocation = async (
+        nextLocation: LocationSetting,
+    ) => {
+        const isSaved =
+            await saveLocation(nextLocation);
+
+        if (isSaved) {
+            setIsLocationModalOpen(false);
+        }
+
+        return isSaved;
+    };
+
     return (
-        <PersonalRecommendationResultContent
-            key={recommendation.requestId}
-            recommendation={recommendation}
-            keywords={keywords}
-            isCompleting={isCompleting}
-            isRerolling={isRerolling}
-            onBack={() => router.push("/personal-recommendation")}
-            onCompleteSelection={handleCompleteSelection}
-            onRetryRecommendation={handleRetryRecommendation}
-            onClickRestaurant={handleClickRestaurant}
-        />
+        <>
+            <PersonalRecommendationResultContent
+                key={recommendation.requestId}
+                recommendation={recommendation}
+                keywords={keywords}
+                location={location}
+                isLocationLoading={isLocationLoading}
+                isCompleting={isCompleting}
+                isRerolling={isRerolling}
+                onBack={() =>
+                    router.push("/personal-recommendation")
+                }
+                onCompleteSelection={handleCompleteSelection}
+                onRetryRecommendation={handleRetryRecommendation}
+                onClickRestaurant={handleClickRestaurant}
+                onClickChangeLocation={() =>
+                    setIsLocationModalOpen(true)
+                }
+            />
+
+            <LocationModal
+                isOpen={isLocationModalOpen}
+                initialLocation={location}
+                isSaving={isLocationSaving}
+                onClose={() =>
+                    setIsLocationModalOpen(false)
+                }
+                onSave={handleSaveLocation}
+            />
+        </>
     );
 }

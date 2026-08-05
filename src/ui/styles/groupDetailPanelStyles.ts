@@ -47,4 +47,7 @@ export const groupDetailPanelStyles = {
     activitySection: "mt-8 flex-1",
     emptyActivityBox:
         "flex h-full min-h-[180px] items-center justify-center rounded-[28px] border border-zinc-200 text-slate-400",
+
+    locationInfo: "flex flex-col gap-1",
+    locationRadius: "pl-6 text-sm font-medium text-emerald-700",
 } as const;
