@@ -15,11 +15,13 @@ import { personalRecommendationResultPageStyles } from "@/ui/styles/personalReco
 interface PersonalRecommendationSelectedRestaurantContentProps {
     readonly menuName: string;
     readonly location: LocationSetting;
+    readonly onClickChangeLocation: () => void;
 }
 
 export default function PersonalRecommendationSelectedRestaurantContent({
     menuName,
     location,
+    onClickChangeLocation,
 }: PersonalRecommendationSelectedRestaurantContentProps) {
     const baseRadiusMeters =
         location.radiusMeters as LocationRadiusMeters;
@@ -31,6 +33,9 @@ export default function PersonalRecommendationSelectedRestaurantContent({
         searchContext,
         isLoading,
         errorMessage,
+        isExpandedSearch,
+        hasNoRestaurants,
+        hasReachedMaximumRadius,
         selectRestaurant,
     } = useRecommendationRestaurants({
         menuName,
@@ -66,6 +71,20 @@ export default function PersonalRecommendationSelectedRestaurantContent({
                     >
                         {location.address}
                     </p>
+
+                    {isExpandedSearch && (
+                        <p
+                            className={
+                                personalRecommendationResultPageStyles.expandedSearchText
+                            }
+                        >
+                            기본 반경{" "}
+                            {formatLocationRadius(
+                                searchContext.baseRadiusMeters,
+                            )}
+                            에서 결과가 없어 검색 범위를 넓혔습니다.
+                        </p>
+                    )}
                 </div>
 
                 <span
@@ -100,32 +119,44 @@ export default function PersonalRecommendationSelectedRestaurantContent({
                 </div>
             )}
 
-            {!isLoading &&
-                !errorMessage &&
-                restaurants.length === 0 && (
+            {hasNoRestaurants &&
+                hasReachedMaximumRadius && (
                     <div
                         className={
-                            personalRecommendationResultPageStyles.messageBox
+                            personalRecommendationResultPageStyles.emptyRestaurantBox
                         }
                     >
-                        설정한 검색 반경 내에서 주변 맛집을 찾지
-                        못했습니다.
+                        <p>
+                            설정한 최대 반경 내에서 맛집을 찾지
+                            못했어요.
+                        </p>
+
+                        <button
+                            type="button"
+                            onClick={onClickChangeLocation}
+                            className={
+                                personalRecommendationResultPageStyles.changeLocationButton
+                            }
+                        >
+                            위치 변경
+                        </button>
                     </div>
                 )}
 
-            {!errorMessage && (
-                <div
-                    className={
-                        personalRecommendationResultPageStyles.restaurantLayout
-                    }
-                >
+            {!isLoading &&
+                !errorMessage &&
+                restaurants.length > 0 && (
                     <div
                         className={
-                            personalRecommendationResultPageStyles.restaurantList
+                            personalRecommendationResultPageStyles.restaurantLayout
                         }
                     >
-                        {!isLoading &&
-                            restaurants.map((restaurant) => (
+                        <div
+                            className={
+                                personalRecommendationResultPageStyles.restaurantList
+                            }
+                        >
+                            {restaurants.map((restaurant) => (
                                 <RecommendationRestaurantCard
                                     key={restaurant.id}
                                     restaurant={restaurant}
@@ -140,24 +171,24 @@ export default function PersonalRecommendationSelectedRestaurantContent({
                                     }
                                 />
                             ))}
-                    </div>
+                        </div>
 
-                    <RecommendationRestaurantMap
-                        latitude={location.latitude}
-                        longitude={location.longitude}
-                        level={DEFAULT_MAP_LEVEL}
-                        restaurants={restaurants}
-                        selectedRestaurant={selectedRestaurant}
-                        onSelectRestaurant={selectRestaurant}
-                        sectionClassName={
-                            personalRecommendationResultPageStyles.restaurantMapArea
-                        }
-                        mapClassName={
-                            personalRecommendationResultPageStyles.restaurantMap
-                        }
-                    />
-                </div>
-            )}
+                        <RecommendationRestaurantMap
+                            latitude={location.latitude}
+                            longitude={location.longitude}
+                            level={DEFAULT_MAP_LEVEL}
+                            restaurants={restaurants}
+                            selectedRestaurant={selectedRestaurant}
+                            onSelectRestaurant={selectRestaurant}
+                            sectionClassName={
+                                personalRecommendationResultPageStyles.restaurantMapArea
+                            }
+                            mapClassName={
+                                personalRecommendationResultPageStyles.restaurantMap
+                            }
+                        />
+                    </div>
+                )}
         </section>
     );
 }

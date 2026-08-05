@@ -32,4 +32,11 @@ export const recommendationRestaurantPageStyles = {
 
     mapArea: "relative min-w-0 flex-1 overflow-hidden bg-[#E9E7E2]",
     mapContainer: "h-full w-full",
+
+    searchLocationText: "mt-2 text-sm text-gray-500",
+    searchRadiusText: "mt-1 text-sm font-semibold text-emerald-700",
+    expandedSearchText: "mt-1 text-sm text-emerald-600",
+    emptyResultBox: "flex flex-col items-center gap-4 rounded-2xl bg-white px-6 py-8 text-center text-gray-600",
+    changeLocationButton:
+        "rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600",
 } as const;

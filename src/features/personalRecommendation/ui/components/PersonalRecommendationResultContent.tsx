@@ -27,6 +27,7 @@ interface PersonalRecommendationResultContentProps {
     ) => Promise<void>;
     readonly onRetryRecommendation: () => Promise<void>;
     readonly onClickRestaurant: (candidateId: number) => void;
+    readonly onClickChangeLocation: () => void;
 }
 
 export default function PersonalRecommendationResultContent({
@@ -40,6 +41,7 @@ export default function PersonalRecommendationResultContent({
     onCompleteSelection,
     onRetryRecommendation,
     onClickRestaurant,
+    onClickChangeLocation,
 }: PersonalRecommendationResultContentProps) {
     const [selectedCandidateId, setSelectedCandidateId] =
         useState<number | null>(
@@ -70,6 +72,7 @@ export default function PersonalRecommendationResultContent({
                 location={location}
                 isLocationLoading={isLocationLoading}
                 onBack={onBack}
+                onClickChangeLocation={onClickChangeLocation}
             />
         );
     }

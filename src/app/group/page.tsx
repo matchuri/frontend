@@ -416,9 +416,11 @@ function GroupPageContent() {
             menuName: groupDetail.recentlyRecommendation.finalCandidate.menuName,
             latitude: String(groupDetail.location.latitude),
             longitude: String(groupDetail.location.longitude),
+            address: groupDetail.location.address,
             radiusMeters: String(groupDetail.location.radiusMeters),
             level: String(DEFAULT_MAP_LEVEL),
             source: "group",
+            groupId: String(groupDetail.id),
         });
 
         router.push(`/recommendation-restaurants?${searchParams.toString()}`);

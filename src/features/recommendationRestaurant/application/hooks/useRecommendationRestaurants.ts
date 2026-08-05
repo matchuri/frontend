@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { fetchRecommendationRestaurants } from "@/features/recommendationRestaurant/application/usecase/fetchRecommendationRestaurants";
-import { createRestaurantSearchRadiusSteps } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+import {
+    createRestaurantSearchRadiusSteps,
+    MAX_RESTAURANT_SEARCH_RADIUS_METERS,
+} from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
 import type { RecommendationRestaurantSearchContext } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurantSearchContext";
@@ -81,7 +84,10 @@ export function useRecommendationRestaurants({
                         radiusMeters,
                     });
 
-                if (requestSequenceRef.current !== currentRequestSequence) {
+                if (
+                    requestSequenceRef.current !==
+                    currentRequestSequence
+                ) {
                     return;
                 }
 
@@ -102,7 +108,10 @@ export function useRecommendationRestaurants({
             setRestaurants([]);
             setSelectedRestaurantId(null);
         } catch (error) {
-            if (requestSequenceRef.current !== currentRequestSequence) {
+            if (
+                requestSequenceRef.current !==
+                currentRequestSequence
+            ) {
                 return;
             }
 
@@ -115,7 +124,10 @@ export function useRecommendationRestaurants({
                     : "주변 맛집을 불러오지 못했습니다.",
             );
         } finally {
-            if (requestSequenceRef.current === currentRequestSequence) {
+            if (
+                requestSequenceRef.current ===
+                currentRequestSequence
+            ) {
                 setIsLoading(false);
             }
         }
@@ -149,6 +161,18 @@ export function useRecommendationRestaurants({
         effectiveRadiusMeters,
     };
 
+    const isExpandedSearch =
+        effectiveRadiusMeters > baseRadiusMeters;
+
+    const hasNoRestaurants =
+        !isLoading &&
+        errorMessage === null &&
+        restaurants.length === 0;
+
+    const hasReachedMaximumRadius =
+        effectiveRadiusMeters ===
+        MAX_RESTAURANT_SEARCH_RADIUS_METERS;
+
     return {
         restaurants,
         selectedRestaurant,
@@ -162,6 +186,9 @@ export function useRecommendationRestaurants({
 
         isLoading,
         errorMessage,
+        isExpandedSearch,
+        hasNoRestaurants,
+        hasReachedMaximumRadius,
 
         selectRestaurant: setSelectedRestaurantId,
         refetchRestaurants: loadRestaurants,

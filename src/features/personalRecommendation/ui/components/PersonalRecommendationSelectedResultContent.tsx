@@ -17,6 +17,7 @@ interface PersonalRecommendationSelectedResultContentProps {
     readonly location: LocationSetting | null;
     readonly isLocationLoading: boolean;
     readonly onBack: () => void;
+    readonly onClickChangeLocation: () => void;
 }
 
 export default function PersonalRecommendationSelectedResultContent({
@@ -25,6 +26,7 @@ export default function PersonalRecommendationSelectedResultContent({
     location,
     isLocationLoading,
     onBack,
+    onClickChangeLocation,
 }: PersonalRecommendationSelectedResultContentProps) {
     return (
         <main className={personalRecommendationResultPageStyles.container}>
@@ -130,6 +132,9 @@ export default function PersonalRecommendationSelectedResultContent({
                     <PersonalRecommendationSelectedRestaurantContent
                         menuName={selectedCandidate.menuName}
                         location={location}
+                        onClickChangeLocation={
+                            onClickChangeLocation
+                        }
                     />
                 )}
         </main>

@@ -47,4 +47,10 @@ export const personalRecommendationResultPageStyles = {
         "mt-5 rounded-xl bg-gray-50 px-5 py-4 text-sm text-gray-600",
     errorBox:
         "mt-5 rounded-xl bg-red-50 px-5 py-4 text-sm text-red-600",
+    expandedSearchText:
+        "mt-2 text-sm text-emerald-600",
+    emptyRestaurantBox:
+        "mt-5 flex flex-col items-center gap-4 rounded-xl bg-gray-50 px-5 py-6 text-center text-sm text-gray-600",
+    changeLocationButton:
+        "rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600",
 } as const;
