@@ -1,3 +1,5 @@
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+
 export interface RecommendedMenu {
     readonly id: number;
     readonly menuId: number;
@@ -13,5 +15,6 @@ export interface PersonalRecommendation {
     readonly requestedAt: string;
     readonly closedAt: string | null;
     readonly selectedCandidateId?: number | null;
+    readonly locationSnapshot?: LocationSetting | null;
     readonly candidates: readonly RecommendedMenu[];
 }
