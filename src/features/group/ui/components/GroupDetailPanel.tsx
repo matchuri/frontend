@@ -4,6 +4,7 @@ import { ArrowLeft, Copy, MapPin, User } from "lucide-react";
 import { useAtomValue } from "jotai";
 
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
+import { formatLocationRadius } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 
@@ -73,9 +74,18 @@ export default function GroupDetailPanel({
                     </h2>
 
                     {group.location.address && (
-                        <div className={groupDetailPanelStyles.address}>
-                            <MapPin size={16} />
-                            <span>{group.location.address}</span>
+                        <div className={groupDetailPanelStyles.locationInfo}>
+                            <div className={groupDetailPanelStyles.address}>
+                                <MapPin size={16} />
+                                <span>{group.location.address}</span>
+                            </div>
+
+                            <span className={groupDetailPanelStyles.locationRadius}>
+                                기본 검색 반경{" "}
+                                {formatLocationRadius(
+                                    group.location.radiusMeters,
+                                )}
+                            </span>
                         </div>
                     )}
                 </section>

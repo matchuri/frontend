@@ -417,7 +417,7 @@ function GroupPageContent() {
             latitude: String(groupDetail.location.latitude),
             longitude: String(groupDetail.location.longitude),
             radiusMeters: String(groupDetail.location.radiusMeters),
-            level: "4",
+            level: String(DEFAULT_MAP_LEVEL),
             source: "group",
         });
 

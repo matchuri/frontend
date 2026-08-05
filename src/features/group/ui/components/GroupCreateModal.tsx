@@ -6,6 +6,12 @@ import { ArrowLeft, Check, Crosshair, Info, MapPin, Search } from "lucide-react"
 import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 import { useLocationSearch } from "@/features/locationSetting/application/hooks/useLocationSearch";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+import type { LocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+import {
+    formatLocationRadius,
+    isLocationRadiusMeters,
+    LOCATION_RADIUS_OPTIONS,
+} from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import { defaultLocationSetting } from "@/features/locationSetting/ui/config/defaultLocationSetting";
 import { groupCreateModalStyles } from "@/ui/styles/groupCreateModalStyles";
 
@@ -41,19 +47,55 @@ export default function GroupCreateModal({
             ...defaultLocationSetting,
         });
 
+    const [radiusErrorMessage, setRadiusErrorMessage] =
+        useState<string | null>(null);
+
     if (!isOpen) {
         return null;
     }
 
+    const isRadiusValid = isLocationRadiusMeters(
+        selectedLocation.radiusMeters,
+    );
+
     const isDisabled =
         groupName.trim().length === 0 ||
         selectedLocation.address.trim().length === 0 ||
+        !isRadiusValid ||
         isCreating;
 
+    const handleChangeRadius = (
+        radiusMeters: LocationRadiusMeters,
+    ) => {
+        if (isCreating) {
+            return;
+        }
+
+        setRadiusErrorMessage(null);
+
+        setSelectedLocation((prev) => ({
+            ...prev,
+            radiusMeters,
+        }));
+    };
+
     const handleCreate = async () => {
+        if (isCreating) {
+            return;
+        }
+
+        if (!isRadiusValid) {
+            setRadiusErrorMessage(
+                "검색 반경은 1km, 3km, 5km 중에서 선택해주세요.",
+            );
+            return;
+        }
+
         if (isDisabled) {
             return;
         }
+
+        setRadiusErrorMessage(null);
 
         await onCreate(selectedLocation);
     };
@@ -77,8 +119,8 @@ export default function GroupCreateModal({
                         </h2>
 
                         <p className={groupCreateModalStyles.description}>
-                            그룹명을 입력하고 주변 맛집 추천을 위해 위치를
-                            등록해주세요.
+                            그룹명을 입력하고 주변 맛집 추천을 위해 위치와
+                            검색 반경을 설정해주세요.
                         </p>
                     </div>
                 </header>
@@ -130,6 +172,7 @@ export default function GroupCreateModal({
                             centerLatitude={selectedLocation.latitude}
                             centerLongitude={selectedLocation.longitude}
                             level={selectedLocation.level}
+                            radiusMeters={selectedLocation.radiusMeters}
                             searchKeyword={searchKeyword}
                             onCenterChanged={(center) => {
                                 setSelectedLocation((prev) => ({
@@ -164,12 +207,63 @@ export default function GroupCreateModal({
                     </div>
                 </div>
 
+                <div className={groupCreateModalStyles.radiusSection}>
+                    <div className={groupCreateModalStyles.radiusHeader}>
+                        <h3 className={groupCreateModalStyles.radiusTitle}>
+                            맛집 검색 반경
+                        </h3>
+
+                        <span className={groupCreateModalStyles.radiusValue}>
+                            {formatLocationRadius(
+                                selectedLocation.radiusMeters,
+                            )}
+                        </span>
+                    </div>
+
+                    <p className={groupCreateModalStyles.radiusDescription}>
+                        그룹 위치를 기준으로 맛집을 검색할 기본 범위입니다.
+                    </p>
+
+                    <div className={groupCreateModalStyles.radiusOptions}>
+                        {LOCATION_RADIUS_OPTIONS.map((radiusMeters) => {
+                            const isSelected =
+                                selectedLocation.radiusMeters === radiusMeters;
+
+                            return (
+                                <button
+                                    key={radiusMeters}
+                                    type="button"
+                                    onClick={() =>
+                                        handleChangeRadius(radiusMeters)
+                                    }
+                                    disabled={isCreating}
+                                    aria-pressed={isSelected}
+                                    className={
+                                        isSelected
+                                            ? groupCreateModalStyles.selectedRadiusButton
+                                            : groupCreateModalStyles.radiusButton
+                                    }
+                                >
+                                    {formatLocationRadius(radiusMeters)}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {radiusErrorMessage && (
+                        <p className={groupCreateModalStyles.radiusErrorMessage}>
+                            {radiusErrorMessage}
+                        </p>
+                    )}
+                </div>
+
                 <footer className={groupCreateModalStyles.footer}>
                     <div className={groupCreateModalStyles.guideBox}>
                         <Info size={18} />
 
                         <span>
-                            지도를 드래그하거나 주소를 검색해 그룹 위치를 설정하세요.
+                            지도를 드래그하거나 주소를 검색해 그룹 위치를
+                            설정하세요.
                         </span>
                     </div>
 
