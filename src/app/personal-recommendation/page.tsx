@@ -154,6 +154,11 @@ function PersonalRecommendationPageContent() {
                                             : location?.address ??
                                               "설정된 위치가 없습니다."
                                     }
+                                    radiusMeters={
+                                        isLocationLoading
+                                            ? null
+                                            : location?.radiusMeters ?? null
+                                    }
                                     onClickEdit={() =>
                                         setIsLocationModalOpen(true)
                                     }

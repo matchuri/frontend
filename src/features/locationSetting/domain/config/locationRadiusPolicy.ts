@@ -20,6 +20,20 @@ export function isLocationRadiusMeters(
     );
 }
 
+export function formatLocationRadius(
+    radiusMeters: number,
+): string {
+    if (!Number.isFinite(radiusMeters)) {
+        return "";
+    }
+
+    if (radiusMeters >= 1000) {
+        return `${radiusMeters / 1000}km`;
+    }
+
+    return `${radiusMeters}m`;
+}
+
 export function createRestaurantSearchRadiusSteps(
     baseRadiusMeters: number,
 ): readonly LocationRadiusMeters[] {

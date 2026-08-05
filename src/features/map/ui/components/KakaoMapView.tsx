@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { clientEnv } from "@/infrastructure/config/env";
 import { loadKakaoMapScript } from "@/shared/lib/kakaoMap/loadKakaoMapScript";
@@ -12,6 +12,7 @@ interface KakaoMapViewProps {
     readonly centerLatitude: number;
     readonly centerLongitude: number;
     readonly level?: number;
+    readonly radiusMeters?: number;
     readonly searchKeyword?: string;
     readonly onCenterChanged?: (center: KakaoMapChangeValue) => void;
     readonly onAddressChanged?: (address: string) => void;
@@ -42,6 +43,7 @@ export default function KakaoMapView({
     centerLatitude,
     centerLongitude,
     level = 4,
+    radiusMeters,
     searchKeyword,
     onCenterChanged,
     onAddressChanged,
@@ -51,6 +53,9 @@ export default function KakaoMapView({
     const mapRef = useRef<kakao.maps.Map | null>(null);
     const geocoderRef = useRef<kakao.maps.services.Geocoder | null>(null);
     const placesRef = useRef<kakao.maps.services.Places | null>(null);
+    const radiusCircleRef = useRef<kakao.maps.Circle | null>(null);
+
+    const [isMapReady, setIsMapReady] = useState(false);
 
     const onCenterChangedRef = useRef(onCenterChanged);
     const onAddressChangedRef = useRef(onAddressChanged);
@@ -106,6 +111,10 @@ export default function KakaoMapView({
             placesRef.current = places;
 
             const notifyMapChanged = () => {
+                radiusCircleRef.current?.setPosition(
+                    map.getCenter(),
+                );
+
                 onCenterChangedRef.current?.(createMapChangeValue(map));
 
                 getAddressFromCenter(
@@ -128,9 +137,14 @@ export default function KakaoMapView({
             );
 
             setTimeout(() => {
+                if (cancelled) {
+                    return;
+                }
+
                 map.relayout();
                 map.setCenter(center);
                 notifyMapChanged();
+                setIsMapReady(true);
             }, 0);
         }
 
@@ -140,8 +154,50 @@ export default function KakaoMapView({
 
         return () => {
             cancelled = true;
+
+            setIsMapReady(false);
+
+            radiusCircleRef.current?.setMap(null);
+            radiusCircleRef.current = null;
+
+            mapRef.current = null;
+            geocoderRef.current = null;
+            placesRef.current = null;
         };
     }, []);
+
+    useEffect(() => {
+        const map = mapRef.current;
+
+        if (
+            !isMapReady ||
+            !map ||
+            !window.kakao?.maps ||
+            radiusMeters === undefined
+        ) {
+            return;
+        }
+
+        radiusCircleRef.current?.setMap(null);
+
+        const center = map.getCenter();
+
+        const radiusCircle = new window.kakao.maps.Circle({
+            map,
+            center,
+            radius: radiusMeters,
+            strokeWeight: 2,
+            strokeColor: "#10B981",
+            strokeOpacity: 0.8,
+            strokeStyle: "solid",
+            fillColor: "#10B981",
+            fillOpacity: 0.12,
+        });
+
+        radiusCircleRef.current = radiusCircle;
+
+        map.setBounds(radiusCircle.getBounds());
+    }, [isMapReady, radiusMeters]);
 
     useEffect(() => {
         const keyword = searchKeyword?.trim();
@@ -171,6 +227,10 @@ export default function KakaoMapView({
             );
 
             mapRef.current?.setCenter(nextCenter);
+
+            radiusCircleRef.current?.setPosition(
+                nextCenter,
+            );
 
             const nextAddress =
                 searchedPlace.road_address_name ||

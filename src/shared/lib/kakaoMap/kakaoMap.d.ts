@@ -22,6 +22,8 @@ declare global {
             panTo(latlng: LatLng): void;
 
             getBounds(): LatLngBounds;
+            setBounds(bounds: LatLngBounds): void;
+
             getLevel(): number;
             setLevel(level: number): void;
 
@@ -33,6 +35,16 @@ declare global {
             setMap(map: Map | null): void;
         }
 
+        class Circle {
+            constructor(options: CircleOptions);
+
+            setMap(map: Map | null): void;
+            setPosition(position: LatLng): void;
+            setRadius(radius: number): void;
+
+            getBounds(): LatLngBounds;
+        }
+
         class InfoWindow {
             constructor(options: InfoWindowOptions);
             open(map: Map, marker: Marker): void;
@@ -40,8 +52,12 @@ declare global {
         }
 
         class LatLngBounds {
+            constructor(sw?: LatLng, ne?: LatLng);
+
             getSouthWest(): LatLng;
             getNorthEast(): LatLng;
+
+            extend(latlng: LatLng): void;
         }
 
         interface MapOptions {
@@ -52,6 +68,20 @@ declare global {
         interface MarkerOptions {
             map?: Map;
             position: LatLng;
+        }
+
+        interface CircleOptions {
+            map?: Map;
+            center: LatLng;
+            radius: number;
+
+            strokeWeight?: number;
+            strokeColor?: string;
+            strokeOpacity?: number;
+            strokeStyle?: string;
+
+            fillColor?: string;
+            fillOpacity?: number;
         }
 
         interface InfoWindowOptions {

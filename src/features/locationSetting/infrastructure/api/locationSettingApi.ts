@@ -1,5 +1,7 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
 
+import { isLocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 import type { MemberLocationResponse } from "@/features/locationSetting/infrastructure/api/dto/MemberLocationResponse";
 import type { SaveMemberLocationRequest } from "@/features/locationSetting/infrastructure/api/dto/SaveMemberLocationRequest";
@@ -34,6 +36,17 @@ export const locationSettingApi = {
     async saveMyLocation(
         location: LocationSetting,
     ): Promise<LocationSetting> {
+        if (
+            !Number.isFinite(location.radiusMeters) ||
+            !isLocationRadiusMeters(
+                location.radiusMeters,
+            )
+        ) {
+            throw new Error(
+                "검색 반경은 1km, 3km, 5km 중에서 선택해주세요.",
+            );
+        }
+
         const request: SaveMemberLocationRequest = {
             latitude: location.latitude,
             longitude: location.longitude,
