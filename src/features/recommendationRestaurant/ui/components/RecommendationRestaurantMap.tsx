@@ -21,6 +21,8 @@ interface RecommendationRestaurantMapProps {
     readonly restaurants: readonly RecommendationRestaurant[];
     readonly selectedRestaurant: RecommendationRestaurant | null;
     readonly onSelectRestaurant: (restaurantId: string) => void;
+    readonly sectionClassName?: string;
+    readonly mapClassName?: string;
 }
 
 export default function RecommendationRestaurantMap({
@@ -30,6 +32,8 @@ export default function RecommendationRestaurantMap({
     restaurants,
     selectedRestaurant,
     onSelectRestaurant,
+    sectionClassName,
+    mapClassName,
 }: RecommendationRestaurantMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<kakao.maps.Map | null>(null);
@@ -181,10 +185,18 @@ export default function RecommendationRestaurantMap({
     }, [selectedRestaurant]);
 
     return (
-        <section className={recommendationRestaurantPageStyles.mapArea}>
+        <section
+            className={
+                sectionClassName ??
+                recommendationRestaurantPageStyles.mapArea
+            }
+        >
             <div
                 ref={mapContainerRef}
-                className={recommendationRestaurantPageStyles.mapContainer}
+                className={
+                    mapClassName ??
+                    recommendationRestaurantPageStyles.mapContainer
+                }
             />
         </section>
     );

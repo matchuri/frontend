@@ -213,6 +213,8 @@ function PersonalRecommendationResultPageContent() {
             key={recommendation.requestId}
             recommendation={recommendation}
             keywords={keywords}
+            location={location}
+            isLocationLoading={isLocationLoading}
             isCompleting={isCompleting}
             isRerolling={isRerolling}
             onBack={() => router.push("/personal-recommendation")}

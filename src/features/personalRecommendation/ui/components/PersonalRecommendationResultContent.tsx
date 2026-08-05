@@ -3,16 +3,20 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 import type { PersonalRecommendation } from "@/features/personalRecommendation/domain/model/PersonalRecommendation";
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
 import PersonalRecommendationResultActionButtons from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultActionButtons";
+import PersonalRecommendationSelectedResultContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationSelectedResultContent";
 
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
 
 interface PersonalRecommendationResultContentProps {
     readonly recommendation: PersonalRecommendation;
     readonly keywords: readonly string[];
+    readonly location: LocationSetting | null;
+    readonly isLocationLoading: boolean;
 
     readonly isCompleting: boolean;
     readonly isRerolling: boolean;
@@ -28,6 +32,8 @@ interface PersonalRecommendationResultContentProps {
 export default function PersonalRecommendationResultContent({
     recommendation,
     keywords,
+    location,
+    isLocationLoading,
     isCompleting,
     isRerolling,
     onBack,
@@ -42,6 +48,11 @@ export default function PersonalRecommendationResultContent({
 
     const isClosed = recommendation.status !== "OPEN";
 
+    const selectedCandidate = recommendation.candidates.find(
+        (candidate) =>
+            candidate.id === recommendation.selectedCandidateId,
+    );
+
     const handleCompleteSelection = async () => {
         if (selectedCandidateId === null) {
             alert("추천 메뉴를 먼저 선택해 주세요.");
@@ -50,6 +61,18 @@ export default function PersonalRecommendationResultContent({
 
         await onCompleteSelection(selectedCandidateId);
     };
+
+    if (isClosed && selectedCandidate) {
+        return (
+            <PersonalRecommendationSelectedResultContent
+                selectedCandidate={selectedCandidate}
+                keywords={keywords}
+                location={location}
+                isLocationLoading={isLocationLoading}
+                onBack={onBack}
+            />
+        );
+    }
 
     return (
         <main className={personalRecommendationResultPageStyles.container}>
@@ -67,7 +90,7 @@ export default function PersonalRecommendationResultContent({
 
             {isClosed && (
                 <p className={personalRecommendationResultPageStyles.closedMessage}>
-                    메뉴 추천이 종료되었습니다.
+                    선택된 메뉴 정보를 불러오지 못했습니다.
                 </p>
             )}
 
