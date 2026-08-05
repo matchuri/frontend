@@ -23,6 +23,7 @@ import {
 } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 
 import { parsePersonalRecommendationRequestId } from "@/features/personalRecommendation/application/usecase/parsePersonalRecommendationRequestId";
+import { personalRecommendationSearchRadiusStorage } from "@/features/personalRecommendation/infrastructure/storage/personalRecommendationSearchRadiusStorage";
 
 import PersonalRecommendationResultContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultContent";
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
@@ -54,15 +55,12 @@ function PersonalRecommendationResultPageContent() {
             params.requestId,
         );
 
-    // URL의 requestId를 기준으로 추천 상세 조회 실행
     usePersonalRecommendationDetail({
         requestId,
     });
 
-    // 새로고침 또는 직접 접근 시 취향 정보 조회 실행
     usePreferenceList();
 
-    // 추천 결과 화면에 필요한 개인 추천 상태
     const recommendation = useAtomValue(
         personalRecommendationResultAtom,
     );
@@ -75,7 +73,6 @@ function PersonalRecommendationResultPageContent() {
         personalRecommendationErrorAtom,
     );
 
-    // 추천 결과 화면에 필요한 취향 상태
     const preference = useAtomValue(
         userPreferenceAtom,
     );
@@ -84,7 +81,6 @@ function PersonalRecommendationResultPageContent() {
         isPreferenceLoadingAtom,
     );
 
-    // 서버에 저장된 개인 위치 조회 및 저장
     const {
         location,
         isLoading: isLocationLoading,
@@ -92,12 +88,16 @@ function PersonalRecommendationResultPageContent() {
         saveLocation,
     } = useLocationSetting();
 
-    // 추천 메뉴 선택 완료
-    const { isCompleting, completeSelection } =
+    const {
+        isCompleting,
+        completeSelection,
+    } =
         useCompletePersonalRecommendationSelection();
 
-    // 개인 메뉴 추천 재요청
-    const { isRerolling, rerollRecommendation } =
+    const {
+        isRerolling,
+        rerollRecommendation,
+    } =
         useRerollPersonalRecommendation();
 
     useEffect(() => {
@@ -105,8 +105,13 @@ function PersonalRecommendationResultPageContent() {
             return;
         }
 
-        alert("유효하지 않은 추천 결과 경로입니다.");
-        router.replace("/personal-recommendation");
+        alert(
+            "유효하지 않은 추천 결과 경로입니다.",
+        );
+
+        router.replace(
+            "/personal-recommendation",
+        );
     }, [requestId, router]);
 
     useEffect(() => {
@@ -115,10 +120,12 @@ function PersonalRecommendationResultPageContent() {
         }
 
         alert(recommendationError);
-        router.replace("/personal-recommendation");
+
+        router.replace(
+            "/personal-recommendation",
+        );
     }, [recommendationError, router]);
 
-    // 잘못된 경로는 redirect가 완료될 때까지 화면을 렌더링하지 않음
     if (requestId === null) {
         return null;
     }
@@ -126,7 +133,6 @@ function PersonalRecommendationResultPageContent() {
     const isCurrentRecommendation =
         recommendation?.requestId === requestId;
 
-    // 결과 데이터가 준비될 때까지 결과 페이지의 기본 영역을 유지
     if (
         isRecommendationLoading ||
         isPreferenceLoading ||
@@ -134,7 +140,9 @@ function PersonalRecommendationResultPageContent() {
     ) {
         return (
             <main
-                className={personalRecommendationResultPageStyles.container}
+                className={
+                    personalRecommendationResultPageStyles.container
+                }
             />
         );
     }
@@ -147,83 +155,140 @@ function PersonalRecommendationResultPageContent() {
     }
 
     const keywords =
-        getPreferenceSummaryKeywords(preference);
+        getPreferenceSummaryKeywords(
+            preference,
+        );
+
+    const resultLocation =
+        recommendation.status !== "OPEN"
+            ? recommendation.locationSnapshot ??
+              location
+            : location;
 
     const handleCompleteSelection = async (
         selectedCandidateId: number,
     ) => {
         if (isLocationLoading) {
-            alert("위치 정보를 불러오는 중입니다.");
+            alert(
+                "위치 정보를 불러오는 중입니다.",
+            );
             return;
         }
 
         if (!location) {
-            alert("설정된 위치가 없습니다. 위치를 설정해주세요.");
+            alert(
+                "설정된 위치가 없습니다. 위치를 설정해주세요.",
+            );
             return;
         }
 
-        await completeSelection(
+        const effectiveRadiusMeters =
+            personalRecommendationSearchRadiusStorage.get(
+                recommendation.requestId,
+                selectedCandidateId,
+            ) ?? location.radiusMeters;
+
+        const selectionLocation: LocationSetting = {
+            ...location,
+            radiusMeters:
+                effectiveRadiusMeters,
+        };
+
+        const result = await completeSelection(
             recommendation.requestId,
             selectedCandidateId,
-            location,
+            selectionLocation,
+        );
+
+        if (!result) {
+            return;
+        }
+
+        personalRecommendationSearchRadiusStorage.remove(
+            recommendation.requestId,
+            selectedCandidateId,
         );
     };
 
-    const handleClickRestaurant = (candidateId: number) => {
-        const candidate = recommendation.candidates.find(
-            (item) => item.id === candidateId,
-        );
+    const handleClickRestaurant = (
+        candidateId: number,
+    ) => {
+        const candidate =
+            recommendation.candidates.find(
+                (item) =>
+                    item.id === candidateId,
+            );
 
         if (!candidate) {
             return;
         }
 
         if (isLocationLoading) {
-            alert("위치 정보를 불러오는 중입니다.");
+            alert(
+                "위치 정보를 불러오는 중입니다.",
+            );
             return;
         }
 
         if (!location) {
-            alert("설정된 위치가 없습니다. 위치를 설정해주세요.");
+            alert(
+                "설정된 위치가 없습니다. 위치를 설정해주세요.",
+            );
             return;
         }
 
-        const searchParams = new URLSearchParams({
-            menuName: candidate.menuName,
-            latitude: String(location.latitude),
-            longitude: String(location.longitude),
-            address: location.address,
-            radiusMeters: String(location.radiusMeters),
-            level: "4",
-            source: "personal",
-        });
+        const searchParams =
+            new URLSearchParams({
+                requestId: String(
+                    recommendation.requestId,
+                ),
+                candidateId: String(
+                    candidate.id,
+                ),
+                menuName: candidate.menuName,
+                latitude: String(
+                    location.latitude,
+                ),
+                longitude: String(
+                    location.longitude,
+                ),
+                address: location.address,
+                radiusMeters: String(
+                    location.radiusMeters,
+                ),
+                level: "4",
+                source: "personal",
+            });
 
         router.push(
             `/recommendation-restaurants?${searchParams.toString()}`,
         );
     };
 
-    const handleRetryRecommendation = async () => {
-        const nextRecommendation =
-            await rerollRecommendation(
-                recommendation.requestId,
-                "NOT_SATISFIED",
+    const handleRetryRecommendation =
+        async () => {
+            const nextRecommendation =
+                await rerollRecommendation(
+                    recommendation.requestId,
+                    "NOT_SATISFIED",
+                );
+
+            if (!nextRecommendation) {
+                return;
+            }
+
+            router.replace(
+                `/personal-recommendation/${nextRecommendation.requestId}/result`,
             );
-
-        if (!nextRecommendation) {
-            return;
-        }
-
-        router.replace(
-            `/personal-recommendation/${nextRecommendation.requestId}/result`,
-        );
-    };
+        };
 
     const handleSaveLocation = async (
         nextLocation: LocationSetting,
     ) => {
         const isSaved =
-            await saveLocation(nextLocation);
+            await saveLocation(
+                nextLocation,
+            );
 
         if (isSaved) {
             setIsLocationModalOpen(false);
@@ -238,16 +303,26 @@ function PersonalRecommendationResultPageContent() {
                 key={recommendation.requestId}
                 recommendation={recommendation}
                 keywords={keywords}
-                location={location}
-                isLocationLoading={isLocationLoading}
+                location={resultLocation}
+                isLocationLoading={
+                    isLocationLoading
+                }
                 isCompleting={isCompleting}
                 isRerolling={isRerolling}
                 onBack={() =>
-                    router.push("/personal-recommendation")
+                    router.push(
+                        "/personal-recommendation",
+                    )
                 }
-                onCompleteSelection={handleCompleteSelection}
-                onRetryRecommendation={handleRetryRecommendation}
-                onClickRestaurant={handleClickRestaurant}
+                onCompleteSelection={
+                    handleCompleteSelection
+                }
+                onRetryRecommendation={
+                    handleRetryRecommendation
+                }
+                onClickRestaurant={
+                    handleClickRestaurant
+                }
                 onClickChangeLocation={() =>
                     setIsLocationModalOpen(true)
                 }

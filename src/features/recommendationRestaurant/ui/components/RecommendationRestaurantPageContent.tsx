@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -21,6 +21,8 @@ import {
     formatLocationRadius,
     isLocationRadiusMeters,
 } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+
+import { personalRecommendationSearchRadiusStorage } from "@/features/personalRecommendation/infrastructure/storage/personalRecommendationSearchRadiusStorage";
 
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
 
@@ -46,7 +48,18 @@ export default function RecommendationRestaurantPageContent() {
 
     const source = searchParams.get("source") ?? "personal";
     const isGroupRecommendation = source === "group";
-    const groupId = Number(searchParams.get("groupId"));
+
+    const groupId = Number(
+        searchParams.get("groupId"),
+    );
+
+    const requestId = Number(
+        searchParams.get("requestId"),
+    );
+
+    const candidateId = Number(
+        searchParams.get("candidateId"),
+    );
 
     const [currentLocation, setCurrentLocation] =
         useState<LocationSetting>({
@@ -97,6 +110,49 @@ export default function RecommendationRestaurantPageContent() {
         longitude: currentLocation.longitude,
         baseRadiusMeters: currentBaseRadiusMeters,
     });
+
+    useEffect(() => {
+        const isPersonalCandidateSearch =
+            source === "personal" &&
+            Number.isInteger(requestId) &&
+            requestId > 0 &&
+            Number.isInteger(candidateId) &&
+            candidateId > 0;
+
+        if (
+            !isPersonalCandidateSearch ||
+            isLoading
+        ) {
+            return;
+        }
+
+        if (
+            errorMessage !== null ||
+            restaurants.length === 0
+        ) {
+            personalRecommendationSearchRadiusStorage.remove(
+                requestId,
+                candidateId,
+            );
+
+            return;
+        }
+
+        personalRecommendationSearchRadiusStorage.save({
+            requestId,
+            candidateId,
+            radiusMeters:
+                searchContext.effectiveRadiusMeters,
+        });
+    }, [
+        candidateId,
+        errorMessage,
+        isLoading,
+        requestId,
+        restaurants.length,
+        searchContext.effectiveRadiusMeters,
+        source,
+    ]);
 
     const handleOpenLocationModal = () => {
         if (
