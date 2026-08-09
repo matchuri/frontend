@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.69.0",
     "clsx": "^2.1.1",
     "event-source-polyfill": "^1.0.31",
     "jotai": "^2.19.1",
