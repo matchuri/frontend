@@ -10,6 +10,13 @@ interface CaptureApiErrorParams {
     readonly isRetry?: boolean;
 }
 
+interface CaptureSseErrorParams {
+    readonly stream: string;
+    readonly eventType: "connection_failed" | "disconnected";
+    readonly readyState: number;
+    readonly groupId?: number;
+}
+
 function normalizeApiPath(path: string): string {
     return path.replace(/\/\d+(?=\/|$)/g, "/:id");
 }
@@ -20,6 +27,22 @@ function normalizeError(error: unknown): Error {
     }
 
     return new Error(String(error));
+}
+
+function getSseReadyStateName(readyState: number): string {
+    switch (readyState) {
+        case 0:
+            return "connecting";
+
+        case 1:
+            return "open";
+
+        case 2:
+            return "closed";
+
+        default:
+            return "unknown";
+    }
 }
 
 export function captureApiError({
@@ -60,5 +83,41 @@ export function captureApiError({
         });
 
         Sentry.captureException(normalizeError(error));
+    });
+}
+
+export function captureSseError({
+    stream,
+    eventType,
+    readyState,
+    groupId,
+}: CaptureSseErrorParams) {
+    const readyStateName =
+        getSseReadyStateName(readyState);
+
+    Sentry.withScope((scope) => {
+        scope.setTag("error.type", "sse");
+        scope.setTag("sse.stream", stream);
+        scope.setTag("sse.event_type", eventType);
+        scope.setTag(
+            "sse.ready_state",
+            readyStateName,
+        );
+
+        scope.setContext("sse", {
+            stream,
+            eventType,
+            readyState,
+            readyStateName,
+            groupId,
+        });
+
+        Sentry.captureException(
+            new Error(
+                eventType === "connection_failed"
+                    ? "Group SSE connection failed"
+                    : "Group SSE disconnected unexpectedly",
+            ),
+        );
     });
 }
