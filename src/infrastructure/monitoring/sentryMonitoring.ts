@@ -17,6 +17,14 @@ interface CaptureSseErrorParams {
     readonly groupId?: number;
 }
 
+interface CaptureExternalSdkErrorParams {
+    readonly error: unknown;
+    readonly sdk: string;
+    readonly operation: string;
+    readonly status?: string;
+    readonly context?: Record<string, unknown>;
+}
+
 function normalizeApiPath(path: string): string {
     return path.replace(/\/\d+(?=\/|$)/g, "/:id");
 }
@@ -119,5 +127,32 @@ export function captureSseError({
                     : "Group SSE disconnected unexpectedly",
             ),
         );
+    });
+}
+
+export function captureExternalSdkError({
+    error,
+    sdk,
+    operation,
+    status,
+    context,
+}: CaptureExternalSdkErrorParams) {
+    Sentry.withScope((scope) => {
+        scope.setTag("error.type", "external_sdk");
+        scope.setTag("sdk", sdk);
+        scope.setTag("sdk.operation", operation);
+
+        if (status) {
+            scope.setTag("sdk.status", status);
+        }
+
+        scope.setContext("externalSdk", {
+            sdk,
+            operation,
+            status,
+            ...context,
+        });
+
+        Sentry.captureException(normalizeError(error));
     });
 }
