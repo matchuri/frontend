@@ -2,7 +2,6 @@
 
 import { preferencePageStyles } from "@/ui/styles/preferencePageStyles";
 
-import { useAuthGuard } from "@/features/routeGuard/application/hooks/useAuthGuard";
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePreferenceOptionList } from "@/features/preference/application/hooks/usePreferenceOptionList";
 import { usePreferenceSelection } from "@/features/preference/application/hooks/usePreferenceSelection";
@@ -17,8 +16,17 @@ import {
     requiredPreferenceGroupMeta,
 } from "@/features/preference/ui/config/preferenceOptions";
 
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
+
 export default function PreferencePage() {
-    const { isAuthLoading, canAccess } = useAuthGuard();
+    return (
+        <AuthRequiredGuard>
+            <PreferencePageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function PreferencePageContent() {
     const { preferenceState } = usePreferenceList();
     const { preferenceOptionState } = usePreferenceOptionList();
     const { togglePreference } = usePreferenceSelection();
@@ -32,14 +40,6 @@ export default function PreferencePage() {
         removeFood,
     } = useDislikedFoodSearch();
     const { isSaving, savePreference } = useSavePreference();
-
-    if (isAuthLoading || !canAccess) {
-        return (
-            <div className={preferencePageStyles.loadingBox}>
-                <p>인증 상태 확인 중...</p>
-            </div>
-        );
-    }
 
     if (
         preferenceState.status === "LOADING" ||

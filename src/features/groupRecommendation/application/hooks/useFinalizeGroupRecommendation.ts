@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import { finalizeGroupRecommendation } from "@/features/groupRecommendation/application/usecase/finalizeGroupRecommendation";
 
+import type { GroupDetailLocation } from "@/features/group/domain/model/GroupDetail";
+
 interface UseFinalizeGroupRecommendationProps {
     readonly onSuccess?: () => void;
 }
@@ -16,6 +18,7 @@ export function useFinalizeGroupRecommendation({
     const finalize = async (
         groupId: number,
         sessionId: number,
+        location: GroupDetailLocation,
     ) => {
         try {
             setIsFinalizing(true);
@@ -23,6 +26,12 @@ export function useFinalizeGroupRecommendation({
             const result = await finalizeGroupRecommendation(
                 groupId,
                 sessionId,
+                {
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                    radiusMeters: location.radiusMeters,
+                    address: location.address,
+                },
             );
 
             onSuccess?.();

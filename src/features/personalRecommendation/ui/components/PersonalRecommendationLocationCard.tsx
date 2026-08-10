@@ -1,13 +1,16 @@
 import { MapPin } from "lucide-react";
+import { formatLocationRadius } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import { personalRecommendationPageStyles } from "@/ui/styles/personalRecommendationPageStyles";
 
 interface PersonalRecommendationLocationCardProps {
     readonly address: string;
+    readonly radiusMeters: number | null;
     readonly onClickEdit: () => void;
 }
 
 export default function PersonalRecommendationLocationCard({
     address,
+    radiusMeters,
     onClickEdit,
 }: PersonalRecommendationLocationCardProps) {
     return (
@@ -24,6 +27,12 @@ export default function PersonalRecommendationLocationCard({
                 <p className={personalRecommendationPageStyles.cardDescription}>
                     {address}
                 </p>
+
+                {radiusMeters !== null && (
+                    <p className={personalRecommendationPageStyles.locationRadius}>
+                        기본 검색 반경 {formatLocationRadius(radiusMeters)}
+                    </p>
+                )}
             </div>
 
             <button

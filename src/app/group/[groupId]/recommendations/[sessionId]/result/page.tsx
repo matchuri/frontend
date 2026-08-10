@@ -32,10 +32,19 @@ import {
 import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultVoteStatusCard";
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
 import GroupRecommendationResultCandidateCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultCandidateCard";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
 export default function GroupRecommendationResultPage() {
+    return (
+        <AuthRequiredGuard>
+            <GroupRecommendationResultPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function GroupRecommendationResultPageContent() {
     const params = useParams<{ groupId: string; sessionId: string }>();
     const router = useRouter();
 
@@ -228,8 +237,17 @@ export default function GroupRecommendationResultPage() {
     };
 
     const handleClickCloseVote = async () => {
+        if (!groupDetail) {
+            alert("그룹 위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
         try {
-            await finalize(groupId, sessionId);
+            await finalize(
+                groupId,
+                sessionId,
+                groupDetail.location,
+            );
         } catch {
             alert("투표 종료에 실패했습니다.");
         }
@@ -247,6 +265,7 @@ export default function GroupRecommendationResultPage() {
             menuName: finalCandidate.menuName,
             latitude: String(groupDetail.location.latitude),
             longitude: String(groupDetail.location.longitude),
+            radiusMeters: String(groupDetail.location.radiusMeters),
             level: "4",
             source: "group",
         });

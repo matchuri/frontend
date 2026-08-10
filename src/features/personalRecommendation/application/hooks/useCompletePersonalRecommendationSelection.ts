@@ -6,34 +6,54 @@ import { useSetAtom } from "jotai";
 import { personalRecommendationAtom } from "@/features/personalRecommendation/application/atoms/personalRecommendationAtom";
 import { personalRecommendationApi } from "@/features/personalRecommendation/infrastructure/api/personalRecommendationApi";
 
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+
 export function useCompletePersonalRecommendationSelection() {
-    const setRecommendationState = useSetAtom(personalRecommendationAtom);
-    const [isCompleting, setIsCompleting] = useState(false);
+    const setRecommendationState =
+        useSetAtom(
+            personalRecommendationAtom,
+        );
+
+    const [isCompleting, setIsCompleting] =
+        useState(false);
 
     const completeSelection = async (
         requestId: number,
         selectedCandidateId: number,
+        location: LocationSetting,
     ) => {
         if (isCompleting) return;
 
         setIsCompleting(true);
 
         try {
-            const result = await personalRecommendationApi.selectCandidate(
-                requestId,
-                selectedCandidateId,
-            );
+            const result =
+                await personalRecommendationApi.selectCandidate(
+                    requestId,
+                    {
+                        selectedCandidateId,
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        radiusMeters:
+                            location.radiusMeters,
+                        address: location.address,
+                    },
+                );
 
             setRecommendationState((prev) => {
-                if (prev.status !== "SUCCESS") return prev;
+                if (prev.status !== "SUCCESS") {
+                    return prev;
+                }
 
                 return {
                     status: "SUCCESS",
                     data: {
                         ...prev.data,
                         status: result.status,
-                        selectedCandidateId: result.selectedCandidateId,
+                        selectedCandidateId:
+                            result.selectedCandidateId,
                         closedAt: result.closedAt,
+                        locationSnapshot: location,
                     },
                 };
             });

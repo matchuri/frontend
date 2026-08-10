@@ -7,7 +7,7 @@ export const preferencePageStyles = {
   sectionGroup: "flex flex-col gap-4",
   sectionTitle: "text-lg font-bold text-zinc-900",
   saveButton:
-    "w-full rounded-md bg-blue-500 py-3 text-sm font-semibold text-white transition hover:bg-blue-600 disabled:bg-zinc-300",
+    "w-full rounded-md bg-blue-500 py-3 text-sm font-semibold text-white transition cursor-pointer hover:bg-blue-600 disabled:bg-zinc-300",
   loadingBox: "flex min-h-screen items-center justify-center bg-sky-100",
   errorBox: "flex min-h-screen items-center justify-center bg-sky-100 px-4",
   errorText: "text-sm font-medium text-red-500",

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { signupApi } from "@/features/signup/infrastructure/api/signupApi";
+import { logger } from "@/shared/lib/logger";
 
 type LoginIdValidationStatus =
     | "IDLE"
@@ -60,7 +61,7 @@ export function useLoginIdValidation() {
         debounceRef.current = setTimeout(async () => {
             try {
                 const response = await signupApi.checkLoginIdExists(trimmedLoginId);
-                console.log("아이디 뭐 들어와?:", response);
+                logger.log("들어오는 아이디 확인:", response);
 
                 if (response.data.exists) {
                     setStatus("DUPLICATED");

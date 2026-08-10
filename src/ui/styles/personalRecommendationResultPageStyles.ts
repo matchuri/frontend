@@ -19,4 +19,38 @@ export const personalRecommendationResultPageStyles = {
         "text-sm font-medium text-zinc-500",
     cardGrid:
         "mt-16 grid grid-cols-3 gap-8",
+    selectedMenuSection:
+        "mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-5",
+    selectedMenuLabel:
+        "text-sm font-medium text-emerald-700",
+    selectedMenuName:
+        "mt-1 text-3xl font-bold text-gray-900",
+    restaurantSection:
+        "mt-6 rounded-2xl border border-gray-200 bg-white p-6",
+    restaurantHeader:
+        "flex items-start justify-between gap-4",
+    restaurantTitle:
+        "text-xl font-bold text-gray-900",
+    restaurantDescription:
+        "mt-1 text-sm text-gray-500",
+    restaurantRadius:
+        "shrink-0 rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700",
+    restaurantLayout:
+        "mt-5 grid min-h-[520px] grid-cols-[360px_minmax(0,1fr)] overflow-hidden rounded-2xl border border-gray-200",
+    restaurantList:
+        "max-h-[520px] overflow-y-auto border-r border-gray-200 bg-white p-4",
+    restaurantMapArea:
+        "min-h-[520px] bg-gray-100",
+    restaurantMap:
+        "h-full min-h-[520px] w-full",
+    messageBox:
+        "mt-5 rounded-xl bg-gray-50 px-5 py-4 text-sm text-gray-600",
+    errorBox:
+        "mt-5 rounded-xl bg-red-50 px-5 py-4 text-sm text-red-600",
+    expandedSearchText:
+        "mt-2 text-sm text-emerald-600",
+    emptyRestaurantBox:
+        "mt-5 flex flex-col items-center gap-4 rounded-xl bg-gray-50 px-5 py-6 text-center text-sm text-gray-600",
+    changeLocationButton:
+        "rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600",
 } as const;

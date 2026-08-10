@@ -3,6 +3,8 @@
 import { useCallback, useEffect } from "react";
 import { useSetAtom } from "jotai";
 
+import { logger } from "@/shared/lib/logger";
+
 import { groupDetailAtom } from "@/features/group/application/atoms/groupDetailAtom";
 import { fetchGroupDetail } from "@/features/group/application/usecase/fetchGroupDetail";
 
@@ -39,7 +41,7 @@ export function useGroupDetail(
             setGroupDetailState({ status: "LOADING" });
 
             const groupDetail = await fetchGroupDetail(groupId);
-            console.log("그룹 상세 패널 열림:", groupDetail);
+            logger.log("그룹 상세 패널 열림:", groupDetail);
 
             setGroupDetailState({
                 status: "SUCCESS",

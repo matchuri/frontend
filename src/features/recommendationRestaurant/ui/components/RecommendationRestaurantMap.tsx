@@ -3,8 +3,14 @@
 import { useEffect, useRef } from "react";
 
 import { clientEnv } from "@/infrastructure/config/env";
-import { loadKakaoMapScript } from "@/shared/lib/kakaoMap/loadKakaoMapScript";
+import { captureExternalSdkError } from "@/infrastructure/monitoring/sentryMonitoring";
+import {
+    KakaoMapSdkLoadError,
+    loadKakaoMapScript,
+} from "@/shared/lib/kakaoMap/loadKakaoMapScript";
+
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
+
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
 
 interface MarkerRecord {
@@ -19,8 +25,13 @@ interface RecommendationRestaurantMapProps {
     readonly longitude: number;
     readonly level: number;
     readonly restaurants: readonly RecommendationRestaurant[];
-    readonly selectedRestaurant: RecommendationRestaurant | null;
-    readonly onSelectRestaurant: (restaurantId: string) => void;
+    readonly selectedRestaurant:
+        RecommendationRestaurant | null;
+    readonly onSelectRestaurant: (
+        restaurantId: string,
+    ) => void;
+    readonly sectionClassName?: string;
+    readonly mapClassName?: string;
 }
 
 export default function RecommendationRestaurantMap({
@@ -30,10 +41,15 @@ export default function RecommendationRestaurantMap({
     restaurants,
     selectedRestaurant,
     onSelectRestaurant,
+    sectionClassName,
+    mapClassName,
 }: RecommendationRestaurantMapProps) {
-    const mapContainerRef = useRef<HTMLDivElement | null>(null);
-    const mapRef = useRef<kakao.maps.Map | null>(null);
-    const markerRecordsRef = useRef<MarkerRecord[]>([]);
+    const mapContainerRef =
+        useRef<HTMLDivElement | null>(null);
+    const mapRef =
+        useRef<kakao.maps.Map | null>(null);
+    const markerRecordsRef =
+        useRef<MarkerRecord[]>([]);
 
     useEffect(() => {
         if (!mapContainerRef.current) return;
@@ -41,24 +57,49 @@ export default function RecommendationRestaurantMap({
         let cancelled = false;
 
         async function initializeMap() {
-            await loadKakaoMapScript(clientEnv.kakaoMapAppKey);
+            await loadKakaoMapScript(
+                clientEnv.kakaoMapAppKey,
+            );
 
-            if (cancelled || !mapContainerRef.current || !window.kakao?.maps) {
+            if (
+                cancelled ||
+                !mapContainerRef.current ||
+                !window.kakao?.maps
+            ) {
                 return;
             }
 
-            const center = new window.kakao.maps.LatLng(latitude, longitude);
+            const center =
+                new window.kakao.maps.LatLng(
+                    latitude,
+                    longitude,
+                );
 
-            mapRef.current = new window.kakao.maps.Map(
-                mapContainerRef.current,
-                {
-                    center,
-                    level,
-                },
-            );
+            mapRef.current =
+                new window.kakao.maps.Map(
+                    mapContainerRef.current,
+                    {
+                        center,
+                        level,
+                    },
+                );
         }
 
-        initializeMap();
+        initializeMap().catch((error) => {
+            if (!(error instanceof KakaoMapSdkLoadError)) {
+                captureExternalSdkError({
+                    error,
+                    sdk: "kakao_map",
+                    operation: "map_initialization",
+                    context: {
+                        mapType:
+                            "recommendation_restaurant",
+                    },
+                });
+            }
+
+            console.error(error);
+        });
 
         return () => {
             cancelled = true;
@@ -72,66 +113,107 @@ export default function RecommendationRestaurantMap({
             return;
         }
 
-        markerRecordsRef.current.forEach(({ marker, infoWindow }) => {
-            infoWindow?.close();
-            marker.setMap(null);
-        });
-
-        markerRecordsRef.current = restaurants.map((restaurant) => {
-            const position = new window.kakao.maps.LatLng(
-                restaurant.latitude,
-                restaurant.longitude,
-            );
-
-            const marker = new window.kakao.maps.Marker({
-                map,
-                position,
-            });
-
-            const infoWindow = new window.kakao.maps.InfoWindow({
-                content: `
-                    <div
-                        style="
-                            padding:6px 10px;
-                            font-size:13px;
-                            font-weight:500;
-                            color:#000000;
-                            white-space:nowrap;
-                        "
-                    >
-                        ${restaurant.name}
-                    </div>
-                `,
-            });
-
-            window.kakao.maps.event.addListener(marker, "click", () => {
-                onSelectRestaurant(restaurant.id);
-                map.panTo(position);
-
-                markerRecordsRef.current.forEach((record) => {
-                    record.infoWindow?.close();
-                });
-
-                infoWindow.open(map, marker);
-            });
-
-            return {
-                restaurantId: restaurant.id,
-                marker,
-                infoWindow,
-                position,
-            };
-        });
-
-        return () => {
-            markerRecordsRef.current.forEach(({ marker, infoWindow }) => {
+        markerRecordsRef.current.forEach(
+            ({ marker, infoWindow }) => {
                 infoWindow?.close();
                 marker.setMap(null);
+            },
+        );
+
+        const bounds =
+            new window.kakao.maps.LatLngBounds();
+
+        bounds.extend(
+            new window.kakao.maps.LatLng(
+                latitude,
+                longitude,
+            ),
+        );
+
+        markerRecordsRef.current =
+            restaurants.map((restaurant) => {
+                const position =
+                    new window.kakao.maps.LatLng(
+                        restaurant.latitude,
+                        restaurant.longitude,
+                    );
+
+                bounds.extend(position);
+
+                const marker =
+                    new window.kakao.maps.Marker({
+                        map,
+                        position,
+                    });
+
+                const infoWindow =
+                    new window.kakao.maps.InfoWindow({
+                        content: `
+                            <div
+                                style="
+                                    padding:6px 10px;
+                                    font-size:13px;
+                                    font-weight:500;
+                                    color:#000000;
+                                    white-space:nowrap;
+                                "
+                            >
+                                ${restaurant.name}
+                            </div>
+                        `,
+                    });
+
+                window.kakao.maps.event.addListener(
+                    marker,
+                    "click",
+                    () => {
+                        onSelectRestaurant(
+                            restaurant.id,
+                        );
+                        map.panTo(position);
+
+                        markerRecordsRef.current.forEach(
+                            (record) => {
+                                record.infoWindow?.close();
+                            },
+                        );
+
+                        infoWindow.open(
+                            map,
+                            marker,
+                        );
+                    },
+                );
+
+                return {
+                    restaurantId:
+                        restaurant.id,
+                    marker,
+                    infoWindow,
+                    position,
+                };
             });
+
+        if (restaurants.length > 0) {
+            map.setBounds(bounds);
+        }
+
+        return () => {
+            markerRecordsRef.current.forEach(
+                ({ marker, infoWindow }) => {
+                    infoWindow?.close();
+                    marker.setMap(null);
+                },
+            );
 
             markerRecordsRef.current = [];
         };
-    }, [onSelectRestaurant, restaurants]);
+    }, [
+        latitude,
+        longitude,
+        onSelectRestaurant,
+        restaurants,
+    ]);
 
     useEffect(() => {
         const map = mapRef.current;
@@ -140,17 +222,22 @@ export default function RecommendationRestaurantMap({
             return;
         }
 
-        const selectedMarkerRecord = markerRecordsRef.current.find(
-            (record) => record.restaurantId === selectedRestaurant.id,
-        );
+        const selectedMarkerRecord =
+            markerRecordsRef.current.find(
+                (record) =>
+                    record.restaurantId ===
+                    selectedRestaurant.id,
+            );
 
         if (!selectedMarkerRecord) {
             return;
         }
 
-        markerRecordsRef.current.forEach((record) => {
-            record.infoWindow?.close();
-        });
+        markerRecordsRef.current.forEach(
+            (record) => {
+                record.infoWindow?.close();
+            },
+        );
 
         map.panTo(selectedMarkerRecord.position);
 
@@ -161,10 +248,18 @@ export default function RecommendationRestaurantMap({
     }, [selectedRestaurant]);
 
     return (
-        <section className={recommendationRestaurantPageStyles.mapArea}>
+        <section
+            className={
+                sectionClassName ??
+                recommendationRestaurantPageStyles.mapArea
+            }
+        >
             <div
                 ref={mapContainerRef}
-                className={recommendationRestaurantPageStyles.mapContainer}
+                className={
+                    mapClassName ??
+                    recommendationRestaurantPageStyles.mapContainer
+                }
             />
         </section>
     );

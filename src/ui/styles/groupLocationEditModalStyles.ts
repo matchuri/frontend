@@ -3,15 +3,15 @@ export const groupLocationEditModalStyles = {
     modal: "w-full max-w-[980px] rounded-[32px] bg-white px-8 py-8 shadow-xl",
     header: "flex items-center gap-4",
     backButton:
-        "flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200",
+        "flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition cursor-pointer hover:bg-slate-200",
     title: "text-2xl font-bold text-zinc-900",
     description: "mt-1 text-sm text-slate-500",
     mapSection: "relative mt-10",
     searchBar:
         "absolute left-1/2 top-8 z-20 flex h-14 w-[480px] -translate-x-1/2 items-center gap-3 rounded-2xl bg-white px-5 text-slate-500 shadow-lg",
     searchInput: "min-w-0 flex-1 bg-transparent text-sm text-zinc-700 outline-none placeholder:text-slate-400",
-    locationButton: "flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100",
-    searchErrorMessage: "absolute left-0 top-16 text-sm font-medium text-red-500",
+    locationButton: "flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition cursor-pointer hover:bg-slate-100",
+    searchErrorMessage: "absolute left-0 top-[58px] w-full rounded-xl bg-white px-4 py-2 text-sm text-red-500 shadow-md",
     mapContainer: "relative h-[420px] overflow-hidden rounded-[24px] bg-slate-100",
     centerPin:
         "pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-full text-indigo-700 drop-shadow-lg",
@@ -22,7 +22,18 @@ export const groupLocationEditModalStyles = {
     footer: "mt-7 flex items-center justify-between",
     guideBox: "flex items-center gap-2 text-sm font-medium text-slate-600",
     submitButton:
-        "flex h-12 items-center gap-2 rounded-full bg-indigo-600 px-9 text-sm font-semibold text-white shadow-lg transition hover:bg-indigo-700",
+        "flex h-12 items-center gap-2 rounded-full bg-indigo-600 px-9 text-sm font-semibold text-white shadow-lg transition cursor-pointer hover:bg-indigo-700",
     disabledButton:
         "flex h-12 cursor-not-allowed items-center gap-2 rounded-full bg-zinc-300 px-9 text-sm font-semibold text-zinc-500",
+    radiusSection: "rounded-2xl border border-gray-200 bg-white p-5",
+    radiusHeader: "flex items-center justify-between gap-4",
+    radiusTitle: "text-base font-semibold text-gray-900",
+    radiusValue: "rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700",
+    radiusDescription: "mt-1 text-sm text-gray-500",
+    radiusOptions: "mt-4 grid grid-cols-3 gap-2",
+    radiusButton:
+        "rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50",
+    selectedRadiusButton:
+        "rounded-xl border border-emerald-500 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 transition disabled:cursor-not-allowed disabled:opacity-50",
+    radiusErrorMessage: "mt-2 text-sm text-red-500",
 } as const;

@@ -5,7 +5,7 @@ export const groupCreateModalStyles = {
         "flex w-full max-w-[920px] flex-col rounded-[36px] bg-white px-12 py-10 shadow-2xl",
     header: "flex items-start gap-5",
     backButton:
-        "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700",
+        "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 cursor-pointer",
     title: "text-4xl font-bold text-zinc-900",
     description: "mt-3 text-lg text-slate-600",
     groupNameInput:
@@ -17,7 +17,7 @@ export const groupCreateModalStyles = {
     searchInput:
         "min-w-0 flex-1 bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400",
     locationButton:
-        "flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600",
+        "flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 cursor-pointer",
     searchErrorMessage:
         "absolute left-0 top-[58px] w-full rounded-xl bg-white px-4 py-2 text-sm text-red-500 shadow-md",
     mapContainer: "relative h-full w-full",
@@ -30,7 +30,18 @@ export const groupCreateModalStyles = {
     footer: "mt-8 flex items-center justify-between",
     guideBox: "flex items-center gap-2 text-sm text-slate-600",
     submitButton:
-        "flex items-center gap-2 rounded-full bg-blue-600 px-10 py-4 text-lg font-bold text-white shadow-lg transition hover:bg-blue-700",
+        "flex items-center gap-2 rounded-full bg-blue-600 px-10 py-4 text-lg font-bold text-white shadow-lg transition cursor-pointer hover:bg-blue-700",
     disabledButton:
         "flex cursor-not-allowed items-center gap-2 rounded-full bg-zinc-300 px-10 py-4 text-lg font-bold text-zinc-500",
+    radiusSection: "rounded-2xl border border-gray-200 bg-white p-5",
+    radiusHeader: "flex items-center justify-between gap-4",
+    radiusTitle: "text-base font-semibold text-gray-900",
+    radiusValue: "rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700",
+    radiusDescription: "mt-1 text-sm text-gray-500",
+    radiusOptions: "mt-4 grid grid-cols-3 gap-2",
+    radiusButton:
+        "rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50",
+    selectedRadiusButton:
+        "rounded-xl border border-emerald-500 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 transition disabled:cursor-not-allowed disabled:opacity-50",
+    radiusErrorMessage: "mt-2 text-sm text-red-500",
 } as const;

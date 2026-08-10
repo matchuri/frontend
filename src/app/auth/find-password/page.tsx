@@ -8,6 +8,7 @@ import {
     resetPasswordAtom,
 } from "@/features/resetPassword/application/atoms/resetPasswordAtom";
 import { resetPasswordPageStyles } from "@/ui/styles/resetPasswordPageStyles";
+import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
 
 export default function FindPasswordPage() {
     const setResetPasswordState = useSetAtom(resetPasswordAtom);
@@ -18,6 +19,8 @@ export default function FindPasswordPage() {
 
     return (
         <main className={resetPasswordPageStyles.page}>
+            <HomeNavigationButton />
+
             <section className={resetPasswordPageStyles.card}>
                 <h1 className={resetPasswordPageStyles.title}>비밀번호 찾기</h1>
                 <ResetPasswordForm />

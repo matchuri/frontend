@@ -8,6 +8,8 @@ import { originalPreferenceAtom, preferenceAtom } from "@/features/preference/ap
 import { preferenceApi } from "@/features/preference/infrastructure/api/preferenceApi";
 import { HttpError } from "@/infrastructure/http/httpClient";
 
+import { logger } from "@/shared/lib/logger";
+
 // 기존 취향 조회
 export function usePreferenceList() {
     const [preferenceState, setPreferenceState] = useAtom(preferenceAtom);
@@ -19,7 +21,7 @@ export function usePreferenceList() {
 
         try {
             const data = await preferenceApi.fetchMyPreference();
-            console.log("취향 정보: ", data);
+            logger.log("취향 정보: ", data);
 
             // 현재 화면에서 수정할 데이터
             setPreferenceState({ status: "SUCCESS", data });

@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useSetAtom, useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
 import type { GroupRecommendationOpenedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationOpenedEvent";
@@ -30,12 +31,21 @@ import PreferenceModal from "@/features/preference/ui/components/PreferenceModal
 import GroupRecommendationPreparationStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationStatusCard";
 import GroupRecommendationPreparationInfoCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationInfoCard";
 import GroupRecommendationPreparationMemberCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationMemberCard";
+import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { mockGroupRecommendationPreparation } from "@/features/groupRecommendation/ui/mock/mockGroupRecommendationPreparation";
 
 import { groupRecommendationPreparationPageStyles } from "@/ui/styles/groupRecommendationPreparationPageStyles";
 
 export default function GroupRecommendationPreparationPage() {
+    return (
+        <AuthRequiredGuard>
+            <GroupRecommendationPreparationPageContent />
+        </AuthRequiredGuard>
+    );
+}
+
+function GroupRecommendationPreparationPageContent() {
     const params = useParams<{
         groupId: string;
         sessionId: string;
@@ -227,6 +237,10 @@ export default function GroupRecommendationPreparationPage() {
         );
     };
 
+    const handleClickBack = () => {
+        router.push(`/group?selectedGroupId=${groupId}`);
+    };
+
     const handleClickCompletePreparation = async () => {
         if (!member) {
             alert("회원 정보를 불러오는 중입니다.");
@@ -308,6 +322,14 @@ export default function GroupRecommendationPreparationPage() {
         <>
             <main className={groupRecommendationPreparationPageStyles.container}>
                 <div className={groupRecommendationPreparationPageStyles.content}>
+                    <button
+                        type="button"
+                        onClick={handleClickBack}
+                        className={groupRecommendationPreparationPageStyles.backButton}
+                    >
+                        <ArrowLeft size={30} strokeWidth={2.5} />
+                    </button>
+
                     <h1 className={groupRecommendationPreparationPageStyles.title}>
                         그룹 메뉴 추천
                     </h1>

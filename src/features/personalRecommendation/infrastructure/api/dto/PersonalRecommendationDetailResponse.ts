@@ -11,8 +11,9 @@ export interface PersonalRecommendationDetailData {
     readonly id: number;
     readonly status: string;
     readonly closedAt: string | null;
-    readonly contextJson: Record<string, unknown>;
-    readonly candidates: readonly PersonalRecommendationDetailCandidateResponse[];
+    readonly contextJson: Record<string, unknown> | null;
+    readonly candidates:
+        readonly PersonalRecommendationDetailCandidateResponse[];
     readonly selectedCandidateId: number | null;
 }
 

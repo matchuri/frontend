@@ -37,4 +37,6 @@ export const personalRecommendationPageStyles = {
         "flex items-center justify-between rounded-2xl bg-zinc-100 px-5 py-4 text-left text-zinc-500 transition hover:bg-zinc-200",
     historyDetailButton:
         "text-sm cursor-pointer font-semibold text-orange-500",
+    locationRadius:
+        "mt-1 text-sm font-medium text-emerald-700",
 } as const;

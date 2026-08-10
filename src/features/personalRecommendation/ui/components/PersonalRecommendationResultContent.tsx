@@ -1,99 +1,87 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
-import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
-import { personalRecommendationResultAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
-import { userPreferenceAtom } from "@/features/preference/application/selectors/preferenceSelectors";
-import { getPreferenceSummaryKeywords } from "@/features/preference/application/mapper/getPreferenceSummaryKeywords";
-import { useCompletePersonalRecommendationSelection } from "@/features/personalRecommendation/application/hooks/useCompletePersonalRecommendationSelection";
-import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
-import { createLocationStorageKey } from "@/features/locationSetting/application/utils/createLocationStorageKey";
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+import type { PersonalRecommendation } from "@/features/personalRecommendation/domain/model/PersonalRecommendation";
 
 import PersonalRecommendationResultCard from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultCard";
 import PersonalRecommendationResultActionButtons from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultActionButtons";
+import PersonalRecommendationSelectedResultContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationSelectedResultContent";
 
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
 
-const PERSONAL_RECOMMENDATION_LOCATION_KEY =
-    "personal-recommendation-location";
+interface PersonalRecommendationResultContentProps {
+    readonly recommendation: PersonalRecommendation;
+    readonly keywords: readonly string[];
+    readonly location: LocationSetting | null;
+    readonly isLocationLoading: boolean;
 
-export default function PersonalRecommendationResultPage() {
-    const router = useRouter();
+    readonly isCompleting: boolean;
+    readonly isRerolling: boolean;
 
-    const member = useAtomValue(memberAtom);
-    const recommendation = useAtomValue(personalRecommendationResultAtom);
-    const preference = useAtomValue(userPreferenceAtom);
+    readonly onBack: () => void;
+    readonly onCompleteSelection: (
+        selectedCandidateId: number,
+    ) => Promise<void>;
+    readonly onRetryRecommendation: () => Promise<void>;
+    readonly onClickRestaurant: (candidateId: number) => void;
+    readonly onClickChangeLocation: () => void;
+}
 
-    const locationStorageKey = createLocationStorageKey(
-        PERSONAL_RECOMMENDATION_LOCATION_KEY,
-        member?.id ?? "unknown",
-    );
-
-    const { location } = useLocationSetting(locationStorageKey);
-
-    const { isCompleting, completeSelection } =
-        useCompletePersonalRecommendationSelection();
-
-    const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(
-        recommendation?.selectedCandidateId ?? null,
-    );
-
-    useEffect(() => {
-        if (!recommendation) {
-            router.replace("/personal-recommendation");
-        }
-    }, [recommendation, router]);
-
-    if (!recommendation) {
-        return null;
-    }
+export default function PersonalRecommendationResultContent({
+    recommendation,
+    keywords,
+    location,
+    isLocationLoading,
+    isCompleting,
+    isRerolling,
+    onBack,
+    onCompleteSelection,
+    onRetryRecommendation,
+    onClickRestaurant,
+    onClickChangeLocation,
+}: PersonalRecommendationResultContentProps) {
+    const [selectedCandidateId, setSelectedCandidateId] =
+        useState<number | null>(
+            recommendation.selectedCandidateId ?? null,
+        );
 
     const isClosed = recommendation.status !== "OPEN";
-    const keywords = getPreferenceSummaryKeywords(preference);
+
+    const selectedCandidate = recommendation.candidates.find(
+        (candidate) =>
+            candidate.id === recommendation.selectedCandidateId,
+    );
 
     const handleCompleteSelection = async () => {
-        if (!selectedCandidateId) {
+        if (selectedCandidateId === null) {
             alert("추천 메뉴를 먼저 선택해 주세요.");
             return;
         }
 
-        await completeSelection(recommendation.requestId, selectedCandidateId);
+        await onCompleteSelection(selectedCandidateId);
     };
 
-    const handleClickRestaurant = (candidateId: number) => {
-        const candidate = recommendation.candidates.find(
-            (item) => item.id === candidateId,
+    if (isClosed && selectedCandidate) {
+        return (
+            <PersonalRecommendationSelectedResultContent
+                selectedCandidate={selectedCandidate}
+                keywords={keywords}
+                location={location}
+                isLocationLoading={isLocationLoading}
+                onBack={onBack}
+                onClickChangeLocation={onClickChangeLocation}
+            />
         );
-
-        if (!candidate) {
-            return;
-        }
-
-        if (!location) {
-            alert("위치 정보를 먼저 설정해주세요.");
-            return;
-        }
-
-        const searchParams = new URLSearchParams({
-            menuName: candidate.menuName,
-            latitude: String(location.latitude),
-            longitude: String(location.longitude),
-            level: "4",
-            source: "personal",
-        });
-
-        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
-    };
+    }
 
     return (
         <main className={personalRecommendationResultPageStyles.container}>
             <button
                 type="button"
-                onClick={() => router.push("/personal-recommendation")}
+                onClick={onBack}
                 className={personalRecommendationResultPageStyles.backButton}
             >
                 <ArrowLeft size={24} />
@@ -105,7 +93,7 @@ export default function PersonalRecommendationResultPage() {
 
             {isClosed && (
                 <p className={personalRecommendationResultPageStyles.closedMessage}>
-                    메뉴 추천이 종료되었습니다.
+                    선택된 메뉴 정보를 불러오지 못했습니다.
                 </p>
             )}
 
@@ -149,17 +137,16 @@ export default function PersonalRecommendationResultPage() {
                         selected={selectedCandidateId === candidate.id}
                         disabled={isClosed}
                         onSelect={setSelectedCandidateId}
-                        onClickRestaurant={handleClickRestaurant}
+                        onClickRestaurant={onClickRestaurant}
                     />
                 ))}
             </section>
 
             <PersonalRecommendationResultActionButtons
-                onRetryRecommendation={() => {
-                    console.log("재요청");
-                }}
+                onRetryRecommendation={onRetryRecommendation}
                 onCompleteSelection={handleCompleteSelection}
                 canCompleteSelection={selectedCandidateId !== null}
+                isRetryRecommendationLoading={isRerolling}
                 isCompleteSelectionLoading={isCompleting}
                 isClosed={isClosed}
             />
