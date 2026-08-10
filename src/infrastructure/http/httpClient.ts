@@ -1,4 +1,5 @@
 import { clientEnv } from "@/infrastructure/config/env";
+import { captureApiError } from "@/infrastructure/monitoring/sentryMonitoring";
 
 import {
     clearAuth,
@@ -62,6 +63,11 @@ const SILENT_ERROR_CODES = [
     "MEMBER_LOCATION_NOT_FOUND",
 ];
 
+const MONITORED_CLIENT_ERROR_STATUSES = [
+    408,
+    429,
+];
+
 function shouldTryRefresh(path: string, isRetry: boolean) {
     if (isRetry) {
         return false;
@@ -89,6 +95,22 @@ function shouldSilenceErrorLog(
     }
 
     return false;
+}
+
+function shouldCaptureApiError(
+    path: string,
+    status: number,
+    errorBody: ErrorResponseBody | null,
+) {
+    if (shouldSilenceErrorLog(path, errorBody)) {
+        return false;
+    }
+
+    if (status >= 500) {
+        return true;
+    }
+
+    return MONITORED_CLIENT_ERROR_STATUSES.includes(status);
 }
 
 async function refreshAccessToken(): Promise<RefreshResult> {
@@ -127,21 +149,35 @@ async function request<T>(
     isRetry = false,
 ): Promise<T> {
     const accessToken = getAccessToken();
+    const method = options?.method ?? "GET";
 
-    const response = await fetch(
-        `${clientEnv.apiBaseUrl}${path}`,
-        {
-            ...options,
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                ...(accessToken && {
-                    Authorization: `Bearer ${accessToken}`,
-                }),
-                ...options?.headers,
+    let response: Response;
+
+    try {
+        response = await fetch(
+            `${clientEnv.apiBaseUrl}${path}`,
+            {
+                ...options,
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...(accessToken && {
+                        Authorization: `Bearer ${accessToken}`,
+                    }),
+                    ...options?.headers,
+                },
             },
-        },
-    );
+        );
+    } catch (error) {
+        captureApiError({
+            error,
+            path,
+            method,
+            isRetry,
+        });
+
+        throw error;
+    }
 
     if (
         response.status === 401 &&
@@ -182,11 +218,31 @@ async function request<T>(
             });
         }
 
-        throw new HttpError(
+        const httpError = new HttpError(
             response.status,
             response.statusText,
             errorBody ?? undefined,
         );
+
+        if (
+            shouldCaptureApiError(
+                path,
+                response.status,
+                errorBody,
+            )
+        ) {
+            captureApiError({
+                error: httpError,
+                path,
+                method,
+                status: response.status,
+                statusText: response.statusText,
+                errorCode: errorBody?.error?.code,
+                isRetry,
+            });
+        }
+
+        throw httpError;
     }
 
     const text = await response.text();

@@ -1,14 +1,16 @@
 "use client";
 
-import {
-    useEffect,
-    useRef,
-    useState,
-} from "react";
+import { useEffect, useRef } from "react";
 
 import { clientEnv } from "@/infrastructure/config/env";
-import { loadKakaoMapScript } from "@/shared/lib/kakaoMap/loadKakaoMapScript";
+import { captureExternalSdkError } from "@/infrastructure/monitoring/sentryMonitoring";
+import {
+    KakaoMapSdkLoadError,
+    loadKakaoMapScript,
+} from "@/shared/lib/kakaoMap/loadKakaoMapScript";
+
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
+
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
 
 interface MarkerRecord {
@@ -22,8 +24,7 @@ interface RecommendationRestaurantMapProps {
     readonly latitude: number;
     readonly longitude: number;
     readonly level: number;
-    readonly restaurants:
-        readonly RecommendationRestaurant[];
+    readonly restaurants: readonly RecommendationRestaurant[];
     readonly selectedRestaurant:
         RecommendationRestaurant | null;
     readonly onSelectRestaurant: (
@@ -45,26 +46,17 @@ export default function RecommendationRestaurantMap({
 }: RecommendationRestaurantMapProps) {
     const mapContainerRef =
         useRef<HTMLDivElement | null>(null);
-
     const mapRef =
         useRef<kakao.maps.Map | null>(null);
-
     const markerRecordsRef =
         useRef<MarkerRecord[]>([]);
 
-    const [isMapReady, setIsMapReady] =
-        useState(false);
-
     useEffect(() => {
-        if (!mapContainerRef.current) {
-            return;
-        }
+        if (!mapContainerRef.current) return;
 
         let cancelled = false;
 
         async function initializeMap() {
-            setIsMapReady(false);
-
             await loadKakaoMapScript(
                 clientEnv.kakaoMapAppKey,
             );
@@ -91,40 +83,33 @@ export default function RecommendationRestaurantMap({
                         level,
                     },
                 );
-
-            setIsMapReady(true);
         }
 
-        void initializeMap();
+        initializeMap().catch((error) => {
+            if (!(error instanceof KakaoMapSdkLoadError)) {
+                captureExternalSdkError({
+                    error,
+                    sdk: "kakao_map",
+                    operation: "map_initialization",
+                    context: {
+                        mapType:
+                            "recommendation_restaurant",
+                    },
+                });
+            }
+
+            console.error(error);
+        });
 
         return () => {
             cancelled = true;
-            setIsMapReady(false);
-
-            markerRecordsRef.current.forEach(
-                ({ marker, infoWindow }) => {
-                    infoWindow?.close();
-                    marker.setMap(null);
-                },
-            );
-
-            markerRecordsRef.current = [];
-            mapRef.current = null;
         };
-    }, [
-        latitude,
-        level,
-        longitude,
-    ]);
+    }, [latitude, level, longitude]);
 
     useEffect(() => {
         const map = mapRef.current;
 
-        if (
-            !isMapReady ||
-            !map ||
-            !window.kakao?.maps
-        ) {
+        if (!map || !window.kakao?.maps) {
             return;
         }
 
@@ -185,7 +170,6 @@ export default function RecommendationRestaurantMap({
                         onSelectRestaurant(
                             restaurant.id,
                         );
-
                         map.panTo(position);
 
                         markerRecordsRef.current.forEach(
@@ -225,7 +209,6 @@ export default function RecommendationRestaurantMap({
             markerRecordsRef.current = [];
         };
     }, [
-        isMapReady,
         latitude,
         longitude,
         onSelectRestaurant,
@@ -235,11 +218,7 @@ export default function RecommendationRestaurantMap({
     useEffect(() => {
         const map = mapRef.current;
 
-        if (
-            !isMapReady ||
-            !map ||
-            !selectedRestaurant
-        ) {
+        if (!map || !selectedRestaurant) {
             return;
         }
 
@@ -260,18 +239,13 @@ export default function RecommendationRestaurantMap({
             },
         );
 
-        map.panTo(
-            selectedMarkerRecord.position,
-        );
+        map.panTo(selectedMarkerRecord.position);
 
         selectedMarkerRecord.infoWindow?.open(
             map,
             selectedMarkerRecord.marker,
         );
-    }, [
-        isMapReady,
-        selectedRestaurant,
-    ]);
+    }, [selectedRestaurant]);
 
     return (
         <section

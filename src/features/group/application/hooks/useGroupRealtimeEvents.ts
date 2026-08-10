@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 
 import { createGroupRealtimeConnection } from "@/infrastructure/sse/groupRealtimeClient";
+import { captureSseError } from "@/infrastructure/monitoring/sentryMonitoring";
+
 import { GROUP_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/GroupRealtimeEventType";
 
 import { logger } from "@/shared/lib/logger";
@@ -62,9 +64,13 @@ export function useGroupRealtimeEvents({
             groupId,
         ) as unknown as GroupRealtimeEventSource;
 
+        let hasConnected = false;
+
         eventSource.addEventListener(
             GROUP_REALTIME_EVENT_TYPE.CONNECTED,
             () => {
+                hasConnected = true;
+
                 logger.log("[GROUP SSE] connected");
             },
         );
@@ -185,6 +191,15 @@ export function useGroupRealtimeEvents({
         );
 
         eventSource.onerror = () => {
+            captureSseError({
+                stream: "group",
+                eventType: hasConnected
+                    ? "disconnected"
+                    : "connection_failed",
+                readyState: eventSource.readyState,
+                groupId,
+            });
+
             logger.debug("그룹 실시간 이벤트 스트림 연결이 종료되었습니다.");
 
             eventSource.close();
