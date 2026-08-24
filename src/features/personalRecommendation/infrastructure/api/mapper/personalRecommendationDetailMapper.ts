@@ -1,5 +1,4 @@
 import {
-    DEFAULT_LOCATION_RADIUS_METERS,
     isLocationRadiusMeters,
 } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
@@ -8,42 +7,56 @@ import { DEFAULT_MAP_LEVEL } from "@/features/map/domain/config/mapPolicy";
 import type { PersonalRecommendation } from "@/features/personalRecommendation/domain/model/PersonalRecommendation";
 import type { PersonalRecommendationDetailData } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationDetailResponse";
 
-function mapLocationSnapshot(
-    contextJson: Record<string, unknown> | null,
-): LocationSetting | null {
-    if (contextJson === null) {
+function parseContextJson(
+    contextJson: string | null,
+): Record<string, unknown> | null {
+    if (!contextJson) {
         return null;
     }
 
-    const latitude = Number(
-        contextJson.latitude,
-    );
+    try {
+        const parsed: unknown = JSON.parse(contextJson);
 
-    const longitude = Number(
-        contextJson.longitude,
-    );
+        if (
+            typeof parsed !== "object" ||
+            parsed === null ||
+            Array.isArray(parsed)
+        ) {
+            return null;
+        }
 
-    const radiusMetersValue = Number(
-        contextJson.radiusMeters,
-    );
+        return parsed as Record<string, unknown>;
+    } catch {
+        return null;
+    }
+}
+
+function mapLocationSnapshot(
+    contextJson: string | null,
+): LocationSetting | null {
+    const context = parseContextJson(contextJson);
+
+    if (context === null) {
+        return null;
+    }
+
+    const latitude = Number(context.latitude);
+    const longitude = Number(context.longitude);
+    const radiusMeters = Number(context.radiusMeters);
 
     const address =
-        typeof contextJson.address === "string"
-            ? contextJson.address
+        typeof context.address === "string"
+            ? context.address
             : "";
 
     if (
         !Number.isFinite(latitude) ||
         !Number.isFinite(longitude) ||
+        !isLocationRadiusMeters(radiusMeters) ||
         address.trim().length === 0
     ) {
         return null;
     }
-
-    const radiusMeters =
-        isLocationRadiusMeters(radiusMetersValue)
-            ? radiusMetersValue
-            : DEFAULT_LOCATION_RADIUS_METERS;
 
     return {
         latitude,

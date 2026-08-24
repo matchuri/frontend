@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { clientEnv } from "@/infrastructure/config/env";
 import { captureExternalSdkError } from "@/infrastructure/monitoring/sentryMonitoring";
@@ -44,12 +44,14 @@ export default function RecommendationRestaurantMap({
     sectionClassName,
     mapClassName,
 }: RecommendationRestaurantMapProps) {
-    const mapContainerRef =
-        useRef<HTMLDivElement | null>(null);
-    const mapRef =
-        useRef<kakao.maps.Map | null>(null);
-    const markerRecordsRef =
-        useRef<MarkerRecord[]>([]);
+    const mapContainerRef = useRef<HTMLDivElement | null>(null);
+    const mapRef = useRef<kakao.maps.Map | null>(null);
+    const markerRecordsRef = useRef<MarkerRecord[]>([]);
+
+    const [
+        mapInitializationVersion,
+        setMapInitializationVersion,
+    ] = useState(0);
 
     useEffect(() => {
         if (!mapContainerRef.current) return;
@@ -57,9 +59,7 @@ export default function RecommendationRestaurantMap({
         let cancelled = false;
 
         async function initializeMap() {
-            await loadKakaoMapScript(
-                clientEnv.kakaoMapAppKey,
-            );
+            await loadKakaoMapScript(clientEnv.kakaoMapAppKey);
 
             if (
                 cancelled ||
@@ -83,6 +83,10 @@ export default function RecommendationRestaurantMap({
                         level,
                     },
                 );
+
+            setMapInitializationVersion(
+                (version) => version + 1,
+            );
         }
 
         initializeMap().catch((error) => {
@@ -120,8 +124,7 @@ export default function RecommendationRestaurantMap({
             },
         );
 
-        const bounds =
-            new window.kakao.maps.LatLngBounds();
+        const bounds = new window.kakao.maps.LatLngBounds();
 
         bounds.extend(
             new window.kakao.maps.LatLng(
@@ -211,6 +214,7 @@ export default function RecommendationRestaurantMap({
     }, [
         latitude,
         longitude,
+        mapInitializationVersion,
         onSelectRestaurant,
         restaurants,
     ]);
@@ -245,7 +249,10 @@ export default function RecommendationRestaurantMap({
             map,
             selectedMarkerRecord.marker,
         );
-    }, [selectedRestaurant]);
+    }, [
+        mapInitializationVersion,
+        selectedRestaurant,
+    ]);
 
     return (
         <section
