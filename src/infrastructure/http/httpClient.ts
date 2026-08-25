@@ -38,22 +38,28 @@ class HttpError extends Error {
 }
 
 interface RefreshResult {
-    accessToken: string;
-    onboarding: OnboardingState;
-    member: LoginMember;
+    readonly accessToken: string;
+    readonly onboarding: OnboardingState;
+    readonly member: LoginMember;
 }
+
+interface RefreshResponseBody {
+    readonly data: RefreshResult;
+}
+
+const REFRESH_PATH = "/api/v1/auth/refresh";
 
 const NO_REFRESH_PATHS = [
     "/api/v1/auth/oauth2/exchange",
     "/api/v1/auth/login",
-    "/api/v1/auth/refresh",
+    REFRESH_PATH,
     "/api/v1/members/signup",
     "/api/v1/auth/email",
     "/api/v1/auth/email/confirm",
 ];
 
 const SILENT_ERROR_LOG_PATHS = [
-    "/api/v1/auth/refresh",
+    REFRESH_PATH,
     "/api/v1/auth/email/confirm",
     "/api/v1/groups/invites/nickname",
 ];
@@ -67,6 +73,8 @@ const MONITORED_CLIENT_ERROR_STATUSES = [
     408,
     429,
 ];
+
+let refreshRequestPromise: Promise<unknown> | null = null;
 
 function shouldTryRefresh(path: string, isRetry: boolean) {
     if (isRetry) {
@@ -114,36 +122,56 @@ function shouldCaptureApiError(
 }
 
 async function refreshAccessToken(): Promise<RefreshResult> {
-    const response = await fetch(
-        `${clientEnv.apiBaseUrl}/api/v1/auth/refresh`,
+    const response = await request<RefreshResponseBody>(
+        REFRESH_PATH,
         {
             method: "POST",
-            credentials: "include",
         },
     );
 
-    if (!response.ok) {
-        const errorBody = await response.json().catch(() => null);
+    return response.data;
+}
 
-        logger.error("[httpClient] refresh 실패 응답:", {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorBody,
-        });
-
-        throw new Error("Refresh failed");
+async function requestRefresh<T>(
+    options?: RequestInit,
+    isRetry = false,
+): Promise<T> {
+    if (refreshRequestPromise) {
+        return refreshRequestPromise as Promise<T>;
     }
 
-    const body = await response.json();
+    const currentRequest = executeRequest<T>(
+        REFRESH_PATH,
+        options,
+        isRetry,
+    );
 
-    return {
-        accessToken: body.data.accessToken,
-        onboarding: body.data.onboarding,
-        member: body.data.member,
-    };
+    refreshRequestPromise = currentRequest;
+
+    try {
+        return await currentRequest;
+    } finally {
+        if (refreshRequestPromise === currentRequest) {
+            refreshRequestPromise = null;
+        }
+    }
 }
 
 async function request<T>(
+    path: string,
+    options?: RequestInit,
+    isRetry = false,
+): Promise<T> {
+    const method = options?.method ?? "GET";
+
+    if (path === REFRESH_PATH && method === "POST") {
+        return requestRefresh<T>(options, isRetry);
+    }
+
+    return executeRequest<T>(path, options, isRetry);
+}
+
+async function executeRequest<T>(
     path: string,
     options?: RequestInit,
     isRetry = false,
