@@ -159,26 +159,28 @@ function PersonalRecommendationResultPageContent() {
             preference,
         );
 
+    const isOpenRecommendation =
+        recommendation.status === "OPEN";
+
     const resultLocation =
-        recommendation.status !== "OPEN"
-            ? recommendation.locationSnapshot ??
-              location
-            : location;
+        isOpenRecommendation
+            ? location
+            : recommendation.locationSnapshot ?? null;
+
+    const isResultLocationLoading =
+        isOpenRecommendation &&
+        isLocationLoading;
 
     const handleCompleteSelection = async (
         selectedCandidateId: number,
     ) => {
         if (isLocationLoading) {
-            alert(
-                "위치 정보를 불러오는 중입니다.",
-            );
+            alert("위치 정보를 불러오는 중입니다.");
             return;
         }
 
         if (!location) {
-            alert(
-                "설정된 위치가 없습니다. 위치를 설정해주세요.",
-            );
+            alert("설정된 위치가 없습니다. 위치를 설정해주세요.");
             return;
         }
 
@@ -215,8 +217,7 @@ function PersonalRecommendationResultPageContent() {
     ) => {
         const candidate =
             recommendation.candidates.find(
-                (item) =>
-                    item.id === candidateId,
+                (item) => item.id === candidateId
             );
 
         if (!candidate) {
@@ -224,38 +225,24 @@ function PersonalRecommendationResultPageContent() {
         }
 
         if (isLocationLoading) {
-            alert(
-                "위치 정보를 불러오는 중입니다.",
-            );
+            alert("위치 정보를 불러오는 중입니다.");
             return;
         }
 
         if (!location) {
-            alert(
-                "설정된 위치가 없습니다. 위치를 설정해주세요.",
-            );
+            alert("설정된 위치가 없습니다. 위치를 설정해주세요.");
             return;
         }
 
         const searchParams =
             new URLSearchParams({
-                requestId: String(
-                    recommendation.requestId,
-                ),
-                candidateId: String(
-                    candidate.id,
-                ),
+                requestId: String(recommendation.requestId),
+                candidateId: String(candidate.id),
                 menuName: candidate.menuName,
-                latitude: String(
-                    location.latitude,
-                ),
-                longitude: String(
-                    location.longitude,
-                ),
+                latitude: String(location.latitude),
+                longitude: String(location.longitude),
                 address: location.address,
-                radiusMeters: String(
-                    location.radiusMeters,
-                ),
+                radiusMeters: String(location.radiusMeters),
                 level: "4",
                 source: "personal",
             });
@@ -285,10 +272,7 @@ function PersonalRecommendationResultPageContent() {
     const handleSaveLocation = async (
         nextLocation: LocationSetting,
     ) => {
-        const isSaved =
-            await saveLocation(
-                nextLocation,
-            );
+        const isSaved = await saveLocation(nextLocation);
 
         if (isSaved) {
             setIsLocationModalOpen(false);
@@ -304,37 +288,23 @@ function PersonalRecommendationResultPageContent() {
                 recommendation={recommendation}
                 keywords={keywords}
                 location={resultLocation}
-                isLocationLoading={
-                    isLocationLoading
-                }
+                isLocationLoading={isResultLocationLoading}
                 isCompleting={isCompleting}
                 isRerolling={isRerolling}
                 onBack={() =>
-                    router.push(
-                        "/personal-recommendation",
-                    )
+                    router.push("/personal-recommendation")
                 }
-                onCompleteSelection={
-                    handleCompleteSelection
-                }
-                onRetryRecommendation={
-                    handleRetryRecommendation
-                }
-                onClickRestaurant={
-                    handleClickRestaurant
-                }
-                onClickChangeLocation={() =>
-                    setIsLocationModalOpen(true)
-                }
+                onCompleteSelection={handleCompleteSelection}
+                onRetryRecommendation={handleRetryRecommendation}
+                onClickRestaurant={handleClickRestaurant}
+                onClickChangeLocation={() => setIsLocationModalOpen(true)}
             />
 
             <LocationModal
                 isOpen={isLocationModalOpen}
                 initialLocation={location}
                 isSaving={isLocationSaving}
-                onClose={() =>
-                    setIsLocationModalOpen(false)
-                }
+                onClose={() => setIsLocationModalOpen(false)}
                 onSave={handleSaveLocation}
             />
         </>
