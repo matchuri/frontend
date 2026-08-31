@@ -5,7 +5,9 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { jotaiStore } from "@/shared/lib/jotaiStore";
+
 import AuthInitializer from "@/features/auth/ui/components/AuthInitializer";
+
 import {
     isAuthenticatedAtom,
     isAuthLoadingAtom,
@@ -13,9 +15,11 @@ import {
 } from "@/features/auth/application/selectors/authSelectors";
 
 import Navbar from "@/ui/components/Navbar";
-import Sidebar from "@/ui/components/Sidebar";
+import BottomNavigation from "@/ui/components/BottomNavigation";
 
-const authNavigationHiddenPaths = [
+import { appLayoutStyles } from "@/ui/styles/appLayoutStyles";
+
+const navbarHiddenPaths = [
     "/login",
     "/signup",
     "/terms",
@@ -24,36 +28,82 @@ const authNavigationHiddenPaths = [
     "/auth/find-password",
 ];
 
-function AppContent({ children }: { children: ReactNode }) {
+function shouldShowPublicNavbar(pathname: string) {
+    return !navbarHiddenPaths.includes(pathname);
+}
+
+function shouldHideBottomNavigation(pathname: string) {
+    // 개인 메뉴 추천 진행/결과 화면
+    if (pathname.startsWith("/personal-recommendation")) {
+        return true;
+    }
+
+    // 맛집 결과 화면
+    if (pathname.startsWith("/recommendation-restaurants")) {
+        return true;
+    }
+
+    // 그룹 추천 준비/투표/결과 화면
+    if (/^\/group\/\d+\/recommendations\/\d+/.test(pathname)) {
+        return true;
+    }
+
+    return false;
+}
+
+function AppContent({
+    children,
+}: {
+    children: ReactNode;
+}) {
     const pathname = usePathname();
 
-    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
-    const isAuthLoading = useAtomValue(isAuthLoadingAtom);
-    const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
+    const isAuthenticated =
+        useAtomValue(isAuthenticatedAtom);
 
-    const showMemberLayout =
-        !isAuthLoading && isAuthenticated && isOnboardingReady;
+    const isAuthLoading =
+        useAtomValue(isAuthLoadingAtom);
 
-    const hideNavbar = authNavigationHiddenPaths.includes(pathname);
+    const isOnboardingReady =
+        useAtomValue(isOnboardingReadyAtom);
+
+    const isMemberReady =
+        !isAuthLoading &&
+        isAuthenticated &&
+        isOnboardingReady;
+
+    const showNavbar =
+        !isMemberReady &&
+        shouldShowPublicNavbar(pathname);
+
+    const showBottomNavigation =
+        isMemberReady &&
+        !shouldHideBottomNavigation(pathname);
 
     if (isAuthLoading) {
         return null;
     }
 
     return (
-        <>
-            {!hideNavbar && <Navbar />}
-            {showMemberLayout && <Sidebar />}
+        <div className={appLayoutStyles.pageBackground}>
+            <div className={appLayoutStyles.appContainer}>
+                {showNavbar && <Navbar />}
 
-            <main
-                className={[
-                    "h-screen overflow-y-auto",
-                    showMemberLayout ? "ml-[280px]" : "",
-                ].join(" ")}
-            >
-                {children}
-            </main>
-        </>
+                <main
+                    className={
+                        showBottomNavigation
+                            ? appLayoutStyles.contentWithBottomNavigation
+                            : appLayoutStyles.content
+                    }
+                >
+                    {children}
+                </main>
+
+                {showBottomNavigation && (
+                    <BottomNavigation />
+                )}
+            </div>
+        </div>
     );
 }
 
@@ -65,7 +115,9 @@ export default function AppLayout({
     return (
         <Provider store={jotaiStore}>
             <AuthInitializer />
-            <AppContent>{children}</AppContent>
+            <AppContent>
+                {children}
+            </AppContent>
         </Provider>
     );
 }
