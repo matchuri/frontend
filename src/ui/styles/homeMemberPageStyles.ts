@@ -90,4 +90,10 @@ export const homeMemberPageStyles = {
     activityEmpty:
         "flex h-[92px] items-center justify-center rounded-2xl border border-gray-100 bg-white text-sm text-gray-400",
     cardChevron: "shrink-0 text-gray-300",
+
+    stateContainer: "flex min-h-full flex-col items-center justify-center gap-4 px-5",
+    stateText: "text-sm text-gray-500",
+    errorText: "text-center text-sm text-red-500",
+    retryButton: "rounded-xl bg-[#FB6F00] px-4 py-2.5 text-sm font-semibold text-white",
+    tasteEmptyText: "text-xs text-gray-400",
 } as const;

@@ -4,33 +4,20 @@ import {
     Vote,
 } from "lucide-react";
 
+import type { HomeGroupActivityType } from "@/features/home/domain/model/HomeGroupActivityType";
+import type { HomeRecentGroupActivity as HomeRecentGroupActivityItem } from "@/features/home/domain/model/Home";
+
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
-type GroupActivityType =
-    | "PREPARING"
-    | "OPEN"
-    | "FINALIZED";
-
-interface GroupActivityItem {
-    readonly groupId: number;
-    readonly groupName: string;
-    readonly type: GroupActivityType;
-    readonly details: {
-        readonly recommendationId: number;
-        readonly createdAt: string;
-        readonly startedAt: string | null;
-        readonly endedAt: string | null;
-        readonly selectedMenuName: string | null;
-    };
-}
 
 interface HomeRecentGroupActivityProps {
-    readonly items: readonly GroupActivityItem[];
+    readonly items:
+        readonly HomeRecentGroupActivityItem[];
 }
 
 const MAX_VISIBLE_ACTIVITY_COUNT = 5;
 
-function getActivityMessage(item: GroupActivityItem) {
+function getActivityMessage(item: HomeRecentGroupActivityItem) {
     if (item.type === "PREPARING") {
         return "메뉴 추천이 시작되었습니다.";
     }
@@ -40,13 +27,13 @@ function getActivityMessage(item: GroupActivityItem) {
     }
 
     if (item.details.selectedMenuName) {
-        return `${item.details.selectedMenuName}으로 메뉴가 결정되었습니다.`;
+        return `메뉴(${item.details.selectedMenuName})가 결정되었습니다.`;
     }
 
     return "메뉴 투표가 종료되었습니다.";
 }
 
-function getActivityDate(item: GroupActivityItem) {
+function getActivityDate(item: HomeRecentGroupActivityItem) {
     if (item.type === "PREPARING") {
         return item.details.createdAt;
     }
@@ -101,7 +88,7 @@ function formatRelativeTime(dateString: string | null) {
 function GroupActivityIcon({
     type,
 }: {
-    readonly type: GroupActivityType;
+    readonly type: HomeGroupActivityType;
 }) {
     if (type === "PREPARING") {
         return (

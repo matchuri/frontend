@@ -24,14 +24,20 @@ export default function HomeTasteProfileCard({
                 </h2>
 
                 <div className={homeMemberPageStyles.chipGroup}>
-                    {attributes.map((attribute) => (
-                        <span
-                            key={attribute}
-                            className={homeMemberPageStyles.tasteChip}
-                        >
-                            {attribute}
+                    {attributes.length > 0 ? (
+                        attributes.map((attribute) => (
+                            <span
+                                key={attribute}
+                                className={homeMemberPageStyles.tasteChip}
+                            >
+                                {attribute}
+                            </span>
+                        ))
+                    ) : (
+                        <span className={homeMemberPageStyles.tasteEmptyText}>
+                            설정된 취향이 없습니다.
                         </span>
-                    ))}
+                    )}
                 </div>
             </div>
 
