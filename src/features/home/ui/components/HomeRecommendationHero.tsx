@@ -5,7 +5,17 @@ import {
 
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
-export default function HomeRecommendationHero() {
+interface HomeRecommendationHeroProps {
+    readonly onStart: () => void;
+    readonly isStarting: boolean;
+    readonly buttonLabel: string;
+}
+
+export default function HomeRecommendationHero({
+    onStart,
+    isStarting,
+    buttonLabel,
+}: HomeRecommendationHeroProps) {
     return (
         <section className={homeMemberPageStyles.hero}>
             <div className={homeMemberPageStyles.heroDecoration} />
@@ -32,9 +42,13 @@ export default function HomeRecommendationHero() {
 
                 <button
                     type="button"
+                    onClick={onStart}
+                    disabled={isStarting}
                     className={homeMemberPageStyles.heroButton}
                 >
-                    메뉴 추천 시작하기
+                    {isStarting
+                        ? "메뉴 추천 중..."
+                        : buttonLabel}
 
                     <ArrowRight
                         size={18}

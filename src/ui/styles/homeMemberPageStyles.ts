@@ -26,7 +26,11 @@ export const homeMemberPageStyles = {
     heroTitle: "text-[26px] font-bold leading-[1.35] tracking-[-0.02em]",
     heroDescription: "mt-3 text-[13px] leading-6 text-white/85",
     heroButton:
-        "mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-4 py-3.5 text-sm font-semibold text-[#FB6F00] shadow-sm transition active:scale-[0.99]",
+        "mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl " +
+        "bg-white px-4 py-3.5 text-sm font-semibold text-[#FB6F00] " +
+        "shadow-sm transition-all duration-200 " +
+        "hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.16)] " +
+        "active:scale-[0.99]",
 
     // Section
     section: "flex flex-col gap-3",
