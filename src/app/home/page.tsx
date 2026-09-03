@@ -17,6 +17,16 @@ import { usePreferenceList } from "@/features/preference/application/hooks/usePr
 import { usePersonalRecommendationStart } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationStart";
 import { usePersonalRecommendationResultNavigation } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationResultNavigation";
 
+import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
+import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
+import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
+
+import {
+    invitesAtom,
+    hasInvitesAtom,
+} from "@/features/group/application/selectors/groupInviteSelectors";
+import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
+
 import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
 
 import HomeHeader from "@/features/home/ui/components/HomeHeader";
@@ -27,7 +37,6 @@ import HomeRecentGroupActivity from "@/features/home/ui/components/HomeRecentGro
 
 import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
 import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
-import { mockGroupInvites } from "@/features/groupInviteNotification/ui/mock/mockGroupInvites";
 
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
@@ -40,7 +49,6 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 export default function HomePage() {
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
-    const [groupInvites, setGroupInvites] = useState(mockGroupInvites);
 
     const { canAccess } = useHomeGuard();
     const { refetchHome } = useHomeData(canAccess);
@@ -48,6 +56,24 @@ export default function HomePage() {
     const homeData = useAtomValue(homeDataAtom);
     const isHomeLoading = useAtomValue(isHomeLoadingAtom);
     const homeErrorMessage = useAtomValue(homeErrorMessageAtom);
+
+    const accessToken = useAtomValue(accessTokenAtom);
+
+    const invites = useAtomValue(invitesAtom);
+    const hasInvites = useAtomValue(hasInvitesAtom);
+
+    const { refetchInvites } = useGroupInvites();
+
+    useMyRealtimeEvents({
+        accessToken,
+    });
+
+    const { processingInviteId, respond } = useRespondGroupInvite({
+        onSuccess: () => {
+            void refetchInvites();
+            void refetchHome();
+        },
+    });
 
     const {
         location,
@@ -164,19 +190,19 @@ export default function HomePage() {
     };
 
     const handleAcceptInvite = (inviteId: number) => {
-        setGroupInvites((prev) =>
-            prev.filter(
-                (invite) => invite.inviteId !== inviteId,
-            ),
-        );
+        if (processingInviteId !== null) {
+            return;
+        }
+
+        void respond(inviteId, "ACCEPT");
     };
 
     const handleDeclineInvite = (inviteId: number) => {
-        setGroupInvites((prev) =>
-            prev.filter(
-                (invite) => invite.inviteId !== inviteId,
-            ),
-        );
+        if (processingInviteId !== null) {
+            return;
+        }
+
+        void respond(inviteId, "DECLINE");
     };
 
     if (isCreating) {
@@ -196,14 +222,15 @@ export default function HomePage() {
                 />
 
                 <GroupInviteNotificationButton
-                    hasInvites={groupInvites.length > 0}
+                    hasInvites={hasInvites}
                     isOpen={isInviteNotificationOpen}
                     onClick={handleClickNotification}
                 />
 
                 {isInviteNotificationOpen && (
                     <GroupInviteNotification
-                        invites={groupInvites}
+                        invites={invites}
+                        processingInviteId={processingInviteId}
                         onAcceptInvite={handleAcceptInvite}
                         onDeclineInvite={handleDeclineInvite}
                         onClose={() =>

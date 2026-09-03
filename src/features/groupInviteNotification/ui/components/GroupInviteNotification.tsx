@@ -12,6 +12,7 @@ import { groupInviteNotificationStyles } from "@/ui/styles/groupInviteNotificati
 
 interface GroupInviteNotificationProps {
     readonly invites: readonly GroupInvite[];
+    readonly processingInviteId: number | null;
     readonly onAcceptInvite: (inviteId: number) => void;
     readonly onDeclineInvite: (inviteId: number) => void;
     readonly onClose: () => void;
@@ -19,6 +20,7 @@ interface GroupInviteNotificationProps {
 
 export default function GroupInviteNotification({
     invites,
+    processingInviteId,
     onAcceptInvite,
     onDeclineInvite,
     onClose,
@@ -59,52 +61,58 @@ export default function GroupInviteNotification({
 
                 {invites.length > 0 ? (
                     <div className={groupInviteNotificationStyles.list}>
-                        {invites.map((invite) => (
-                            <article
-                                key={invite.inviteId}
-                                className={groupInviteNotificationStyles.item}
-                            >
-                                <div className={groupInviteNotificationStyles.info}>
-                                    <div className={groupInviteNotificationStyles.avatar}>
-                                        <UserRound
-                                            size={20}
-                                            aria-hidden="true"
-                                        />
+                        {invites.map((invite) => {
+                            const isProcessing = processingInviteId === invite.inviteId;
+
+                            return (
+                                <article
+                                    key={invite.inviteId}
+                                    className={groupInviteNotificationStyles.item}
+                                >
+                                    <div className={groupInviteNotificationStyles.info}>
+                                        <div className={groupInviteNotificationStyles.avatar}>
+                                            <UserRound
+                                                size={20}
+                                                aria-hidden="true"
+                                            />
+                                        </div>
+
+                                        <div className={groupInviteNotificationStyles.text}>
+                                            <p className={groupInviteNotificationStyles.message}>
+                                                <strong>
+                                                    {invite.requestMemberNickname}
+                                                </strong>
+                                                님이 그룹에 초대했습니다.
+                                            </p>
+
+                                            <span className={groupInviteNotificationStyles.groupName}>
+                                                {invite.groupName}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div className={groupInviteNotificationStyles.text}>
-                                        <p className={groupInviteNotificationStyles.message}>
-                                            <strong>
-                                                {invite.requestMemberNickname}
-                                            </strong>
-                                            님이 그룹에 초대했습니다.
-                                        </p>
+                                    <div className={groupInviteNotificationStyles.actions}>
+                                        <button
+                                            type="button"
+                                            disabled={isProcessing}
+                                            onClick={() => onDeclineInvite(invite.inviteId)}
+                                            className={groupInviteNotificationStyles.declineButton}
+                                        >
+                                            거절
+                                        </button>
 
-                                        <span className={groupInviteNotificationStyles.groupName}>
-                                            {invite.groupName}
-                                        </span>
+                                        <button
+                                            type="button"
+                                            disabled={isProcessing}
+                                            onClick={() => onAcceptInvite(invite.inviteId)}
+                                            className={groupInviteNotificationStyles.acceptButton}
+                                        >
+                                            {isProcessing ? "처리 중..." : "수락"}
+                                        </button>
                                     </div>
-                                </div>
-
-                                <div className={groupInviteNotificationStyles.actions}>
-                                    <button
-                                        type="button"
-                                        onClick={() => onDeclineInvite(invite.inviteId)}
-                                        className={groupInviteNotificationStyles.declineButton}
-                                    >
-                                        거절
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => onAcceptInvite(invite.inviteId)}
-                                        className={groupInviteNotificationStyles.acceptButton}
-                                    >
-                                        수락
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
+                                </article>
+                            );
+                        })}
                     </div>
                 ) : (
                     <div className={groupInviteNotificationStyles.empty}>
