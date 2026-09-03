@@ -41,6 +41,7 @@ import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
+import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
@@ -48,6 +49,7 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 export default function HomePage() {
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
 
     const { canAccess } = useHomeGuard();
@@ -185,6 +187,16 @@ export default function HomePage() {
         return true;
     };
 
+    const handleClickPreferenceEdit = () => {
+        setIsPreferenceModalOpen(true);
+    };
+
+    const handlePreferenceSaved = () => {
+        void refetchHome();
+
+        setIsPreferenceModalOpen(false);
+    };
+
     const handleClickNotification = () => {
         setIsInviteNotificationOpen((prev) => !prev);
     };
@@ -252,6 +264,7 @@ export default function HomePage() {
 
                     <HomeTasteProfileCard
                         attributes={homeData.tasteProfile.attributes}
+                        onClickEdit={handleClickPreferenceEdit}
                     />
 
                     <HomeRecommendationHistory
@@ -274,6 +287,12 @@ export default function HomePage() {
                     }
                 }}
                 onSave={handleSaveLocation}
+            />
+
+            <PreferenceModal
+                isOpen={isPreferenceModalOpen}
+                onClose={() => setIsPreferenceModalOpen(false)}
+                onSaved={handlePreferenceSaved}
             />
 
             <PersonalRecommendationStartAlertModal

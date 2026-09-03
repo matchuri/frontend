@@ -1,6 +1,6 @@
 export const preferenceModalStyles = {
     overlay:
-        "fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4",
+        "fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4",
     modal:
         "flex h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[32px] bg-white shadow-2xl",
     header:

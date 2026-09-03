@@ -4,10 +4,12 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 interface HomeTasteProfileCardProps {
     readonly attributes: readonly string[];
+    readonly onClickEdit: () => void;
 }
 
 export default function HomeTasteProfileCard({
     attributes,
+    onClickEdit,
 }: HomeTasteProfileCardProps) {
     return (
         <section className={homeMemberPageStyles.tasteCard}>
@@ -43,6 +45,7 @@ export default function HomeTasteProfileCard({
 
             <button
                 type="button"
+                onClick={onClickEdit}
                 className={homeMemberPageStyles.tasteEditButton}
             >
                 수정

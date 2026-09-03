@@ -44,7 +44,9 @@ export const homeMemberPageStyles = {
     tasteTitle: "mb-1.5 text-[14px] font-semibold text-gray-800",
     chipGroup: "flex flex-wrap gap-2",
     tasteChip: "rounded-full bg-[#FFE9A9] px-3 py-1 text-[11px] font-medium text-gray-700",
-    tasteEditButton: "shrink-0 text-[14px] font-medium text-[#FB6F00]",
+    tasteEditButton:
+        "shrink-0 cursor-pointer rounded-lg px-2 py-1 text-[14px] font-medium text-[#FB6F00] " +
+        "transition-colors duration-200 hover:bg-orange-50 hover:text-[#E96500]",
 
     // Recommendation history
     historyHeader:
