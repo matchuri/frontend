@@ -10,11 +10,13 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 interface HomeHeaderProps {
     readonly nickname: string;
     readonly address: string;
+    readonly onClickLocation: () => void;
 }
 
 export default function HomeHeader({
     nickname,
     address,
+    onClickLocation,
 }: HomeHeaderProps) {
     return (
         <header className={homeMemberPageStyles.header}>
@@ -34,6 +36,7 @@ export default function HomeHeader({
 
                     <button
                         type="button"
+                        onClick={onClickLocation}
                         className={homeMemberPageStyles.locationButton}
                     >
                         <MapPin

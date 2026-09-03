@@ -9,7 +9,7 @@ export const homeMemberPageStyles = {
         "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-50 text-[#FB6F00]",
     userTextBox: "min-w-0",
     welcomeText: "text-[15px] text-gray-800",
-    locationButton: "mt-1 flex max-w-[230px] items-center gap-1 text-xs text-gray-500",
+    locationButton: "mt-1 flex max-w-[230px] cursor-pointer items-center gap-1 rounded-md text-xs text-gray-500 transition-colors hover:text-[#FB6F00]",
     notificationButton:
         "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-700 shadow-sm",
     notificationDot:

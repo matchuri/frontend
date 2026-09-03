@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useAtomValue } from "jotai";
 
 import { useHomeGuard } from "@/features/routeGuard/application/hooks/useHomeGuard";
@@ -26,10 +27,15 @@ import HomeRecentGroupActivity from "@/features/home/ui/components/HomeRecentGro
 
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
+import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
+
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 export default function HomePage() {
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+
     const { canAccess } = useHomeGuard();
     const { refetchHome } = useHomeData(canAccess);
 
@@ -40,6 +46,8 @@ export default function HomePage() {
     const {
         location,
         isLoading: isLocationLoading,
+        isSaving: isLocationSaving,
+        saveLocation,
     } = useLocationSetting();
 
     const { preferenceState } = usePreferenceList();
@@ -120,6 +128,31 @@ export default function HomePage() {
         void startRecommendation();
     };
 
+    const handleClickLocation = () => {
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        setIsLocationModalOpen(true);
+    };
+
+    const handleSaveLocation = async (
+        nextLocation: LocationSetting,
+    ) => {
+        const isSaved = await saveLocation(nextLocation);
+
+        if (!isSaved) {
+            return false;
+        }
+
+        await refetchHome();
+
+        setIsLocationModalOpen(false);
+
+        return true;
+    };
+
     if (isCreating) {
         return <PersonalRecommendationLoadingView />;
     }
@@ -133,6 +166,7 @@ export default function HomePage() {
                         homeData.location?.address ??
                         "설정된 위치가 없습니다."
                     }
+                    onClickLocation={handleClickLocation}
                 />
 
                 <div className={homeMemberPageStyles.content}>
@@ -159,6 +193,18 @@ export default function HomePage() {
                     />
                 </div>
             </main>
+
+            <LocationModal
+                isOpen={isLocationModalOpen}
+                initialLocation={location}
+                isSaving={isLocationSaving}
+                onClose={() => {
+                    if (!isLocationSaving) {
+                        setIsLocationModalOpen(false);
+                    }
+                }}
+                onSave={handleSaveLocation}
+            />
 
             <PersonalRecommendationStartAlertModal
                 isOpen={isAlertModalOpen}
