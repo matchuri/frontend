@@ -54,14 +54,17 @@ export const homeMemberPageStyles = {
     historyViewAllButton:
         "shrink-0 text-[12px] font-medium text-gray-500",
     historyScrollArea:
-        "flex gap-3 overflow-x-auto pb-1 " +
+        "flex gap-3 overflow-x-auto px-1 py-3 -mx-1 -my-3 " +
         "snap-x snap-mandatory " +
         "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
     historyCard:
-        "relative flex h-[132px] w-[218px] shrink-0 snap-start " +
+        "relative flex h-[132px] w-[218px] shrink-0 snap-start cursor-pointer " +
         "flex-col justify-between rounded-[20px] border border-gray-200 " +
         "bg-white p-4 text-left shadow-[0_2px_6px_rgba(0,0,0,0.035)] " +
-        "transition active:scale-[0.99]",
+        "transition-all duration-200 " +
+        "hover:border-orange-200 " +
+        "hover:shadow-[0_3px_7px_rgba(251,142,0,0.20)] " +
+        "active:scale-[0.99]",
     historyDate: "self-end text-[12px] font-medium text-gray-500",
     historyBottom: "flex flex-col items-start gap-2",
     historyMenuName: "max-w-full truncate text-[16px] font-semibold text-gray-900",

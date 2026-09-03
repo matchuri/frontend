@@ -269,6 +269,7 @@ export default function HomePage() {
 
                     <HomeRecommendationHistory
                         items={homeData.personalRecommendationHistory}
+                        onClickDetail={moveToRecommendationResult}
                     />
 
                     <HomeRecentGroupActivity

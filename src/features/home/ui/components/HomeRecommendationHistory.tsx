@@ -9,12 +9,14 @@ interface RecommendationHistoryItem {
 
 interface HomeRecommendationHistoryProps {
     readonly items: readonly RecommendationHistoryItem[];
+    readonly onClickDetail: (requestId: number) => void;
 }
 
 const MAX_HISTORY_COUNT = 3;
 
 export default function HomeRecommendationHistory({
     items,
+    onClickDetail,
 }: HomeRecommendationHistoryProps) {
     const sortedItems = [...items].sort(
         (a, b) =>
@@ -48,6 +50,7 @@ export default function HomeRecommendationHistory({
                         <button
                             key={item.id}
                             type="button"
+                            onClick={() => onClickDetail(item.id)}
                             className={homeMemberPageStyles.historyCard}
                         >
                             <span className={homeMemberPageStyles.historyDate}>
