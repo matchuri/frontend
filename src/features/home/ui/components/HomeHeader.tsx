@@ -1,5 +1,4 @@
 import {
-    Bell,
     ChevronDown,
     MapPin,
     UserRound,
@@ -53,21 +52,6 @@ export default function HomeHeader({
                     </button>
                 </div>
             </div>
-
-            <button
-                type="button"
-                aria-label="알림 확인"
-                className={homeMemberPageStyles.notificationButton}
-            >
-                <Bell
-                    size={22}
-                    aria-hidden="true"
-                />
-
-                <span
-                    className={homeMemberPageStyles.notificationDot}
-                />
-            </button>
         </header>
     );
 }

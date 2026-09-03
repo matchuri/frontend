@@ -25,6 +25,10 @@ import HomeTasteProfileCard from "@/features/home/ui/components/HomeTasteProfile
 import HomeRecommendationHistory from "@/features/home/ui/components/HomeRecommendationHistory";
 import HomeRecentGroupActivity from "@/features/home/ui/components/HomeRecentGroupActivity";
 
+import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
+import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
+import { mockGroupInvites } from "@/features/groupInviteNotification/ui/mock/mockGroupInvites";
+
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
@@ -35,6 +39,8 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 export default function HomePage() {
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
+    const [groupInvites, setGroupInvites] = useState(mockGroupInvites);
 
     const { canAccess } = useHomeGuard();
     const { refetchHome } = useHomeData(canAccess);
@@ -153,6 +159,26 @@ export default function HomePage() {
         return true;
     };
 
+    const handleClickNotification = () => {
+        setIsInviteNotificationOpen((prev) => !prev);
+    };
+
+    const handleAcceptInvite = (inviteId: number) => {
+        setGroupInvites((prev) =>
+            prev.filter(
+                (invite) => invite.inviteId !== inviteId,
+            ),
+        );
+    };
+
+    const handleDeclineInvite = (inviteId: number) => {
+        setGroupInvites((prev) =>
+            prev.filter(
+                (invite) => invite.inviteId !== inviteId,
+            ),
+        );
+    };
+
     if (isCreating) {
         return <PersonalRecommendationLoadingView />;
     }
@@ -168,6 +194,23 @@ export default function HomePage() {
                     }
                     onClickLocation={handleClickLocation}
                 />
+
+                <GroupInviteNotificationButton
+                    hasInvites={groupInvites.length > 0}
+                    isOpen={isInviteNotificationOpen}
+                    onClick={handleClickNotification}
+                />
+
+                {isInviteNotificationOpen && (
+                    <GroupInviteNotification
+                        invites={groupInvites}
+                        onAcceptInvite={handleAcceptInvite}
+                        onDeclineInvite={handleDeclineInvite}
+                        onClose={() =>
+                            setIsInviteNotificationOpen(false)
+                        }
+                    />
+                )}
 
                 <div className={homeMemberPageStyles.content}>
                     <HomeRecommendationHero

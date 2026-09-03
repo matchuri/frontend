@@ -1,6 +1,6 @@
 export const locationModalStyles = {
     overlay:
-        "fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm",
+        "fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm",
     modal:
         "flex h-[860px] w-full max-w-5xl flex-col overflow-hidden rounded-[32px] bg-white shadow-2xl",
     header:
