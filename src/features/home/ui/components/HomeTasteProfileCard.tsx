@@ -7,10 +7,18 @@ interface HomeTasteProfileCardProps {
     readonly onClickEdit: () => void;
 }
 
+const MAX_VISIBLE_TASTE_COUNT = 3;
+
 export default function HomeTasteProfileCard({
     attributes,
     onClickEdit,
 }: HomeTasteProfileCardProps) {
+    const visibleAttributes =
+        attributes.slice(0, MAX_VISIBLE_TASTE_COUNT);
+
+    const hiddenAttributeCount =
+        Math.max(attributes.length - MAX_VISIBLE_TASTE_COUNT, 0);
+
     return (
         <section className={homeMemberPageStyles.tasteCard}>
             <div className={homeMemberPageStyles.tasteIcon}>
@@ -27,14 +35,22 @@ export default function HomeTasteProfileCard({
 
                 <div className={homeMemberPageStyles.chipGroup}>
                     {attributes.length > 0 ? (
-                        attributes.map((attribute) => (
-                            <span
-                                key={attribute}
-                                className={homeMemberPageStyles.tasteChip}
-                            >
-                                {attribute}
-                            </span>
-                        ))
+                        <>
+                            {visibleAttributes.map((attribute) => (
+                                <span
+                                    key={attribute}
+                                    className={homeMemberPageStyles.tasteChip}
+                                >
+                                    {attribute}
+                                </span>
+                            ))}
+
+                            {hiddenAttributeCount > 0 && (
+                                <span className={homeMemberPageStyles.tasteMoreChip}>
+                                    +{hiddenAttributeCount}
+                                </span>
+                            )}
+                        </>
                     ) : (
                         <span className={homeMemberPageStyles.tasteEmptyText}>
                             설정된 취향이 없습니다.

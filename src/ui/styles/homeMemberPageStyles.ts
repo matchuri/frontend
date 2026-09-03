@@ -42,8 +42,10 @@ export const homeMemberPageStyles = {
         "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-50 text-[#FB6F00]",
     tasteContent: "min-w-0 flex-1",
     tasteTitle: "mb-1.5 text-[14px] font-semibold text-gray-800",
-    chipGroup: "flex flex-wrap gap-2",
-    tasteChip: "rounded-full bg-[#FFE9A9] px-3 py-1 text-[11px] font-medium text-gray-700",
+    chipGroup: "flex min-w-0 flex-nowrap items-center gap-2 overflow-hidden",
+    tasteChip:
+        "max-w-[92px] shrink-0 truncate rounded-full bg-[#FDDF82] px-3 py-1 text-[11px] font-medium text-gray-700",
+    tasteMoreChip: "shrink-0 rounded-full bg-[#FEECB3] px-3 py-1 text-[11px] font-semibold text-[#FB6F00]",
     tasteEditButton:
         "shrink-0 cursor-pointer rounded-lg px-2 py-1 text-[14px] font-medium text-[#FB6F00] " +
         "transition-colors duration-200 hover:bg-orange-50 hover:text-[#E96500]",
@@ -69,7 +71,7 @@ export const homeMemberPageStyles = {
     historyBottom: "flex flex-col items-start gap-2",
     historyMenuName: "max-w-full truncate text-[16px] font-semibold text-gray-900",
     historyChipGroup: "flex flex-wrap gap-1.5",
-    historyChip: "rounded-full bg-[#FFE08A] px-3 py-1 text-[11px] font-medium text-gray-700",
+    historyChip: "rounded-full bg-[#FDDF82] px-3 py-1 text-[11px] font-medium text-gray-700",
     historyEmpty:
         "flex h-[132px] items-center justify-center rounded-[20px] " +
         "border border-gray-200 bg-white text-sm text-gray-400",
