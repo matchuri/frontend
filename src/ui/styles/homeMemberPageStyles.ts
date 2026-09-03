@@ -80,7 +80,13 @@ export const homeMemberPageStyles = {
         "flex max-h-[500px] flex-col gap-2.5 overflow-y-auto pr-1 " +
         "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
     activityCard:
-        "flex min-h-[92px] w-full items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-[0_4px_18px_rgba(0,0,0,0.035)] transition active:scale-[0.995]",
+        "flex min-h-[92px] w-full cursor-pointer items-center gap-3 " +
+        "rounded-2xl border border-gray-100 bg-white p-4 text-left " +
+        "shadow-[0_3px_7px_rgba(0,0,0,0.020)] " +
+        "transition-all duration-200 " +
+        "hover:border-orange-200 " +
+        "hover:shadow-[0_3px_7px_rgba(251,142,0,0.20)] " +
+        "active:scale-[0.995]",
     preparingActivityIcon:
         "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E9E1DC] text-[#262626]",
     openActivityIcon:

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAtomValue } from "jotai";
+import { useRouter } from "next/navigation";
 
 import { useHomeGuard } from "@/features/routeGuard/application/hooks/useHomeGuard";
 import { useHomeData } from "@/features/home/application/hooks/useHomeData";
@@ -48,6 +49,8 @@ import type { LocationSetting } from "@/features/locationSetting/domain/model/Lo
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 export default function HomePage() {
+    const router = useRouter();
+
     const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
@@ -217,6 +220,10 @@ export default function HomePage() {
         void respond(inviteId, "DECLINE");
     };
 
+    const handleClickGroupActivity = (groupId: number) => {
+        router.push(`/group?selectedGroupId=${groupId}`);
+    };
+
     if (isCreating) {
         return <PersonalRecommendationLoadingView />;
     }
@@ -274,6 +281,7 @@ export default function HomePage() {
 
                     <HomeRecentGroupActivity
                         items={homeData.recentGroupActivities}
+                        onClickGroup={handleClickGroupActivity}
                     />
                 </div>
             </main>

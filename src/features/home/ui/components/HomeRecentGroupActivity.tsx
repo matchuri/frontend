@@ -9,10 +9,9 @@ import type { HomeRecentGroupActivity as HomeRecentGroupActivityItem } from "@/f
 
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
-
 interface HomeRecentGroupActivityProps {
-    readonly items:
-        readonly HomeRecentGroupActivityItem[];
+    readonly items: readonly HomeRecentGroupActivityItem[];
+    readonly onClickGroup: (groupId: number) => void;
 }
 
 const MAX_VISIBLE_ACTIVITY_COUNT = 5;
@@ -124,6 +123,7 @@ function GroupActivityIcon({
 
 export default function HomeRecentGroupActivity({
     items,
+    onClickGroup,
 }: HomeRecentGroupActivityProps) {
     const isScrollable =
         items.length > MAX_VISIBLE_ACTIVITY_COUNT;
@@ -153,6 +153,7 @@ export default function HomeRecentGroupActivity({
                             <button
                                 key={`${item.groupId}-${item.details.recommendationId}`}
                                 type="button"
+                                onClick={() => onClickGroup(item.groupId)}
                                 className={homeMemberPageStyles.activityCard}
                             >
                                 <GroupActivityIcon

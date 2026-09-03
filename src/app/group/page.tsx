@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAtomValue } from "jotai";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 import { DEFAULT_MAP_LEVEL } from "@/features/map/domain/config/mapPolicy";
@@ -73,6 +73,7 @@ export default function GroupPage() {
 
 function GroupPageContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -87,7 +88,25 @@ function GroupPageContent() {
     const [inviteNickname, setInviteNickname] = useState("");
     const [editingGroupName, setEditingGroupName] = useState("");
     const [editingLocation, setEditingLocation] = useState<LocationSetting | null>(null);
-    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+    const [selectedGroupId, setSelectedGroupId] = useState<number | null>(() => {
+        const selectedGroupIdParam =
+            searchParams.get("selectedGroupId");
+
+        if (!selectedGroupIdParam) {
+            return null;
+        }
+
+        const groupId = Number(selectedGroupIdParam);
+
+        if (
+            !Number.isInteger(groupId) ||
+            groupId <= 0
+        ) {
+            return null;
+        }
+
+        return groupId;
+    });
     const [realtimeNoticeMessage, setRealtimeNoticeMessage] = useState<string | null>(null);
 
     const handledRecommendationStartedEventIds = useRef<Set<string>>(new Set());
