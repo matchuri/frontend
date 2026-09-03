@@ -110,7 +110,7 @@ function PersonalRecommendationResultPageContent() {
         );
 
         router.replace(
-            "/personal-recommendation",
+            "/home",
         );
     }, [requestId, router]);
 
@@ -122,7 +122,7 @@ function PersonalRecommendationResultPageContent() {
         alert(recommendationError);
 
         router.replace(
-            "/personal-recommendation",
+            "/home",
         );
     }, [recommendationError, router]);
 
@@ -292,7 +292,7 @@ function PersonalRecommendationResultPageContent() {
                 isCompleting={isCompleting}
                 isRerolling={isRerolling}
                 onBack={() =>
-                    router.push("/personal-recommendation")
+                    router.push("/home")
                 }
                 onCompleteSelection={handleCompleteSelection}
                 onRetryRecommendation={handleRetryRecommendation}
