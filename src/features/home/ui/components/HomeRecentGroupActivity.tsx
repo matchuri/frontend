@@ -12,9 +12,12 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 interface HomeRecentGroupActivityProps {
     readonly items: readonly HomeRecentGroupActivityItem[];
     readonly onClickGroup: (groupId: number) => void;
+    readonly onClickViewAll?: () => void;
+    readonly displayMode?: "SUMMARY" | "ALL";
+    readonly showTitle?: boolean;
 }
 
-const MAX_VISIBLE_ACTIVITY_COUNT = 5;
+const MAX_VISIBLE_ACTIVITY_COUNT = 3;
 
 function getActivityMessage(item: HomeRecentGroupActivityItem) {
     if (item.type === "PREPARING") {
@@ -124,29 +127,54 @@ function GroupActivityIcon({
 export default function HomeRecentGroupActivity({
     items,
     onClickGroup,
+    onClickViewAll,
+    displayMode = "SUMMARY",
+    showTitle = true,
 }: HomeRecentGroupActivityProps) {
-    const isScrollable =
-        items.length > MAX_VISIBLE_ACTIVITY_COUNT;
+    const sortedItems = [...items].sort(
+        (a, b) => {
+            const aDate = getActivityDate(a);
+            const bDate = getActivityDate(b);
+
+            return (
+                new Date(bDate ?? 0).getTime() -
+                new Date(aDate ?? 0).getTime()
+            );
+        },
+    );
+
+    const visibleItems =
+        displayMode === "SUMMARY"
+            ? sortedItems.slice(0, MAX_VISIBLE_ACTIVITY_COUNT)
+            : sortedItems;
+
+    const hasMoreItems =
+        displayMode === "SUMMARY" &&
+        sortedItems.length > MAX_VISIBLE_ACTIVITY_COUNT;
 
     return (
         <section className={homeMemberPageStyles.section}>
-            <div className={homeMemberPageStyles.sectionHeader}>
-                <div>
+            {showTitle && (
+                <div className={homeMemberPageStyles.activityHeader}>
                     <h2 className={homeMemberPageStyles.sectionTitle}>
                         최근 그룹 활동
                     </h2>
-                </div>
-            </div>
 
-            {items.length > 0 ? (
-                <div
-                    className={
-                        isScrollable
-                            ? homeMemberPageStyles.scrollableActivityList
-                            : homeMemberPageStyles.activityList
-                    }
-                >
-                    {items.map((item) => {
+                    {hasMoreItems && onClickViewAll && (
+                        <button
+                            type="button"
+                            onClick={onClickViewAll}
+                            className={homeMemberPageStyles.activityViewAllButton}
+                        >
+                            전체 보기
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {visibleItems.length > 0 ? (
+                <div className={homeMemberPageStyles.activityList}>
+                    {visibleItems.map((item) => {
                         const activityDate = getActivityDate(item);
 
                         return (

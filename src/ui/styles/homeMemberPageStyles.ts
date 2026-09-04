@@ -77,10 +77,11 @@ export const homeMemberPageStyles = {
         "border border-gray-200 bg-white text-sm text-gray-400",
 
     // Group activity
+    activityHeader: "flex items-center justify-between gap-3",
+    activityViewAllButton:
+        "shrink-0 cursor-pointer text-[12px] font-medium text-gray-400 " +
+        "transition-colors duration-200 hover:text-[#FB6F00]",
     activityList: "flex flex-col gap-2.5",
-    scrollableActivityList:
-        "flex max-h-[500px] flex-col gap-2.5 overflow-y-auto pr-1 " +
-        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
     activityCard:
         "flex min-h-[92px] w-full cursor-pointer items-center gap-3 " +
         "rounded-2xl border border-gray-100 bg-white p-4 text-left " +
@@ -102,7 +103,15 @@ export const homeMemberPageStyles = {
     activityMessage: "mt-1 truncate text-xs text-gray-500",
     activityEmpty:
         "flex h-[92px] items-center justify-center rounded-2xl border border-gray-100 bg-white text-sm text-gray-400",
-    cardChevron: "shrink-0 text-gray-300",
+
+    // Group activity all
+    activityAllPage: "min-h-full bg-white",
+    activityAllHeader: "relative flex h-16 items-center border-b border-gray-100 px-5",
+    activityAllBackButton:
+        "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-gray-700 " +
+        "transition-colors duration-200 hover:bg-gray-50",
+    activityAllTitle: "absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-gray-900",
+    activityAllContent: "px-5 py-6",
 
     stateContainer: "flex min-h-full flex-col items-center justify-center gap-4 px-5",
     stateText: "text-sm text-gray-500",

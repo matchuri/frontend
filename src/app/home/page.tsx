@@ -224,6 +224,10 @@ export default function HomePage() {
         router.push(`/group?selectedGroupId=${groupId}`);
     };
 
+    const handleClickGroupActivityViewAll = () => {
+        router.push("/home/recent-group-activities");
+    };
+
     if (isCreating) {
         return <PersonalRecommendationLoadingView />;
     }
@@ -282,6 +286,7 @@ export default function HomePage() {
                     <HomeRecentGroupActivity
                         items={homeData.recentGroupActivities}
                         onClickGroup={handleClickGroupActivity}
+                        onClickViewAll={handleClickGroupActivityViewAll}
                     />
                 </div>
             </main>
@@ -301,7 +306,7 @@ export default function HomePage() {
             <PreferenceModal
                 isOpen={isPreferenceModalOpen}
                 onClose={() => setIsPreferenceModalOpen(false)}
-                onSaved={handlePreferenceSaved}
+                onSaved={handlePreferenceSaved}a
             />
 
             <PersonalRecommendationStartAlertModal

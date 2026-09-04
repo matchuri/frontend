@@ -18,7 +18,9 @@ const navigationItems: readonly BottomNavigationItem[] = [
         href: "/home",
         label: "홈",
         icon: House,
-        isActive: (pathname) => pathname === "/home",
+        isActive: (pathname) =>
+            pathname === "/home" ||
+            pathname.startsWith("/home/"),
     },
     {
         href: "/group",
