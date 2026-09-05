@@ -47,13 +47,26 @@ function getActivityDate(item: HomeRecentGroupActivityItem) {
     return item.details.endedAt;
 }
 
+function parseApiDateTime(dateString: string) {
+    const hasTimezone =
+        /(?:Z|[+-]\d{2}:\d{2})$/.test(
+            dateString,
+        );
+
+    return new Date(
+        hasTimezone
+            ? dateString
+            : `${dateString}Z`,
+    );
+}
+
 function formatRelativeTime(dateString: string | null) {
     if (!dateString) {
         return "";
     }
 
     const now = new Date();
-    const targetDate = new Date(dateString);
+    const targetDate = parseApiDateTime(dateString);
 
     const diffMilliseconds = Math.max(
         now.getTime() - targetDate.getTime(),
@@ -137,8 +150,12 @@ export default function HomeRecentGroupActivity({
             const bDate = getActivityDate(b);
 
             return (
-                new Date(bDate ?? 0).getTime() -
-                new Date(aDate ?? 0).getTime()
+                (bDate
+                    ? parseApiDateTime(bDate).getTime()
+                    : 0) -
+                (aDate
+                    ? parseApiDateTime(aDate).getTime()
+                    : 0)
             );
         },
     );
