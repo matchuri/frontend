@@ -21,11 +21,9 @@ import { usePersonalRecommendationResultNavigation } from "@/features/personalRe
 import { useGroupInvites } from "@/features/group/application/hooks/useGroupInvites";
 import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
 import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
+import { useGroupInviteExists } from "@/features/groupInviteNotification/application/hooks/useGroupInviteExists";
 
-import {
-    invitesAtom,
-    hasInvitesAtom,
-} from "@/features/group/application/selectors/groupInviteSelectors";
+import { invitesAtom } from "@/features/group/application/selectors/groupInviteSelectors";
 import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
@@ -65,17 +63,24 @@ export default function HomePage() {
     const accessToken = useAtomValue(accessTokenAtom);
 
     const invites = useAtomValue(invitesAtom);
-    const hasInvites = useAtomValue(hasInvitesAtom);
+    const {
+        hasInvite,
+        refetchInviteExists,
+    } = useGroupInviteExists();
 
     const { refetchInvites } = useGroupInvites();
 
     useMyRealtimeEvents({
         accessToken,
+        onGroupInviteCreated: () => {
+            void refetchInviteExists();
+        },
     });
 
     const { processingInviteId, respond } = useRespondGroupInvite({
         onSuccess: () => {
             void refetchInvites();
+            void refetchInviteExists();
             void refetchHome();
         },
     });
@@ -245,7 +250,7 @@ export default function HomePage() {
                 />
 
                 <GroupInviteNotificationButton
-                    hasInvites={hasInvites}
+                    hasInvites={hasInvite}
                     isOpen={isInviteNotificationOpen}
                     onClick={handleClickNotification}
                 />
