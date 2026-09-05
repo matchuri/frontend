@@ -306,7 +306,7 @@ export default function HomePage() {
             <PreferenceModal
                 isOpen={isPreferenceModalOpen}
                 onClose={() => setIsPreferenceModalOpen(false)}
-                onSaved={handlePreferenceSaved}a
+                onSaved={handlePreferenceSaved}
             />
 
             <PersonalRecommendationStartAlertModal

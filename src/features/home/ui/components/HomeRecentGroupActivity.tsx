@@ -148,10 +148,6 @@ export default function HomeRecentGroupActivity({
             ? sortedItems.slice(0, MAX_VISIBLE_ACTIVITY_COUNT)
             : sortedItems;
 
-    const hasMoreItems =
-        displayMode === "SUMMARY" &&
-        sortedItems.length > MAX_VISIBLE_ACTIVITY_COUNT;
-
     return (
         <section className={homeMemberPageStyles.section}>
             {showTitle && (
@@ -160,7 +156,7 @@ export default function HomeRecentGroupActivity({
                         최근 그룹 활동
                     </h2>
 
-                    {hasMoreItems && onClickViewAll && (
+                    {displayMode === "SUMMARY" && onClickViewAll && (
                         <button
                             type="button"
                             onClick={onClickViewAll}
