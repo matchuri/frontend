@@ -23,6 +23,7 @@ type MyRealtimeEventSource = {
 
 interface UseMyRealtimeEventsProps {
     readonly accessToken: string | null;
+    readonly onGroupInviteCreated?: () => void;
     readonly onRecommendationVoteCompleted?: (
         event: GroupRecommendationVoteCompletedEvent,
     ) => void;
@@ -30,6 +31,7 @@ interface UseMyRealtimeEventsProps {
 
 export function useMyRealtimeEvents({
     accessToken,
+    onGroupInviteCreated,
     onRecommendationVoteCompleted,
 }: UseMyRealtimeEventsProps) {
     const setInviteState = useSetAtom(inviteAtom);
@@ -37,57 +39,88 @@ export function useMyRealtimeEvents({
     useEffect(() => {
         if (!accessToken) return;
 
-        const eventSource = createMyRealtimeConnection(accessToken) as unknown as MyRealtimeEventSource;
+        const eventSource = createMyRealtimeConnection(
+            accessToken,
+        ) as unknown as MyRealtimeEventSource;
 
-        eventSource.addEventListener(MY_REALTIME_EVENT_TYPE.CONNECTED, () => {
-            logger.log("나의 실시간 이벤트 스트림 연결 완료");
-        });
+        eventSource.addEventListener(
+            MY_REALTIME_EVENT_TYPE.CONNECTED,
+            () => {
+                logger.log(
+                    "나의 실시간 이벤트 스트림 연결 완료",
+                );
+            },
+        );
 
-        eventSource.addEventListener(MY_REALTIME_EVENT_TYPE.GROUP_INVITE_CREATED, (event) => {
-            const inviteCreatedEvent = JSON.parse(event.data) as GroupInviteCreatedEvent;
-            const newInvite = mapInviteCreatedEventToModel(inviteCreatedEvent);
+        eventSource.addEventListener(
+            MY_REALTIME_EVENT_TYPE.GROUP_INVITE_CREATED,
+            (event) => {
+                const inviteCreatedEvent =
+                    JSON.parse(
+                        event.data,
+                    ) as GroupInviteCreatedEvent;
 
-            setInviteState((prev) => {
-                if (prev.status !== "SUCCESS") {
+                const newInvite =
+                    mapInviteCreatedEventToModel(
+                        inviteCreatedEvent,
+                    );
+
+                setInviteState((prev) => {
+                    if (prev.status !== "SUCCESS") {
+                        return {
+                            status: "SUCCESS",
+                            data: [newInvite],
+                        };
+                    }
+
+                    const alreadyExists =
+                        prev.data.some(
+                            (invite) =>
+                                invite.inviteId ===
+                                newInvite.inviteId,
+                        );
+
+                    if (alreadyExists) {
+                        return prev;
+                    }
+
                     return {
                         status: "SUCCESS",
-                        data: [newInvite],
+                        data: [
+                            newInvite,
+                            ...prev.data,
+                        ],
                     };
-                }
+                });
 
-                const alreadyExists = prev.data.some(
-                    (invite) => invite.inviteId === newInvite.inviteId,
-                );
-
-                if (alreadyExists) {
-                    return prev;
-                }
-
-                return {
-                    status: "SUCCESS",
-                    data: [newInvite, ...prev.data],
-                };
-            });
-        });
+                onGroupInviteCreated?.();
+            },
+        );
 
         eventSource.addEventListener(
             MY_REALTIME_EVENT_TYPE.GROUP_RECOMMENDATION_VOTE_COMPLETED,
             (event) => {
-                const voteCompletedEvent = JSON.parse(
-                    event.data,
-                ) as GroupRecommendationVoteCompletedEvent;
+                const voteCompletedEvent =
+                    JSON.parse(
+                        event.data,
+                    ) as GroupRecommendationVoteCompletedEvent;
 
                 logger.log(
                     "[MY SSE] GROUP_RECOMMENDATION_VOTE_COMPLETED",
                     voteCompletedEvent,
                 );
 
-                onRecommendationVoteCompleted?.(voteCompletedEvent);
+                onRecommendationVoteCompleted?.(
+                    voteCompletedEvent,
+                );
             },
         );
 
         eventSource.onerror = (error) => {
-            logger.error("나의 실시간 이벤트 스트림 에러", error);
+            logger.error(
+                "나의 실시간 이벤트 스트림 에러",
+                error,
+            );
         };
 
         return () => {
@@ -96,6 +129,7 @@ export function useMyRealtimeEvents({
     }, [
         accessToken,
         setInviteState,
+        onGroupInviteCreated,
         onRecommendationVoteCompleted,
     ]);
 }

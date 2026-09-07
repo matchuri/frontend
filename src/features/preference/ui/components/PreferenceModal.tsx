@@ -22,17 +22,22 @@ import {
 interface PreferenceModalProps {
     readonly isOpen: boolean;
     readonly onClose: () => void;
+    readonly onSaved?: () => void;
 }
 
 export default function PreferenceModal({
     isOpen,
     onClose,
+    onSaved,
 }: PreferenceModalProps) {
     const { preferenceState } = usePreferenceList();
     const { preferenceOptionState } = usePreferenceOptionList();
 
     const { togglePreference } = usePreferenceSelection();
-    const { isSaving, savePreference } = useSavePreference();
+
+    const { isSaving, savePreference } = useSavePreference({
+        onSuccess: onSaved,
+    });
 
     const {
         keyword,
@@ -181,7 +186,7 @@ export default function PreferenceModal({
                     </section>
                 </div>
 
-                <div className={preferenceModalStyles.footer}>
+                <footer className={preferenceModalStyles.footer}>
                     <button
                         type="button"
                         onClick={savePreference}
@@ -190,7 +195,7 @@ export default function PreferenceModal({
                     >
                         {isSaving ? "저장 중..." : "저장하기"}
                     </button>
-                </div>
+                </footer>
             </div>
         </div>
     );

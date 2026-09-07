@@ -1,93 +1,339 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ArrowRight } from "lucide-react";
+import {
+    useCallback,
+    useState,
+} from "react";
 import { useAtomValue } from "jotai";
+import { useRouter } from "next/navigation";
 
-import { memberAtom } from "@/features/auth/application/selectors/authSelectors";
 import { useHomeGuard } from "@/features/routeGuard/application/hooks/useHomeGuard";
+import { useHomeData } from "@/features/home/application/hooks/useHomeData";
+
+import {
+    homeDataAtom,
+    homeErrorMessageAtom,
+    isHomeLoadingAtom,
+} from "@/features/home/application/selectors/homeSelectors";
+
+import { useLocationSetting } from "@/features/locationSetting/application/hooks/useLocationSetting";
+import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
+import { usePersonalRecommendationStart } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationStart";
+import { usePersonalRecommendationResultNavigation } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationResultNavigation";
+
+import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
+import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
+import { useGroupInviteExists } from "@/features/groupInviteNotification/application/hooks/useGroupInviteExists";
+import { useGroupInviteNotifications } from "@/features/groupInviteNotification/application/hooks/useGroupInviteNotifications";
+
+import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
+
+import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
+
+import HomeHeader from "@/features/home/ui/components/HomeHeader";
+import HomeRecommendationHero from "@/features/home/ui/components/HomeRecommendationHero";
+import HomeTasteProfileCard from "@/features/home/ui/components/HomeTasteProfileCard";
+import HomeRecommendationHistory from "@/features/home/ui/components/HomeRecommendationHistory";
+import HomeRecentGroupActivity from "@/features/home/ui/components/HomeRecentGroupActivity";
+
+import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
+import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
+
+import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
+import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
+import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
+import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
+
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 export default function HomePage() {
     const router = useRouter();
 
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
+    const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
+
     const { canAccess } = useHomeGuard();
-    const member = useAtomValue(memberAtom);
+    const { refetchHome } = useHomeData(canAccess);
+
+    const homeData = useAtomValue(homeDataAtom);
+    const isHomeLoading = useAtomValue(isHomeLoadingAtom);
+    const homeErrorMessage = useAtomValue(homeErrorMessageAtom);
+
+    const accessToken = useAtomValue(accessTokenAtom);
+
+    const {
+        hasInvite,
+        refetchInviteExists,
+    } = useGroupInviteExists();
+
+    const {
+        invites,
+        refetchInvites,
+    } = useGroupInviteNotifications();
+
+    const handleGroupInviteCreated =
+        useCallback(() => {
+            void refetchInvites();
+            void refetchInviteExists();
+        }, [
+            refetchInvites,
+            refetchInviteExists,
+        ]);
+
+    useMyRealtimeEvents({
+        accessToken,
+        onGroupInviteCreated: handleGroupInviteCreated,
+    });
+
+    const { processingInviteId, respond } = useRespondGroupInvite({
+        onSuccess: () => {
+            void refetchInvites();
+            void refetchInviteExists();
+            void refetchHome();
+        },
+    });
+
+    const {
+        location,
+        isLoading: isLocationLoading,
+        isSaving: isLocationSaving,
+        saveLocation,
+    } = useLocationSetting();
+
+    const { preferenceState } = usePreferenceList();
+    const { moveToRecommendationResult } = usePersonalRecommendationResultNavigation();
+
+    const hasPreference =
+        preferenceState.status === "SUCCESS" &&
+        hasRequiredPreference(preferenceState.data);
+
+    const {
+        isAlertModalOpen,
+        isCreating,
+        startRecommendation,
+        closeAlertModal,
+    } = usePersonalRecommendationStart({
+        location,
+        hasPreference,
+    });
 
     if (!canAccess) {
+        return null;
+    }
+
+    if (isHomeLoading && !homeData) {
         return (
-            <main className={homeMemberPageStyles.container}>
-                <div className={homeMemberPageStyles.content}>
-                    <p>화면을 준비하는 중...</p>
-                </div>
+            <main className={homeMemberPageStyles.stateContainer}>
+                <p className={homeMemberPageStyles.stateText}>
+                    홈 정보를 불러오는 중입니다.
+                </p>
             </main>
         );
     }
 
-    const nickname = member?.nickname ?? "사용자";
+    if (homeErrorMessage && !homeData) {
+        return (
+            <main className={homeMemberPageStyles.stateContainer}>
+                <p className={homeMemberPageStyles.errorText}>
+                    {homeErrorMessage}
+                </p>
+
+                <button
+                    type="button"
+                    onClick={() => void refetchHome()}
+                    className={homeMemberPageStyles.retryButton}
+                >
+                    다시 시도
+                </button>
+            </main>
+        );
+    }
+
+    if (!homeData) {
+        return null;
+    }
+
+    const latestRecommendation = homeData.personalRecommendation;
+
+    const hasOpenRecommendation =
+        latestRecommendation.latestRecommendationStatus === "OPEN" &&
+        latestRecommendation.latestRecommendationId !== null;
+
+    const handleClickRecommendationButton = () => {
+        if (
+            hasOpenRecommendation &&
+            latestRecommendation.latestRecommendationId !== null
+        ) {
+            moveToRecommendationResult(
+                latestRecommendation.latestRecommendationId,
+            );
+            return;
+        }
+
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        void startRecommendation();
+    };
+
+    const handleClickLocation = () => {
+        if (isLocationLoading) {
+            alert("위치 정보를 불러오는 중입니다.");
+            return;
+        }
+
+        setIsLocationModalOpen(true);
+    };
+
+    const handleSaveLocation = async (
+        nextLocation: LocationSetting,
+    ) => {
+        const isSaved = await saveLocation(nextLocation);
+
+        if (!isSaved) {
+            return false;
+        }
+
+        await refetchHome();
+
+        setIsLocationModalOpen(false);
+
+        return true;
+    };
+
+    const handleClickPreferenceEdit = () => {
+        setIsPreferenceModalOpen(true);
+    };
+
+    const handlePreferenceSaved = () => {
+        void refetchHome();
+
+        setIsPreferenceModalOpen(false);
+    };
+
+    const handleClickNotification = () => {
+        setIsInviteNotificationOpen((prev) => !prev);
+    };
+
+    const handleAcceptInvite = (inviteId: number) => {
+        if (processingInviteId !== null) {
+            return;
+        }
+
+        void respond(inviteId, "ACCEPT");
+    };
+
+    const handleDeclineInvite = (inviteId: number) => {
+        if (processingInviteId !== null) {
+            return;
+        }
+
+        void respond(inviteId, "DECLINE");
+    };
+
+    const handleClickRecommendationHistoryViewAll = () => {
+        router.push("/home/personal-recommendation-history");
+    };
+
+    const handleClickGroupActivity = (groupId: number) => {
+        router.push(`/group?selectedGroupId=${groupId}`);
+    };
+
+    const handleClickGroupActivityViewAll = () => {
+        router.push("/home/recent-group-activities");
+    };
+
+    if (isCreating) {
+        return <PersonalRecommendationLoadingView />;
+    }
 
     return (
-        <main className={homeMemberPageStyles.container}>
-            <div className={homeMemberPageStyles.content}>
-                <section className={homeMemberPageStyles.titleSection}>
-                    <h1 className={homeMemberPageStyles.title}>
-                        환영합니다, {nickname}님
-                    </h1>
+        <>
+            <main className={homeMemberPageStyles.container}>
+                <HomeHeader
+                    nickname={homeData.user.nickname}
+                    address={
+                        homeData.location?.address ??
+                        "설정된 위치가 없습니다."
+                    }
+                    onClickLocation={handleClickLocation}
+                />
 
-                    <p className={homeMemberPageStyles.description}>
-                        오늘은 어떤 맛있는 이야기를 만들어볼까요?
-                    </p>
-                </section>
+                <GroupInviteNotificationButton
+                    hasInvites={hasInvite}
+                    isOpen={isInviteNotificationOpen}
+                    onClick={handleClickNotification}
+                />
 
-                <section className={homeMemberPageStyles.cardList}>
-                    <article className={homeMemberPageStyles.card}>
-                        <div className={homeMemberPageStyles.cardTextBox}>
-                            <h2 className={homeMemberPageStyles.cardTitle}>
-                                당신의 완벽한 한 끼를 찾아보세요.
-                            </h2>
+                {isInviteNotificationOpen && (
+                    <GroupInviteNotification
+                        invites={invites}
+                        processingInviteId={processingInviteId}
+                        onAcceptInvite={handleAcceptInvite}
+                        onDeclineInvite={handleDeclineInvite}
+                        onClose={() =>
+                            setIsInviteNotificationOpen(false)
+                        }
+                    />
+                )}
 
-                            <p className={homeMemberPageStyles.cardDescription}>
-                                설정한 취향과 현재 위치를 기반으로 최적화된 미식 경험을 제안합니다.
-                                <br />
-                                Matchuri의 고도화된 알고리즘이 당신의 입맛을 정확히 저격합니다.
-                            </p>
-                        </div>
+                <div className={homeMemberPageStyles.content}>
+                    <HomeRecommendationHero
+                        onStart={handleClickRecommendationButton}
+                        isStarting={isCreating}
+                        buttonLabel={
+                            hasOpenRecommendation
+                                ? "진행 중인 메뉴 추천 보기"
+                                : "메뉴 추천 시작하기"
+                        }
+                    />
 
-                        <button
-                            type="button"
-                            onClick={() => router.push("/personal-recommendation")}
-                            className={homeMemberPageStyles.actionButton}
-                        >
-                            개인 메뉴 추천 시작하기
-                            <ArrowRight size={20} />
-                        </button>
-                    </article>
+                    <HomeTasteProfileCard
+                        attributes={homeData.tasteProfile.attributes}
+                        onClickEdit={handleClickPreferenceEdit}
+                    />
 
-                    <article className={homeMemberPageStyles.card}>
-                        <div className={homeMemberPageStyles.cardTextBox}>
-                            <h2 className={homeMemberPageStyles.cardTitle}>
-                                그룹 메뉴 추천
-                            </h2>
+                    <HomeRecommendationHistory
+                        items={homeData.personalRecommendationHistory}
+                        onClickDetail={moveToRecommendationResult}
+                        onClickViewAll={handleClickRecommendationHistoryViewAll}
+                    />
 
-                            <p className={homeMemberPageStyles.cardDescription}>
-                                모두가 만족할 수 있는 최적의 합의점을 찾아드립니다. 모임원들의 취향을
-                                <br />
-                                실시간으로 취합하고 조율하여 실패 없는 모임을 만들어보세요.
-                            </p>
-                        </div>
+                    <HomeRecentGroupActivity
+                        items={homeData.recentGroupActivities}
+                        onClickGroup={handleClickGroupActivity}
+                        onClickViewAll={handleClickGroupActivityViewAll}
+                    />
+                </div>
+            </main>
 
-                        <button
-                            type="button"
-                            onClick={() => router.push("/group")}
-                            className={homeMemberPageStyles.actionButton}
-                        >
-                            그룹 관리 페이지 이동
-                            <ArrowRight size={20} />
-                        </button>
-                    </article>
-                </section>
-            </div>
-        </main>
+            <LocationModal
+                isOpen={isLocationModalOpen}
+                initialLocation={location}
+                isSaving={isLocationSaving}
+                onClose={() => {
+                    if (!isLocationSaving) {
+                        setIsLocationModalOpen(false);
+                    }
+                }}
+                onSave={handleSaveLocation}
+            />
+
+            <PreferenceModal
+                isOpen={isPreferenceModalOpen}
+                onClose={() => setIsPreferenceModalOpen(false)}
+                onSaved={handlePreferenceSaved}
+            />
+
+            <PersonalRecommendationStartAlertModal
+                isOpen={isAlertModalOpen}
+                onClose={closeAlertModal}
+            />
+        </>
     );
 }

@@ -1,14 +1,16 @@
-export interface PersonalRecommendationHistoryItemResponse {
-    readonly id: number;
-    readonly status: string;
-    readonly requestedAt: string;
-    readonly closedAt: string | null;
-}
-
-export interface PersonalRecommendationHistoryResponse {
+export interface PersonalRecommendationHistoryListResponse {
     readonly success: boolean;
     readonly data: {
-        readonly content: readonly PersonalRecommendationHistoryItemResponse[];
+        readonly content: readonly {
+            readonly id: number;
+            readonly status: string;
+            readonly requestedAt: string;
+            readonly closedAt: string | null;
+            readonly score: number | null;
+            readonly menuName: string | null;
+            readonly tags: readonly string[];
+            readonly thumbnailUrl: string | null;
+        }[];
         readonly pageInfo: {
             readonly page: number;
             readonly size: number;

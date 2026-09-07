@@ -1,18 +1,122 @@
 export const homeMemberPageStyles = {
-    container: "h-screen overflow-hidden bg-[#EEF7FC] px-16 pt-24 pb-12",
+    container: "min-h-full bg-white",
+    content: "flex flex-col gap-7 px-5 pb-8",
 
-    content: "h-full px-8",
+    // Header
+    header: "flex items-center justify-between px-5 pb-5 pt-6",
+    userSection: "flex min-w-0 items-center gap-3",
+    profileIcon:
+        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-50 text-[#FB6F00]",
+    userTextBox: "min-w-0",
+    welcomeText: "text-[15px] text-gray-800",
+    locationButton: "mt-1 flex max-w-[230px] cursor-pointer items-center gap-1 rounded-md text-xs text-gray-500 transition-colors hover:text-[#FB6F00]",
 
-    titleSection: "mb-12",
-    title: "text-4xl font-semibold tracking-[-0.03em] text-zinc-950",
-    description: "mt-4 text-xl font-medium text-slate-700",
+    // Hero
+    hero:
+        "relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#FF8A1F] to-[#FB6F00] px-6 py-7 text-white shadow-[0_12px_30px_rgba(251,111,0,0.18)]",
+    heroDecoration: "absolute -right-14 -top-16 h-44 w-44 rounded-full bg-white/10",
+    heroContent: "relative z-10",
+    heroBadge:
+        "mb-5 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium",
+    heroIcon: "mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15",
+    heroTitle: "text-[26px] font-bold leading-[1.35] tracking-[-0.02em]",
+    heroDescription: "mt-3 text-[13px] leading-6 text-white/85",
+    heroButton:
+        "mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl " +
+        "bg-white px-4 py-3.5 text-sm font-semibold text-[#FB6F00] " +
+        "shadow-sm transition-all duration-200 " +
+        "hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(0,0,0,0.16)] " +
+        "active:scale-[0.99]",
 
-    cardList: "flex flex-col gap-7",
-    card:
-        "flex min-h-[180px] items-center justify-between rounded-[40px] border border-zinc-200 bg-white px-12 py-8 shadow-sm",
-    cardTextBox: "max-w-[620px]",
-    cardTitle: "text-2xl font-bold tracking-[-0.02em] text-zinc-950",
-    cardDescription: "mt-4 text-base leading-7 text-zinc-600",
-    actionButton:
-        "flex h-16 min-w-[260px] cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-zinc-950 bg-white px-8 text-base font-bold text-zinc-950 transition hover:bg-zinc-100 active:bg-zinc-100",
+    // Section
+    section: "flex flex-col gap-3",
+    sectionHeader: "flex items-start justify-between gap-4",
+    sectionTitle: "text-[18px] font-bold tracking-[-0.02em] text-gray-900",
+    sectionDescription: "mt-1 text-xs leading-5 text-gray-400",
+    sectionActionButton: "flex shrink-0 items-center gap-0.5 pt-1 text-xs font-medium text-gray-500",
+
+    // Taste
+    tasteCard:
+        "flex items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-4 shadow-[0_2px_6px_rgba(0,0,0,0.03)]",
+    tasteIcon:
+        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gray-50 text-[#FB6F00]",
+    tasteContent: "min-w-0 flex-1",
+    tasteTitle: "mb-1.5 text-[14px] font-semibold text-gray-800",
+    chipGroup: "flex min-w-0 flex-nowrap items-center gap-2 overflow-hidden",
+    tasteChip:
+        "max-w-[92px] shrink-0 truncate rounded-full bg-[#FDDF82] px-3 py-1 text-[11px] font-medium text-gray-700",
+    tasteMoreChip: "shrink-0 rounded-full bg-[#FEECB3] px-3 py-1 text-[11px] font-semibold text-[#FB6F00]",
+    tasteEditButton:
+        "shrink-0 cursor-pointer rounded-lg px-2 py-1 text-[14px] font-medium text-[#FB6F00] " +
+        "transition-colors duration-200 hover:bg-orange-50 hover:text-[#E96500]",
+
+    // Recommendation history
+    historyHeader:
+        "flex items-center justify-between gap-3",
+    historyViewAllButton:
+        "shrink-0 cursor-pointer text-[12px] font-medium text-gray-400 " +
+        "transition-colors duration-200 hover:text-[#FB6F00]",
+    historyScrollArea:
+        "flex gap-3 overflow-x-auto px-1 py-3 -mx-1 -my-3 " +
+        "snap-x snap-mandatory " +
+        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+    historyCard:
+        "relative flex h-[132px] w-[218px] shrink-0 snap-start cursor-pointer " +
+        "flex-col justify-between rounded-[20px] border border-gray-200 " +
+        "bg-white p-4 text-left shadow-[0_2px_6px_rgba(0,0,0,0.035)] " +
+        "transition-all duration-200 " +
+        "hover:border-orange-200 " +
+        "hover:shadow-[0_3px_7px_rgba(251,142,0,0.20)] " +
+        "active:scale-[0.99]",
+    historyDate: "self-end text-[12px] font-medium text-gray-500",
+    historyBottom: "flex flex-col items-start gap-2",
+    historyMenuName: "max-w-full truncate text-[16px] font-semibold text-gray-900",
+    historyChipGroup: "flex flex-wrap gap-1.5",
+    historyChip: "rounded-full bg-[#FDDF82] px-3 py-1 text-[11px] font-medium text-gray-700",
+    historyEmpty:
+        "flex h-[132px] items-center justify-center rounded-[20px] " +
+        "border border-gray-200 bg-white text-sm text-gray-400",
+
+    // Group activity
+    activityHeader: "flex items-center justify-between gap-3",
+    activityViewAllButton:
+        "shrink-0 cursor-pointer text-[12px] font-medium text-gray-400 " +
+        "transition-colors duration-200 hover:text-[#FB6F00]",
+    activityList: "flex flex-col gap-2.5",
+    activityCard:
+        "flex min-h-[92px] w-full cursor-pointer items-center gap-3 " +
+        "rounded-2xl border border-gray-100 bg-white p-4 text-left " +
+        "shadow-[0_3px_7px_rgba(0,0,0,0.020)] " +
+        "transition-all duration-200 " +
+        "hover:border-orange-200 " +
+        "hover:shadow-[0_3px_7px_rgba(251,142,0,0.20)] " +
+        "active:scale-[0.995]",
+    preparingActivityIcon:
+        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#E9E1DC] text-[#262626]",
+    openActivityIcon:
+        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#FFDBD0] text-[#262626]",
+    finalizedActivityIcon:
+        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#D0FFD5] text-[#262626]",
+    activityContent: "min-w-0 flex-1",
+    activityTop: "flex items-center justify-between gap-3",
+    activityGroupName: "truncate text-sm font-semibold text-gray-900",
+    activityTime: "shrink-0 text-[11px] text-gray-400",
+    activityMessage: "mt-1 truncate text-xs text-gray-500",
+    activityEmpty:
+        "flex h-[92px] items-center justify-center rounded-2xl border border-gray-100 bg-white text-sm text-gray-400",
+
+    // Group activity all
+    activityAllPage: "min-h-full bg-white",
+    activityAllHeader: "relative flex h-16 items-center border-b border-gray-100 px-5",
+    activityAllBackButton:
+        "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-gray-700 " +
+        "transition-colors duration-200 hover:bg-gray-50",
+    activityAllTitle: "absolute left-1/2 -translate-x-1/2 text-[17px] font-semibold text-gray-900",
+    activityAllContent: "px-5 py-6",
+
+    stateContainer: "flex min-h-full flex-col items-center justify-center gap-4 px-5",
+    stateText: "text-sm text-gray-500",
+    errorText: "text-center text-sm text-red-500",
+    retryButton: "rounded-xl bg-[#FB6F00] px-4 py-2.5 text-sm font-semibold text-white",
+    tasteEmptyText: "text-xs text-gray-400",
 } as const;
