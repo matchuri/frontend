@@ -29,6 +29,7 @@ export const groupInviteNotificationStyles = {
     avatar:
         "flex h-10 w-10 shrink-0 items-center justify-center " +
         "rounded-full bg-orange-50 text-[#FB6F00]",
+    avatarImage: "h-10 w-10 shrink-0 rounded-full bg-gray-100 bg-cover bg-center bg-no-repeat",
     text: "min-w-0 flex-1",
     message: "text-[13px] text-gray-700",
     groupName: "mt-1 block truncate text-[12px] text-gray-400",

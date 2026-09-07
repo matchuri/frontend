@@ -6,12 +6,12 @@ import {
     X,
 } from "lucide-react";
 
-import type { GroupInvite } from "@/features/group/domain/model/GroupInvite";
+import type { GroupInviteNotificationItem } from "@/features/groupInviteNotification/domain/model/GroupInviteNotificationItem";
 
 import { groupInviteNotificationStyles } from "@/ui/styles/groupInviteNotificationStyles";
 
 interface GroupInviteNotificationProps {
-    readonly invites: readonly GroupInvite[];
+    readonly invites: readonly GroupInviteNotificationItem[];
     readonly processingInviteId: number | null;
     readonly onAcceptInvite: (inviteId: number) => void;
     readonly onDeclineInvite: (inviteId: number) => void;
@@ -62,20 +62,31 @@ export default function GroupInviteNotification({
                 {invites.length > 0 ? (
                     <div className={groupInviteNotificationStyles.list}>
                         {invites.map((invite) => {
-                            const isProcessing = processingInviteId === invite.inviteId;
+                            const isProcessing = processingInviteId === invite.id;
 
                             return (
                                 <article
-                                    key={invite.inviteId}
+                                    key={invite.id}
                                     className={groupInviteNotificationStyles.item}
                                 >
                                     <div className={groupInviteNotificationStyles.info}>
-                                        <div className={groupInviteNotificationStyles.avatar}>
-                                            <UserRound
-                                                size={20}
-                                                aria-hidden="true"
+                                        {invite.requestMemberProfileImageUrl ? (
+                                            <div
+                                                role="img"
+                                                aria-label={`${invite.requestMemberNickname} 프로필 이미지`}
+                                                className={groupInviteNotificationStyles.avatarImage}
+                                                style={{
+                                                    backgroundImage: `url("${invite.requestMemberProfileImageUrl}")`
+                                                }}
                                             />
-                                        </div>
+                                        ) : (
+                                            <div className={groupInviteNotificationStyles.avatar}>
+                                                <UserRound
+                                                    size={20}
+                                                    aria-hidden="true"
+                                                />
+                                            </div>
+                                        )}
 
                                         <div className={groupInviteNotificationStyles.text}>
                                             <p className={groupInviteNotificationStyles.message}>
@@ -95,7 +106,7 @@ export default function GroupInviteNotification({
                                         <button
                                             type="button"
                                             disabled={isProcessing}
-                                            onClick={() => onDeclineInvite(invite.inviteId)}
+                                            onClick={() => onDeclineInvite(invite.id)}
                                             className={groupInviteNotificationStyles.declineButton}
                                         >
                                             거절
@@ -104,7 +115,7 @@ export default function GroupInviteNotification({
                                         <button
                                             type="button"
                                             disabled={isProcessing}
-                                            onClick={() => onAcceptInvite(invite.inviteId)}
+                                            onClick={() => onAcceptInvite(invite.id)}
                                             className={groupInviteNotificationStyles.acceptButton}
                                         >
                                             {isProcessing ? "처리 중..." : "수락"}
