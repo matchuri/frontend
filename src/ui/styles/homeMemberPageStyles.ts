@@ -54,7 +54,8 @@ export const homeMemberPageStyles = {
     historyHeader:
         "flex items-center justify-between gap-3",
     historyViewAllButton:
-        "shrink-0 text-[12px] font-medium text-gray-500",
+        "shrink-0 cursor-pointer text-[12px] font-medium text-gray-400 " +
+        "transition-colors duration-200 hover:text-[#FB6F00]",
     historyScrollArea:
         "flex gap-3 overflow-x-auto px-1 py-3 -mx-1 -my-3 " +
         "snap-x snap-mandatory " +

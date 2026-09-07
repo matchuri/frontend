@@ -10,6 +10,7 @@ interface RecommendationHistoryItem {
 interface HomeRecommendationHistoryProps {
     readonly items: readonly RecommendationHistoryItem[];
     readonly onClickDetail: (requestId: number) => void;
+    readonly onClickViewAll: () => void;
 }
 
 const MAX_HISTORY_COUNT = 3;
@@ -17,6 +18,7 @@ const MAX_HISTORY_COUNT = 3;
 export default function HomeRecommendationHistory({
     items,
     onClickDetail,
+    onClickViewAll,
 }: HomeRecommendationHistoryProps) {
     const sortedItems = [...items].sort(
         (a, b) =>
@@ -25,7 +27,6 @@ export default function HomeRecommendationHistory({
     );
 
     const visibleItems = sortedItems.slice(0, MAX_HISTORY_COUNT);
-    const hasMoreItems = sortedItems.length > MAX_HISTORY_COUNT;
 
     return (
         <section className={homeMemberPageStyles.section}>
@@ -34,14 +35,13 @@ export default function HomeRecommendationHistory({
                     지난 메뉴 추천 기록
                 </h2>
 
-                {hasMoreItems && (
-                    <button
-                        type="button"
-                        className={homeMemberPageStyles.historyViewAllButton}
-                    >
-                        전체 보기
-                    </button>
-                )}
+                <button
+                    type="button"
+                    onClick={onClickViewAll}
+                    className={homeMemberPageStyles.historyViewAllButton}
+                >
+                    전체 보기
+                </button>
             </div>
 
             {visibleItems.length > 0 ? (

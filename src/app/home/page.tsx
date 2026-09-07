@@ -236,6 +236,10 @@ export default function HomePage() {
         void respond(inviteId, "DECLINE");
     };
 
+    const handleClickRecommendationHistoryViewAll = () => {
+        router.push("/home/personal-recommendation-history");
+    };
+
     const handleClickGroupActivity = (groupId: number) => {
         router.push(`/group?selectedGroupId=${groupId}`);
     };
@@ -297,6 +301,7 @@ export default function HomePage() {
                     <HomeRecommendationHistory
                         items={homeData.personalRecommendationHistory}
                         onClickDetail={moveToRecommendationResult}
+                        onClickViewAll={handleClickRecommendationHistoryViewAll}
                     />
 
                     <HomeRecentGroupActivity
