@@ -13,7 +13,18 @@ export const settingsPageStyles = {
 
     nicknameRow: "mt-5 flex items-center gap-1.5",
     nickname: "text-[18px] font-semibold text-gray-900",
-    nicknameEditButton: "flex h-6 w-6 items-center justify-center text-gray-400",
+    nicknameEditButton:
+        "flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600",
+    nicknameEditWrapper: "mt-5 flex flex-col items-center gap-1.5",
+    nicknameEditRow: "flex items-center gap-1.5",
+    nicknameInput:
+        "h-9 w-[160px] rounded-lg border border-gray-300 px-3 text-[16px] font-medium text-gray-900 outline-none transition-colors focus:border-[#FB6F00] disabled:bg-gray-100",
+    nicknameSaveButton:
+        "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-[#FB6F00] text-white transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:hover:opacity-100",
+    nicknameCancelButton:
+        "flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+    nicknameSuccessMessage: "text-[12px] text-green-600",
+    nicknameErrorMessage: "text-[12px] text-red-500",
     email: "mt-1 text-[14px] text-gray-400",
 
     menuSection: "px-7",
