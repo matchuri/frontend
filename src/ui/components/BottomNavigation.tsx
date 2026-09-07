@@ -32,7 +32,7 @@ const navigationItems: readonly BottomNavigationItem[] = [
     },
     {
         href: "/settings",
-        label: "설정",
+        label: "마이 페이지",
         icon: UserRound,
         isActive: (pathname) =>
             pathname === "/settings" ||

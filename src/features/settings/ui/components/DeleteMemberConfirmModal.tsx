@@ -22,13 +22,21 @@ export default function DeleteMemberConfirmModal({
         <div className={settingsPageStyles.modalOverlay}>
             <div className={settingsPageStyles.modalBox}>
                 <div className={settingsPageStyles.modalTitleWrapper}>
-                    <AlertTriangle size={22} />
-                    <h2 className={settingsPageStyles.modalTitle}>회원 탈퇴</h2>
+                    <div className={settingsPageStyles.modalWarningIcon}>
+                        <AlertTriangle
+                            size={20}
+                            strokeWidth={2}
+                            aria-hidden="true"
+                        />
+                    </div>
+
+                    <h2 className={settingsPageStyles.modalTitle}>
+                        회원 탈퇴
+                    </h2>
                 </div>
 
                 <p className={settingsPageStyles.modalDescription}>
                     회원 탈퇴 후에는 해당 계정으로 다시 로그인할 수 없습니다.
-                    <br />
                     회원 탈퇴를 진행하시겠습니까?
                 </p>
 

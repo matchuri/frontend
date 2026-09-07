@@ -1,6 +1,10 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
 import type { OnboardingState } from "@/features/auth/domain/model/Onboarding";
 import type { SettingsProfile } from "@/features/settings/domain/model/SettingsProfile";
+import type {
+    PresetProfileImage,
+    UpdatedProfileImage,
+} from "@/features/settings/domain/model/PresetProfileImage";
 
 interface ApiErrorDetail {
     readonly source: string;
@@ -18,6 +22,22 @@ interface ApiError {
 interface MemberMeResponse {
     readonly success: boolean;
     readonly data: SettingsProfile;
+    readonly error: ApiError | null;
+}
+
+interface PresetProfileImagesResponse {
+    readonly success: boolean;
+    readonly data: readonly PresetProfileImage[];
+    readonly error: ApiError | null;
+}
+
+interface UpdatePresetProfileImageRequest {
+    readonly presetProfileImageId: number;
+}
+
+interface UpdatePresetProfileImageResponse {
+    readonly success: boolean;
+    readonly data: UpdatedProfileImage;
     readonly error: ApiError | null;
 }
 
@@ -60,11 +80,53 @@ interface ChangePasswordResponse {
 }
 
 export async function fetchSettingsProfile(): Promise<SettingsProfile> {
-    const response = await httpClient.get<MemberMeResponse>("/api/v1/members/me");
+    const response = await httpClient.get<MemberMeResponse>(
+        "/api/v1/members/me",
+    );
 
     if (!response.success) {
         throw new Error(
-            response.error?.message || "회원 정보를 불러오지 못했습니다.",
+            response.error?.message ||
+                "회원 정보를 불러오지 못했습니다.",
+        );
+    }
+
+    return response.data;
+}
+
+export async function fetchPresetProfileImages(): Promise<
+    readonly PresetProfileImage[]
+> {
+    const response =
+        await httpClient.get<PresetProfileImagesResponse>(
+            "/api/v1/members/profile/preset-image",
+        );
+
+    if (!response.success) {
+        throw new Error(
+            response.error?.message ||
+                "프로필 이미지 목록을 불러오지 못했습니다.",
+        );
+    }
+
+    return response.data;
+}
+
+export async function updatePresetProfileImage(
+    presetProfileImageId: number,
+): Promise<UpdatedProfileImage> {
+    const response =
+        await httpClient.put<UpdatePresetProfileImageResponse>(
+            "/api/v1/members/profile/preset-image",
+            {
+                presetProfileImageId,
+            } satisfies UpdatePresetProfileImageRequest,
+        );
+
+    if (!response.success) {
+        throw new Error(
+            response.error?.message ||
+                "프로필 이미지 변경에 실패했습니다.",
         );
     }
 
@@ -83,7 +145,8 @@ export async function updateNickname(
 
     if (!response.success) {
         throw new Error(
-            response.error?.message || "닉네임 변경에 실패했습니다.",
+            response.error?.message ||
+                "닉네임 변경에 실패했습니다.",
         );
     }
 
