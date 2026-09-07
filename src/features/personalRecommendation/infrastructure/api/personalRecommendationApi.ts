@@ -7,9 +7,13 @@ import type { SelectPersonalRecommendationCandidateRequest } from "@/features/pe
 import type { SelectPersonalRecommendationCandidateResponse } from "@/features/personalRecommendation/infrastructure/api/dto/SelectPersonalRecommendationCandidateResponse";
 import type { PersonalRecommendationDetailResponse } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationDetailResponse";
 import type { RerollPersonalRecommendationResponse } from "@/features/personalRecommendation/infrastructure/api/dto/RerollPersonalRecommendationResponse";
+import type { PersonalRecommendationHistoryListResponse } from "@/features/personalRecommendation/infrastructure/api/dto/PersonalRecommendationHistoryListResponse";
 
 import { mapPersonalRecommendationDetail } from "@/features/personalRecommendation/infrastructure/api/mapper/personalRecommendationDetailMapper";
 import { mapPersonalRecommendation } from "@/features/personalRecommendation/infrastructure/api/mapper/personalRecommendationMapper";
+import { mapPersonalRecommendationHistories } from "@/features/personalRecommendation/infrastructure/api/mapper/personalRecommendationHistoryMapper";
+
+import { logger } from "@/shared/lib/logger";
 
 interface CreatePersonalRecommendationRequest {
     readonly contextJson: Record<string, unknown>;
@@ -74,6 +78,26 @@ export const personalRecommendationApi = {
         }
 
         return mapPersonalRecommendationDetail(response.data);
+    },
+
+    async fetchHistories() {
+        const response =
+            await httpClient.get<PersonalRecommendationHistoryListResponse>(
+                "/api/v2/personal/recommendations",
+            );
+
+        logger.log('개인 메뉴 추천 이력 결과:', response);
+
+        if (!response.success || !response.data) {
+            throw new Error(
+                response.error?.message ??
+                    "개인 메뉴 추천 이력을 불러오지 못했습니다.",
+            );
+        }
+
+        return mapPersonalRecommendationHistories(
+            response.data,
+        );
     },
 
     async rerollRecommendation(

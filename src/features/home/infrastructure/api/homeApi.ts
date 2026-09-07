@@ -4,6 +4,7 @@ import type { HomeData } from "@/features/home/domain/model/Home";
 import type { HomeResponse } from "@/features/home/infrastructure/api/dto/HomeResponse";
 
 import { mapHomeResponse } from "@/features/home/infrastructure/api/mapper/homeMapper";
+import { logger } from "@/shared/lib/logger";
 
 export const homeApi = {
     async fetchHome(): Promise<HomeData> {
@@ -11,6 +12,8 @@ export const homeApi = {
             await httpClient.get<HomeResponse>(
                 "/api/v1/home",
             );
+
+        logger.log('홈 정보:', response);
 
         if (!response.success || !response.data) {
             throw new Error(
