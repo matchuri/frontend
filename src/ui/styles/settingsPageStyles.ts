@@ -1,61 +1,30 @@
 export const settingsPageStyles = {
-    page: "w-full px-14 py-16 bg-white",
-    title: "text-3xl font-bold text-gray-900",
-    description: "mt-2 text-base text-[#17345f]",
-    section: "mt-10 rounded-[48px] bg-[#e8eef5] px-12 py-10",
-    sectionTitle: "mb-10 flex items-center gap-3 text-xl font-bold text-gray-900",
-    profileImageWrapper:
-        "relative mb-10 flex h-32 w-32 items-center justify-center rounded-full bg-[#d9e2ec]",
-    profileIcon: "text-[#6b7c93]",
-    editButton:
-        "absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded-full bg-[#37639f] text-white shadow-md cursor-pointer",
-    formGroup: "flex flex-col gap-3",
-    label: "text-sm font-semibold text-gray-800",
-    input:
-        "h-14 rounded-2xl bg-white px-5 text-sm text-gray-400 outline-none placeholder:text-gray-600",
-    disabledInput:
-        "h-20 rounded-2xl bg-[#d8d8d8] px-5 py-4 text-sm text-gray-500 outline-none",
-    saveButtonWrapper: "mt-10 flex justify-end",
-    saveButton:
-        "flex h-12 w-44 items-center justify-center gap-8 rounded-full bg-[#37639f] text-white cursor-pointer",
-    accountRow: "flex items-center justify-between",
-    divider: "my-10 border-t border-gray-300",
-    dangerTitle: "font-bold text-red-500",
-    dangerDescription: "mt-1 text-sm text-gray-600",
-    dangerButton:
-        "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold",
-    deleteMemberButton:
-        "h-12 w-40 rounded-full border border-red-500 text-red-500 font-semibold cursor-pointer transition hover:bg-red-50 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-50",
+    page: "min-h-full bg-white",
+    header: "flex h-[64px] items-center justify-center border-b border-gray-100 px-5",
+    title: "text-[18px] font-bold text-gray-900",
 
-    passwordInputWrapper: "relative w-full",
-    passwordToggleButton: "absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-zinc-500 transition-colors hover:text-zinc-700",
-    passwordInput: "w-full pr-12",
+    profileSection: "flex flex-col items-center px-5 pb-14 pt-16",
+    profileImageContainer: "relative",
+    profileImageWrapper: "flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-orange-100",
+    profileImage: "h-full w-full object-cover",
+    profileFallbackIcon: "text-[#FB6F00]",
+    profileImageEditButton:
+        "absolute bottom-0 right-0 flex h-7 w-7 items-center justify-center rounded-full bg-[#FB6F00] text-white shadow-sm",
 
-    modalOverlay:
-        "fixed inset-0 z-50 flex items-center justify-center bg-black/40",
-    modalBox:
-        "w-[420px] rounded-[32px] bg-white p-8 shadow-xl",
-    modalTitleWrapper:
-        "mb-4 flex items-center gap-2 text-red-500",
-    modalTitle:
-        "text-lg font-bold",
-    modalDescription:
-        "text-sm leading-6 text-zinc-700",
-    modalButtonWrapper:
-        "mt-6 flex justify-end gap-3",
-    modalCancelButton:
-        "rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold text-zinc-700 cursor-pointer transition hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50",
-    modalDangerButton:
-        "rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white cursor-pointer transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50",
+    nicknameRow: "mt-5 flex items-center gap-1.5",
+    nickname: "text-[18px] font-semibold text-gray-900",
+    nicknameEditButton: "flex h-6 w-6 items-center justify-center text-gray-400",
+    email: "mt-1 text-[14px] text-gray-400",
 
-    skeletonProfileIcon:
-        "h-16 w-16 animate-pulse rounded-full bg-[#c7d2df]",
-    skeletonInput:
-        "h-14 animate-pulse rounded-2xl bg-white",
-    skeletonDisabledInput:
-        "h-20 animate-pulse rounded-2xl bg-[#d8d8d8]",
-    skeletonDisabledInputWithMargin:
-        "mb-4 h-20 animate-pulse rounded-2xl bg-[#d8d8d8]",
-    skeletonSaveButton:
-        "h-12 w-44 animate-pulse rounded-full bg-[#c7d2df]",
-};
+    menuSection: "px-7",
+    menuItem:
+        "flex h-16 w-full items-center justify-between border-b border-gray-100 px-2 text-left text-[16px] font-medium text-gray-900 disabled:cursor-default disabled:opacity-100",
+    menuChevron: "shrink-0 text-gray-400",
+
+    stateContainer: "flex min-h-[420px] items-center justify-center px-5",
+    errorText: "text-center text-sm text-red-500",
+
+    skeletonProfileImage: "h-24 w-24 animate-pulse rounded-full bg-gray-200",
+    skeletonNickname: "mt-5 h-5 w-24 animate-pulse rounded bg-gray-200",
+    skeletonEmail: "mt-2 h-4 w-40 animate-pulse rounded bg-gray-100",
+} as const;
