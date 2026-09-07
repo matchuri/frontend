@@ -1,5 +1,9 @@
 import Image from "next/image";
-import { Camera, Pencil, UserRound } from "lucide-react";
+import {
+    Camera,
+    Pencil,
+    UserRound,
+} from "lucide-react";
 
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
@@ -8,6 +12,7 @@ interface MyPageProfileSectionProps {
     readonly nickname: string;
     readonly email: string;
     readonly isLoading: boolean;
+    readonly onClickProfileImageEdit: () => void;
 }
 
 export default function MyPageProfileSection({
@@ -15,6 +20,7 @@ export default function MyPageProfileSection({
     nickname,
     email,
     isLoading,
+    onClickProfileImageEdit,
 }: MyPageProfileSectionProps) {
     if (isLoading) {
         return (
@@ -52,6 +58,7 @@ export default function MyPageProfileSection({
 
                 <button
                     type="button"
+                    onClick={onClickProfileImageEdit}
                     className={settingsPageStyles.profileImageEditButton}
                     aria-label="프로필 이미지 수정"
                 >
