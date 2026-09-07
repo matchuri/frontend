@@ -66,4 +66,16 @@ export const settingsPageStyles = {
 
     profileImageSaveButton:
         "h-14 w-full shrink-0 cursor-pointer rounded-xl bg-[#FB6F00] text-[16px] font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:hover:opacity-100",
+
+    modalOverlay: "absolute inset-0 z-[70] flex items-center justify-center bg-black/20 px-5 backdrop-blur-[2px]",
+    modalBox: "w-full max-w-[360px] rounded-[24px] bg-white p-6 shadow-[0_12px_36px_rgba(0,0,0,0.14)]",
+    modalTitleWrapper: "flex items-center gap-3",
+    modalWarningIcon: "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-500",
+    modalTitle: "text-[18px] font-bold text-gray-900",
+    modalDescription: "mt-5 text-[14px] leading-6 text-gray-500",
+    modalButtonWrapper: "mt-7 flex gap-3",
+    modalCancelButton:
+        "h-11 flex-1 cursor-pointer rounded-xl border border-gray-200 bg-white text-[14px] font-semibold text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50",
+    modalDangerButton:
+        "h-11 flex-1 cursor-pointer rounded-xl bg-red-500 text-[14px] font-semibold text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:bg-gray-300",
 } as const;

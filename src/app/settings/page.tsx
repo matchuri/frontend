@@ -7,16 +7,21 @@ import {
 } from "jotai";
 
 import { useAuthGuard } from "@/features/routeGuard/application/hooks/useAuthGuard";
+
 import { settingsAtom } from "@/features/settings/application/atoms/settingsAtom";
 
 import { isLocalLoginAtom } from "@/features/settings/application/selectors/settingsSelectors";
 
 import { useSettingsProfile } from "@/features/settings/application/hooks/useSettingsProfile";
 import { usePresetProfileImage } from "@/features/settings/application/hooks/usePresetProfileImage";
+import { useDeleteMember } from "@/features/settings/application/hooks/useDeleteMember";
+import { useLogout } from "@/features/auth/application/hooks/useLogout";
 
 import MyPageProfileSection from "@/features/settings/ui/components/MyPageProfileSection";
 import MyPageMenuList from "@/features/settings/ui/components/MyPageMenuList";
 import ProfileImageChangeModal from "@/features/settings/ui/components/ProfileImageChangeModal";
+import DeleteMemberConfirmModal from "@/features/settings/ui/components/DeleteMemberConfirmModal";
+import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
@@ -29,9 +34,35 @@ export default function SettingsPage() {
     const setSettings = useSetAtom(settingsAtom);
     const isLocalLogin = useAtomValue(isLocalLoginAtom);
 
-    const [isProfileImageModalOpen, setIsProfileImageModalOpen] = useState(false);
+    const {
+        isSubmitting: isLoggingOut,
+        handleLogout,
+    } = useLogout();
 
-    const profile = "data" in settingsState ? settingsState.data : null;
+    const {
+        isDeleting,
+        deleteAccount,
+    } = useDeleteMember();
+
+    const [
+        isProfileImageModalOpen,
+        setIsProfileImageModalOpen,
+    ] = useState(false);
+
+    const [
+        isPreferenceModalOpen,
+        setIsPreferenceModalOpen,
+    ] = useState(false);
+
+    const [
+        isDeleteMemberModalOpen,
+        setIsDeleteMemberModalOpen,
+    ] = useState(false);
+
+    const profile =
+        "data" in settingsState
+            ? settingsState.data
+            : null;
 
     const isLoading =
         isAuthLoading ||
@@ -39,7 +70,9 @@ export default function SettingsPage() {
         settingsState.status === "LOADING" ||
         !profile;
 
-    const isError = settingsState.status === "ERROR" && profile;
+    const isError =
+        settingsState.status === "ERROR" &&
+        profile;
 
     const {
         presetImages,
@@ -92,6 +125,42 @@ export default function SettingsPage() {
         setIsProfileImageModalOpen(false);
     };
 
+    const handleClickPreference = () => {
+        setIsPreferenceModalOpen(true);
+    };
+
+    const handlePreferenceSaved = () => {
+        setIsPreferenceModalOpen(false);
+    };
+
+    const handleClickLogout = () => {
+        if (isLoggingOut) {
+            return;
+        }
+
+        void handleLogout();
+    };
+
+    const handleClickDeleteMember = () => {
+        setIsDeleteMemberModalOpen(true);
+    };
+
+    const handleCloseDeleteMemberModal = () => {
+        if (isDeleting) {
+            return;
+        }
+
+        setIsDeleteMemberModalOpen(false);
+    };
+
+    const handleConfirmDeleteMember = () => {
+        if (isDeleting) {
+            return;
+        }
+
+        void deleteAccount();
+    };
+
     return (
         <>
             <main className={settingsPageStyles.page}>
@@ -120,6 +189,10 @@ export default function SettingsPage() {
                         <MyPageMenuList
                             showPasswordChange={profile ? isLocalLogin : false}
                             isLoading={isLoading}
+                            isLoggingOut={isLoggingOut}
+                            onClickPreference={handleClickPreference}
+                            onClickLogout={handleClickLogout}
+                            onClickDeleteMember={handleClickDeleteMember}
                         />
                     </>
                 )}
@@ -136,6 +209,19 @@ export default function SettingsPage() {
                 onSelect={selectPresetImage}
                 onRetry={() => {void refetchPresetImages();}}
                 onSave={() => {void handleSaveProfileImage();}}
+            />
+
+            <PreferenceModal
+                isOpen={isPreferenceModalOpen}
+                onClose={() => setIsPreferenceModalOpen(false)}
+                onSaved={handlePreferenceSaved}
+            />
+
+            <DeleteMemberConfirmModal
+                isOpen={isDeleteMemberModalOpen}
+                isDeleting={isDeleting}
+                onClose={handleCloseDeleteMemberModal}
+                onConfirm={handleConfirmDeleteMember}
             />
         </>
     );
