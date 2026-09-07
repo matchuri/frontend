@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
     useAtomValue,
@@ -26,6 +27,8 @@ import PreferenceModal from "@/features/preference/ui/components/PreferenceModal
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
 export default function SettingsPage() {
+    const router = useRouter();
+
     const { isAuthLoading, canAccess } = useAuthGuard();
 
     useSettingsProfile(canAccess);
@@ -161,6 +164,10 @@ export default function SettingsPage() {
         void deleteAccount();
     };
 
+    const handleClickPasswordChange = () => {
+        router.push("/settings/password");
+    };
+
     return (
         <>
             <main className={settingsPageStyles.page}>
@@ -191,6 +198,7 @@ export default function SettingsPage() {
                             isLoading={isLoading}
                             isLoggingOut={isLoggingOut}
                             onClickPreference={handleClickPreference}
+                            onClickPasswordChange={handleClickPasswordChange}
                             onClickLogout={handleClickLogout}
                             onClickDeleteMember={handleClickDeleteMember}
                         />

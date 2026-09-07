@@ -7,6 +7,7 @@ interface MyPageMenuListProps {
     readonly isLoading: boolean;
     readonly isLoggingOut: boolean;
     readonly onClickPreference: () => void;
+    readonly onClickPasswordChange: () => void;
     readonly onClickLogout: () => void;
     readonly onClickDeleteMember: () => void;
 }
@@ -46,6 +47,7 @@ export default function MyPageMenuList({
     isLoading,
     isLoggingOut,
     onClickPreference,
+    onClickPasswordChange,
     onClickLogout,
     onClickDeleteMember,
 }: MyPageMenuListProps) {
@@ -63,6 +65,7 @@ export default function MyPageMenuList({
                 <MyPageMenuItem
                     label="비밀번호 변경"
                     disabled={isDisabled}
+                    onClick={onClickPasswordChange}
                 />
             )}
 
