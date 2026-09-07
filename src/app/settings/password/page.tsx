@@ -1,15 +1,21 @@
 "use client";
 
-import {useState} from "react";
+import { useEffect, useState } from "react";
 import {
     ArrowLeft,
     Eye,
     EyeOff,
     LockKeyhole,
 } from "lucide-react";
+import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
 import { useAuthGuard } from "@/features/routeGuard/application/hooks/useAuthGuard";
+
+import { settingsAtom } from "@/features/settings/application/atoms/settingsAtom";
+import { isLocalLoginAtom } from "@/features/settings/application/selectors/settingsSelectors";
+
+import { useSettingsProfile } from "@/features/settings/application/hooks/useSettingsProfile";
 import { useChangePassword } from "@/features/settings/application/hooks/useChangePassword";
 
 import { passwordChangePageStyles } from "@/ui/styles/passwordChangePageStyles";
@@ -19,16 +25,23 @@ export default function PasswordChangePage() {
 
     const { isAuthLoading, canAccess } = useAuthGuard();
 
+    useSettingsProfile(canAccess);
+
+    const settingsState = useAtomValue(settingsAtom);
+    const isLocalLogin = useAtomValue(isLocalLoginAtom);
+
     const {
         currentPassword,
         newPassword,
         newPasswordConfirm,
         passwordMessage,
         confirmMessage,
+        isSaving,
         canChangePassword,
         setCurrentPassword,
         setNewPassword,
         setNewPasswordConfirm,
+        submit,
     } = useChangePassword();
 
     const [
@@ -46,12 +59,40 @@ export default function PasswordChangePage() {
         setShowConfirmPassword,
     ] = useState(false);
 
-    if (isAuthLoading || !canAccess) {
+    const isSettingsLoading =
+        settingsState.status === "IDLE" ||
+        settingsState.status === "LOADING";
+
+    useEffect(() => {
+        if (!canAccess || isSettingsLoading) {
+            return;
+        }
+
+        if (!isLocalLogin) {
+            router.replace("/settings");
+        }
+    }, [
+        canAccess,
+        isLocalLogin,
+        isSettingsLoading,
+        router,
+    ]);
+
+    if (
+        isAuthLoading ||
+        !canAccess ||
+        isSettingsLoading ||
+        !isLocalLogin
+    ) {
         return null;
     }
 
     const handleClickBack = () => {
         router.push("/settings");
+    };
+
+    const handleSubmit = () => {
+        void submit();
     };
 
     return (
@@ -102,7 +143,10 @@ export default function PasswordChangePage() {
 
                 <form
                     className={passwordChangePageStyles.form}
-                    onSubmit={(event) => {event.preventDefault();}}
+                    onSubmit={(event) => {
+                        event.preventDefault();
+                        handleSubmit();
+                    }}
                 >
                     <div className={passwordChangePageStyles.field}>
                         <label
@@ -120,12 +164,14 @@ export default function PasswordChangePage() {
                                 onChange={(event) => setCurrentPassword(event.target.value)}
                                 placeholder="현재 비밀번호를 입력해주세요"
                                 autoComplete="current-password"
+                                disabled={isSaving}
                                 className={passwordChangePageStyles.input}
                             />
 
                             <button
                                 type="button"
                                 onClick={() => setShowCurrentPassword((prev) => !prev)}
+                                disabled={isSaving}
                                 className={passwordChangePageStyles.passwordToggleButton}
                                 aria-label={showCurrentPassword ? "현재 비밀번호 숨기기" : "현재 비밀번호 보기"}
                             >
@@ -160,12 +206,14 @@ export default function PasswordChangePage() {
                                 onChange={(event) => setNewPassword(event.target.value)}
                                 placeholder="새 비밀번호를 입력해주세요"
                                 autoComplete="new-password"
+                                disabled={isSaving}
                                 className={passwordChangePageStyles.input}
                             />
 
                             <button
                                 type="button"
                                 onClick={() => setShowNewPassword((prev) => !prev)}
+                                disabled={isSaving}
                                 className={passwordChangePageStyles.passwordToggleButton}
                                 aria-label={showNewPassword ? "새 비밀번호 숨기기" : "새 비밀번호 보기"}
                             >
@@ -210,12 +258,14 @@ export default function PasswordChangePage() {
                                 onChange={(event) => setNewPasswordConfirm(event.target.value)}
                                 placeholder="새 비밀번호를 다시 입력해주세요"
                                 autoComplete="new-password"
+                                disabled={isSaving}
                                 className={passwordChangePageStyles.input}
                             />
 
                             <button
                                 type="button"
                                 onClick={() => setShowConfirmPassword((prev) => !prev)}
+                                disabled={isSaving}
                                 className={passwordChangePageStyles.passwordToggleButton}
                                 aria-label={showConfirmPassword ? "새 비밀번호 확인 숨기기" : "새 비밀번호 확인 보기"}
                             >
@@ -245,7 +295,7 @@ export default function PasswordChangePage() {
                         disabled={!canChangePassword}
                         className={passwordChangePageStyles.submitButton}
                     >
-                        비밀번호 변경
+                        {isSaving ? "변경 중..." : "비밀번호 변경"}
                     </button>
                 </form>
             </div>

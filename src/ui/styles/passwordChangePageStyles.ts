@@ -18,9 +18,9 @@ export const passwordChangePageStyles = {
 
     inputWrapper: "relative",
     input:
-        "h-12 w-full rounded-xl border border-gray-200 bg-white px-4 pr-12 text-[15px] text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-[#FB6F00]",
+        "h-12 w-full rounded-xl border border-gray-200 bg-white px-4 pr-12 text-[15px] text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-[#FB6F00] disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     passwordToggleButton:
-        "absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600",
+        "absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
 
     helperText: "text-[12px] leading-5 text-gray-400",
     errorText: "text-[12px] leading-5 text-red-500",
