@@ -22,7 +22,6 @@ import MyPageProfileSection from "@/features/settings/ui/components/MyPageProfil
 import MyPageMenuList from "@/features/settings/ui/components/MyPageMenuList";
 import ProfileImageChangeModal from "@/features/settings/ui/components/ProfileImageChangeModal";
 import DeleteMemberConfirmModal from "@/features/settings/ui/components/DeleteMemberConfirmModal";
-import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
 
@@ -50,11 +49,6 @@ export default function SettingsPage() {
     const [
         isProfileImageModalOpen,
         setIsProfileImageModalOpen,
-    ] = useState(false);
-
-    const [
-        isPreferenceModalOpen,
-        setIsPreferenceModalOpen,
     ] = useState(false);
 
     const [
@@ -129,11 +123,7 @@ export default function SettingsPage() {
     };
 
     const handleClickPreference = () => {
-        setIsPreferenceModalOpen(true);
-    };
-
-    const handlePreferenceSaved = () => {
-        setIsPreferenceModalOpen(false);
+        router.push("/preference");
     };
 
     const handleClickLogout = () => {
@@ -217,12 +207,6 @@ export default function SettingsPage() {
                 onSelect={selectPresetImage}
                 onRetry={() => {void refetchPresetImages();}}
                 onSave={() => {void handleSaveProfileImage();}}
-            />
-
-            <PreferenceModal
-                isOpen={isPreferenceModalOpen}
-                onClose={() => setIsPreferenceModalOpen(false)}
-                onSaved={handlePreferenceSaved}
             />
 
             <DeleteMemberConfirmModal

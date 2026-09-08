@@ -1,7 +1,11 @@
 "use client";
 
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 import { preferencePageStyles } from "@/ui/styles/preferencePageStyles";
 
+import { useAuthGuard } from "@/features/routeGuard/application/hooks/useAuthGuard";
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { usePreferenceOptionList } from "@/features/preference/application/hooks/usePreferenceOptionList";
 import { usePreferenceSelection } from "@/features/preference/application/hooks/usePreferenceSelection";
@@ -16,17 +20,10 @@ import {
     requiredPreferenceGroupMeta,
 } from "@/features/preference/ui/config/preferenceOptions";
 
-import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
-
 export default function PreferencePage() {
-    return (
-        <AuthRequiredGuard>
-            <PreferencePageContent />
-        </AuthRequiredGuard>
-    );
-}
+    const router = useRouter();
 
-function PreferencePageContent() {
+    const { isAuthLoading, canAccess } = useAuthGuard();
     const { preferenceState } = usePreferenceList();
     const { preferenceOptionState } = usePreferenceOptionList();
     const { togglePreference } = usePreferenceSelection();
@@ -40,6 +37,14 @@ function PreferencePageContent() {
         removeFood,
     } = useDislikedFoodSearch();
     const { isSaving, savePreference } = useSavePreference();
+
+    if (isAuthLoading || !canAccess) {
+        return (
+            <div className={preferencePageStyles.loadingBox}>
+                <p>인증 상태 확인 중...</p>
+            </div>
+        );
+    }
 
     if (
         preferenceState.status === "LOADING" ||
@@ -82,18 +87,38 @@ function PreferencePageContent() {
         preferenceOptionState.data,
     );
 
+    const handleClickBack = () => {
+        router.push("/settings");
+    };
+
     return (
         <main className={preferencePageStyles.container}>
             <div className={preferencePageStyles.content}>
                 <header className={preferencePageStyles.header}>
-                    <h1 className={preferencePageStyles.title}>취향 관리</h1>
+                    <button
+                        type="button"
+                        onClick={handleClickBack}
+                        aria-label="마이 페이지로 돌아가기"
+                    >
+                        <ArrowLeft
+                            size={22}
+                            aria-hidden="true"
+                        />
+                    </button>
+
+                    <h1 className={preferencePageStyles.title}>
+                        취향 관리
+                    </h1>
+
                     <p className={preferencePageStyles.description}>
                         메뉴 추천에 사용할 취향 정보를 선택해 주세요.
                     </p>
                 </header>
 
                 <div className={preferencePageStyles.sectionGroup}>
-                    <h2 className={preferencePageStyles.sectionTitle}>필수 선택</h2>
+                    <h2 className={preferencePageStyles.sectionTitle}>
+                        필수 선택
+                    </h2>
 
                     {requiredPreferenceGroups.map((group) => (
                         <PreferenceSection
@@ -111,7 +136,9 @@ function PreferencePageContent() {
                 </div>
 
                 <div className={preferencePageStyles.sectionGroup}>
-                    <h2 className={preferencePageStyles.sectionTitle}>추가 선택</h2>
+                    <h2 className={preferencePageStyles.sectionTitle}>
+                        추가 선택
+                    </h2>
 
                     {optionalPreferenceGroups.map((group) => (
                         <PreferenceSection
