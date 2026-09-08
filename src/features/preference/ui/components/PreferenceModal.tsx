@@ -10,14 +10,7 @@ import { usePreferenceSelection } from "@/features/preference/application/hooks/
 import { useDislikedFoodSearch } from "@/features/preference/application/hooks/useDislikedFoodSearch";
 import { useSavePreference } from "@/features/preference/application/hooks/useSavePreference";
 
-import PreferenceSection from "@/features/preference/ui/components/PreferenceSection";
-import DislikedFoodSearch from "@/features/preference/ui/components/DislikedFoodSearch";
-
-import {
-    createPreferenceGroups,
-    optionalPreferenceGroupMeta,
-    requiredPreferenceGroupMeta,
-} from "@/features/preference/ui/config/preferenceOptions";
+import PreferenceFormContent from "@/features/preference/ui/components/PreferenceFormContent";
 
 interface PreferenceModalProps {
     readonly isOpen: boolean;
@@ -110,7 +103,7 @@ export default function PreferenceModal({
                 <div className={preferenceModalStyles.content}>
                     {isLoading ? (
                         <div className={preferenceModalStyles.stateContainer}>
-                            <div className={preferenceModalStyles.loadingSpinner} />
+                            <div className={preferenceModalStyles.loadingSpinner}/>
 
                             <p className={preferenceModalStyles.stateText}>
                                 취향 정보를 불러오는 중...
@@ -123,92 +116,18 @@ export default function PreferenceModal({
                             </p>
                         </div>
                     ) : preferenceState.status === "SUCCESS" && preferenceOptionState.status === "SUCCESS" ? (
-                        <>
-                            <section className={preferenceModalStyles.preferenceCard}>
-                                <div className={preferenceModalStyles.sectionHeader}>
-                                    <div>
-                                        <h3 className={preferenceModalStyles.sectionTitle}>
-                                            필수 선택
-                                        </h3>
-
-                                        <p className={preferenceModalStyles.sectionDescription}>
-                                            메뉴 추천에 꼭 필요한 취향이에요.
-                                        </p>
-                                    </div>
-
-                                    <span className={preferenceModalStyles.requiredBadge}>
-                                        필수
-                                    </span>
-                                </div>
-
-                                <div className={preferenceModalStyles.sectionGroup}>
-                                    {createPreferenceGroups(
-                                        requiredPreferenceGroupMeta,
-                                        preferenceOptionState.data,
-                                    ).map((group) => (
-                                        <PreferenceSection
-                                            key={group.category}
-                                            title={group.title}
-                                            description={group.description}
-                                            category={group.category}
-                                            options={group.options}
-                                            selectedValues={
-                                                preferenceState.data.selections[group.category] ?? []
-                                            }
-                                            onToggle={togglePreference}
-                                        />
-                                    ))}
-                                </div>
-                            </section>
-
-                            <section className={preferenceModalStyles.preferenceCard}>
-                                <div className={preferenceModalStyles.sectionHeader}>
-                                    <div>
-                                        <h3 className={preferenceModalStyles.sectionTitle}>
-                                            추가 선택
-                                        </h3>
-
-                                        <p className={preferenceModalStyles.sectionDescription}>
-                                            선택할수록 추천이 더 정교해져요.
-                                        </p>
-                                    </div>
-
-                                    <span className={preferenceModalStyles.optionalBadge}>
-                                        선택
-                                    </span>
-                                </div>
-
-                                <div className={preferenceModalStyles.sectionGroup}>
-                                    {createPreferenceGroups(
-                                        optionalPreferenceGroupMeta,
-                                        preferenceOptionState.data,
-                                    ).map((group) => (
-                                        <PreferenceSection
-                                            key={group.category}
-                                            title={group.title}
-                                            description={group.description}
-                                            category={group.category}
-                                            options={group.options}
-                                            selectedValues={
-                                                preferenceState.data.selections[group.category] ?? []
-                                            }
-                                            onToggle={togglePreference}
-                                        />
-                                    ))}
-
-                                    <DislikedFoodSearch
-                                        keyword={keyword}
-                                        results={results}
-                                        selectedFoods={preferenceState.data.dislikedFoods}
-                                        isSearching={isSearching}
-                                        searchErrorMessage={searchErrorMessage}
-                                        onSearch={search}
-                                        onSelect={addFood}
-                                        onRemove={removeFood}
-                                    />
-                                </div>
-                            </section>
-                        </>
+                        <PreferenceFormContent
+                            preference={preferenceState.data}
+                            options={preferenceOptionState.data}
+                            onTogglePreference={togglePreference}
+                            searchKeyword={keyword}
+                            searchResults={results}
+                            isSearching={isSearching}
+                            searchErrorMessage={searchErrorMessage}
+                            onSearch={search}
+                            onAddDislikedFood={addFood}
+                            onRemoveDislikedFood={removeFood}
+                        />
                     ) : null}
                 </div>
 
