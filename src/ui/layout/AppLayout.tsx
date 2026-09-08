@@ -20,6 +20,7 @@ import BottomNavigation from "@/ui/components/BottomNavigation";
 import { appLayoutStyles } from "@/ui/styles/appLayoutStyles";
 
 const navbarHiddenPaths = [
+    "/",
     "/login",
     "/signup",
     "/terms",
