@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import {Check, ChevronLeft, Crosshair, Info, MapPin, Search } from "lucide-react";
+import {
+    Check,
+    Crosshair,
+    Info,
+    MapPin,
+    Search,
+    X,
+} from "lucide-react";
 
 import KakaoMapView from "@/features/map/ui/components/KakaoMapView";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
@@ -68,11 +75,8 @@ function LocationModalContent({
         handleSearchFailed,
     } = useLocationSearch();
 
-    const [selectedLocation, setSelectedLocation] =
-        useState<LocationSetting>(baseLocation);
-
-    const [radiusErrorMessage, setRadiusErrorMessage] =
-        useState<string | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<LocationSetting>(baseLocation);
+    const [radiusErrorMessage, setRadiusErrorMessage] = useState<string | null>(null);
 
     const handleChangeRadius = (
         radiusMeters: LocationRadiusMeters,
@@ -108,176 +112,231 @@ function LocationModalContent({
 
     return (
         <div className={locationModalStyles.overlay}>
-            <div className={locationModalStyles.modal}>
+            <section
+                className={locationModalStyles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="location-modal-title"
+            >
                 <header className={locationModalStyles.header}>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        disabled={isSaving}
-                        className={locationModalStyles.backButton}
-                    >
-                        <ChevronLeft size={24} />
-                    </button>
-
                     <div>
-                        <h2 className={locationModalStyles.title}>위치 등록</h2>
+                        <h2
+                            id="location-modal-title"
+                            className={locationModalStyles.title}
+                        >
+                            위치 설정
+                        </h2>
 
                         <p className={locationModalStyles.description}>
                             주변 맛집 추천을 위해 위치와 검색 반경을 설정해주세요.
                         </p>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={isSaving}
+                        className={locationModalStyles.closeButton}
+                        aria-label="위치 설정 닫기"
+                    >
+                        <X
+                            size={26}
+                            strokeWidth={2}
+                            aria-hidden="true"
+                        />
+                    </button>
                 </header>
 
-                <div className={locationModalStyles.mapSection}>
-                    <form
-                        onSubmit={submitSearch}
-                        className={locationModalStyles.searchBar}
-                    >
-                        <Search size={20} />
+                <div className={locationModalStyles.content}>
+                    <section className={locationModalStyles.locationSection}>
+                        <div className={locationModalStyles.sectionHeader}>
+                            <div>
+                                <h3 className={locationModalStyles.sectionTitle}>
+                                    위치 선택
+                                </h3>
 
-                        <input
-                            type="text"
-                            value={inputKeyword}
-                            onChange={(event) =>
-                                setInputKeyword(event.target.value)
-                            }
-                            placeholder="주소 또는 장소 이름 검색"
-                            disabled={isSaving}
-                            className={locationModalStyles.searchInput}
-                        />
+                                <p className={locationModalStyles.sectionDescription}>
+                                    주소를 검색하거나 지도를 움직여 위치를 선택해주세요.
+                                </p>
+                            </div>
+                        </div>
 
-                        <button
-                            type="submit"
-                            disabled={isSaving}
-                            className={locationModalStyles.locationButton}
+                        <form
+                            onSubmit={submitSearch}
+                            className={locationModalStyles.searchBar}
                         >
-                            <Crosshair size={20} />
-                        </button>
+                            <Search
+                                size={19}
+                                className={locationModalStyles.searchIcon}
+                                aria-hidden="true"
+                            />
+
+                            <input
+                                type="text"
+                                value={inputKeyword}
+                                onChange={(event) => setInputKeyword(event.target.value)}
+                                placeholder="주소 또는 장소 이름 검색"
+                                disabled={isSaving}
+                                className={locationModalStyles.searchInput}
+                            />
+
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className={locationModalStyles.searchButton}
+                                aria-label="위치 검색"
+                            >
+                                <Crosshair
+                                    size={19}
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </form>
 
                         {searchErrorMessage && (
                             <p className={locationModalStyles.searchErrorMessage}>
                                 {searchErrorMessage}
                             </p>
                         )}
-                    </form>
 
-                    <div className={locationModalStyles.mapContainer}>
-                        <KakaoMapView
-                            centerLatitude={baseLocation.latitude}
-                            centerLongitude={baseLocation.longitude}
-                            level={baseLocation.level}
-                            radiusMeters={selectedLocation.radiusMeters}
-                            searchKeyword={searchKeyword}
-                            onCenterChanged={(center) => {
-                                setSelectedLocation((prev) => ({
-                                    ...prev,
-                                    latitude: center.latitude,
-                                    longitude: center.longitude,
-                                    level: 4,
-                                }));
-                            }}
-                            onAddressChanged={(address) => {
-                                setSelectedLocation((prev) => ({
-                                    ...prev,
-                                    address,
-                                }));
-                            }}
-                            onSearchFailed={handleSearchFailed}
-                        />
+                        <div className={locationModalStyles.mapContainer}>
+                            <KakaoMapView
+                                centerLatitude={baseLocation.latitude}
+                                centerLongitude={baseLocation.longitude}
+                                level={baseLocation.level}
+                                radiusMeters={selectedLocation.radiusMeters}
+                                searchKeyword={searchKeyword}
+                                onCenterChanged={(center) => {
+                                    setSelectedLocation((prev) => ({
+                                        ...prev,
+                                        latitude: center.latitude,
+                                        longitude: center.longitude,
+                                        level: center.level,
+                                    }));
+                                }}
+                                onAddressChanged={(address) => {
+                                    setSelectedLocation((prev) => ({
+                                        ...prev,
+                                        address,
+                                    }));
+                                }}
+                                onSearchFailed={handleSearchFailed}
+                            />
 
-                        <div className={locationModalStyles.centerPin}>
-                            <MapPin size={54} fill="currentColor" />
+                            <div
+                                className={locationModalStyles.centerPin}
+                                aria-hidden="true"
+                            >
+                                <MapPin
+                                    size={36}
+                                    fill="currentColor"
+                                />
+                            </div>
                         </div>
 
                         <div className={locationModalStyles.locationInfo}>
-                            <span className={locationModalStyles.locationLabel}>
-                                현재 선택된 위치
-                            </span>
+                            <div className={locationModalStyles.locationInfoIcon}>
+                                <MapPin
+                                    size={18}
+                                    strokeWidth={2}
+                                    aria-hidden="true"
+                                />
+                            </div>
 
-                            <strong className={locationModalStyles.selectedAddress}>
-                                {selectedLocation.address}
-                            </strong>
+                            <div className={locationModalStyles.locationInfoText}>
+                                <span className={locationModalStyles.locationLabel}>
+                                    현재 선택된 위치
+                                </span>
+
+                                <strong className={locationModalStyles.selectedAddress}>
+                                    {selectedLocation.address}
+                                </strong>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </section>
 
-                <div className={locationModalStyles.radiusSection}>
-                    <div className={locationModalStyles.radiusHeader}>
-                        <h3 className={locationModalStyles.radiusTitle}>
-                            맛집 검색 반경
-                        </h3>
+                    <section className={locationModalStyles.radiusSection}>
+                        <div className={locationModalStyles.radiusHeader}>
+                            <div>
+                                <h3 className={locationModalStyles.sectionTitle}>
+                                    맛집 검색 반경
+                                </h3>
 
-                        <span className={locationModalStyles.radiusValue}>
-                            {formatLocationRadius(
-                                selectedLocation.radiusMeters,
-                            )}
+                                <p className={locationModalStyles.sectionDescription}>
+                                    선택한 위치를 기준으로 맛집을 검색할 범위예요.
+                                </p>
+                            </div>
+
+                            <span className={locationModalStyles.radiusValue}>
+                                {formatLocationRadius(selectedLocation.radiusMeters)}
+                            </span>
+                        </div>
+
+                        <div className={locationModalStyles.radiusOptions}>
+                            {LOCATION_RADIUS_OPTIONS.map((radiusMeters) => {
+                                const isSelected =
+                                    selectedLocation.radiusMeters === radiusMeters;
+
+                                return (
+                                    <button
+                                        key={radiusMeters}
+                                        type="button"
+                                        onClick={() => handleChangeRadius(radiusMeters)}
+                                        disabled={isSaving}
+                                        aria-pressed={isSelected}
+                                        className={
+                                            isSelected
+                                                ? locationModalStyles.selectedRadiusButton
+                                                : locationModalStyles.radiusButton
+                                        }
+                                    >
+                                        {formatLocationRadius(radiusMeters)}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {radiusErrorMessage && (
+                            <p className={locationModalStyles.radiusErrorMessage}>
+                                {radiusErrorMessage}
+                            </p>
+                        )}
+                    </section>
+
+                    <div className={locationModalStyles.guideBox}>
+                        <Info
+                            size={18}
+                            className={locationModalStyles.guideIcon}
+                            aria-hidden="true"
+                        />
+
+                        <span>
+                            지도를 드래그하거나 주소를 검색해 원하는 위치를 설정할 수 있어요.
                         </span>
                     </div>
-
-                    <p className={locationModalStyles.radiusDescription}>
-                        선택한 위치를 기준으로 맛집을 검색할 기본 범위입니다.
-                    </p>
-
-                    <div className={locationModalStyles.radiusOptions}>
-                        {LOCATION_RADIUS_OPTIONS.map((radiusMeters) => {
-                            const isSelected =
-                                selectedLocation.radiusMeters === radiusMeters;
-
-                            return (
-                                <button
-                                    key={radiusMeters}
-                                    type="button"
-                                    onClick={() =>
-                                        handleChangeRadius(radiusMeters)
-                                    }
-                                    disabled={isSaving}
-                                    aria-pressed={isSelected}
-                                    className={
-                                        isSelected
-                                            ? locationModalStyles.selectedRadiusButton
-                                            : locationModalStyles.radiusButton
-                                    }
-                                >
-                                    {formatLocationRadius(radiusMeters)}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {radiusErrorMessage && (
-                        <p className={locationModalStyles.radiusErrorMessage}>
-                            {radiusErrorMessage}
-                        </p>
-                    )}
                 </div>
 
                 <footer className={locationModalStyles.footer}>
-                    <div className={locationModalStyles.guideBox}>
-                        <Info size={18} />
-
-                        <span>
-                            지도를 드래그하거나 검색하여 원하는 위치를 설정하세요.
-                        </span>
-                    </div>
-
                     <button
                         type="button"
-                        onClick={() => {
-                            void handleSave();
-                        }}
+                        onClick={() => {void handleSave();}}
                         disabled={
                             isSaving ||
-                            !isLocationRadiusMeters(
-                                selectedLocation.radiusMeters,
-                            )
+                            !isLocationRadiusMeters(selectedLocation.radiusMeters)
                         }
                         className={locationModalStyles.saveButton}
                     >
-                        {isSaving ? "저장 중..." : "등록"}
-                        {!isSaving && <Check size={18} />}
+                        {isSaving ? "저장 중..." : "위치 저장하기"}
+
+                        {!isSaving && (
+                            <Check
+                                size={18}
+                                aria-hidden="true"
+                            />
+                        )}
                     </button>
                 </footer>
-            </div>
+            </section>
         </div>
     );
 }
