@@ -1,60 +1,52 @@
 export const locationModalStyles = {
-    overlay:
-        "fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm",
-    modal:
-        "flex h-[860px] w-full max-w-5xl flex-col overflow-hidden rounded-[32px] bg-white shadow-2xl",
-    header:
-        "flex items-start gap-5 px-10 py-8",
-    backButton:
-        "flex h-11 w-11 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 transition cursor-pointer hover:bg-zinc-200",
-    title:
-        "text-3xl font-semibold text-zinc-950",
-    description:
-        "mt-2 text-sm font-medium text-zinc-600",
-    mapSection:
-        "relative flex-1 overflow-hidden",
+    overlay: "absolute inset-0 z-[100] flex items-end bg-black/20 backdrop-blur-[2px]",
+    modal: "flex h-[92%] min-h-0 w-full flex-col overflow-hidden rounded-t-[24px] bg-[#FAFAFA] shadow-[0_-4px_18px_rgba(0,0,0,0.08)]",
+    header: "flex shrink-0 items-start justify-between border-b border-gray-100 bg-white px-6 pb-5 pt-6",
+    title: "text-[20px] font-bold text-gray-900",
+    description: "mt-1.5 max-w-[320px] text-[13px] leading-5 text-gray-500",
+    closeButton:
+        "flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+    content: "flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-5 py-5",
+
+    locationSection: "rounded-[20px] border border-gray-100 bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.035)]",
+    sectionHeader: "mb-4",
+    sectionTitle: "text-[16px] font-bold text-gray-900",
+    sectionDescription: "mt-1 text-[12px] leading-5 text-gray-400",
+
     searchBar:
-        "absolute left-1/2 top-8 z-20 flex h-16 w-[620px] -translate-x-1/2 items-center gap-3 rounded-2xl bg-white px-6 shadow-xl",
-    searchInput:
-        "w-full text-base font-medium text-zinc-700 outline-none placeholder:text-zinc-400",
-    searchErrorMessage:
-        "absolute left-0 top-[58px] w-full rounded-xl bg-white px-4 py-2 text-sm text-red-500 shadow-md",
-    locationButton:
-        "flex h-9 w-9 items-center justify-center rounded-full text-slate-500 transition cursor-pointer hover:bg-slate-100",
-    mapContainer:
-        "relative h-full w-full bg-zinc-200",
-    emptyMapArea:
-        "flex h-full w-full items-center justify-center bg-zinc-200 text-sm font-medium text-zinc-400",
-    centerPin:
-        "absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-full text-[#4f46e5] drop-shadow-lg",
-    locationInfo:
-        "absolute left-1/2 top-[180px] z-10 flex -translate-x-1/2 flex-col rounded-2xl bg-white/95 px-6 py-4 shadow-lg backdrop-blur-sm",
-    locationLabel:
-        "text-xs font-semibold text-zinc-600",
-    selectedAddress:
-        "mt-1 text-base font-semibold text-zinc-800",
-    footer:
-        "flex items-center justify-between border-t border-zinc-200 px-10 py-6",
-    guideBox:
-        "flex items-center gap-2 text-sm font-medium text-zinc-600",
-    saveButton:
-        "flex h-14 w-[150px] items-center justify-center gap-2 rounded-full bg-[#4f46e5] text-base font-semibold text-white shadow-lg transition cursor-pointer hover:bg-[#4338ca]",
-    radiusSection:
-        "rounded-2xl border border-gray-200 bg-white p-5",
-    radiusHeader:
-        "flex items-center justify-between gap-4",
-    radiusTitle:
-        "text-base font-semibold text-gray-900",
-    radiusValue:
-        "rounded-full bg-emerald-50 px-3 py-1 text-sm font-semibold text-emerald-700",
-    radiusDescription:
-        "mt-1 text-sm text-gray-500",
-    radiusOptions:
-        "mt-4 grid grid-cols-3 gap-2",
+        "flex h-12 items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 transition-colors focus-within:border-[#FB6F00] focus-within:bg-white",
+    searchIcon: "shrink-0 text-gray-400",
+    searchInput: "min-w-0 flex-1 bg-transparent text-[14px] text-gray-900 outline-none placeholder:text-gray-400 disabled:cursor-not-allowed",
+    searchButton:
+        "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg bg-orange-50 text-[#FB6F00] transition-colors hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50",
+    searchErrorMessage: "mt-2 text-[12px] leading-5 text-red-500",
+
+    mapContainer: "relative mt-4 h-[280px] overflow-hidden rounded-2xl border border-gray-100 bg-gray-100",
+
+    centerPin: "pointer-events-none absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-[#FB6F00]",
+
+    locationInfo: "mt-4 flex items-center gap-3 rounded-xl bg-stone-50 px-4 py-3.5",
+    locationInfoIcon: "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#FB6F00]",
+    locationInfoText: "flex min-w-0 flex-1 flex-col gap-0.5",
+    locationLabel: "text-[11px] font-medium text-gray-400",
+
+    selectedAddress: "truncate text-[13px] font-semibold text-gray-800",
+
+    radiusSection: "rounded-[20px] border border-gray-100 bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.035)]",
+    radiusHeader: "flex items-start justify-between gap-3",
+    radiusValue: "shrink-0 rounded-full bg-orange-50 px-3 py-1 text-[12px] font-semibold text-[#FB6F00]",
+    radiusOptions: "mt-5 grid grid-cols-3 gap-2",
     radiusButton:
-        "rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-emerald-300 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-50",
+        "h-11 cursor-pointer rounded-xl border border-gray-200 bg-white text-[13px] font-medium text-gray-600 transition-all hover:border-orange-200 hover:bg-orange-50 hover:text-[#FB6F00] disabled:cursor-not-allowed disabled:opacity-50",
     selectedRadiusButton:
-        "rounded-xl border border-emerald-500 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700 transition disabled:cursor-not-allowed disabled:opacity-50",
-    radiusErrorMessage:
-        "mt-2 text-sm text-red-500",
+        "h-11 cursor-pointer rounded-xl border border-[#FB6F00] bg-orange-50 text-[13px] font-semibold text-[#FB6F00] transition-all disabled:cursor-not-allowed disabled:opacity-50",
+    radiusErrorMessage: "mt-2 text-[12px] leading-5 text-red-500",
+
+    guideBox: "flex items-start gap-2.5 rounded-2xl bg-stone-100 px-4 py-3.5 text-[12px] leading-5 text-gray-600",
+    guideIcon: "mt-0.5 shrink-0 text-[#FB6F00]",
+
+    footer: "shrink-0 border-t border-gray-100 bg-white px-5 pb-6 pt-4",
+
+    saveButton:
+        "flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-[#FB6F00] text-[16px] font-semibold text-white shadow-[0_6px_16px_rgba(251,111,0,0.18)] transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none disabled:hover:opacity-100",
 } as const;
