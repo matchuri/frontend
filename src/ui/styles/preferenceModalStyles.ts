@@ -1,30 +1,25 @@
 export const preferenceModalStyles = {
-    overlay:
-        "fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4",
+    overlay: "absolute inset-0 z-[60] flex items-end bg-black/20 backdrop-blur-[2px]",
     modal:
-        "flex h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-[32px] bg-white shadow-2xl",
-    header:
-        "flex items-center justify-between border-b border-zinc-200 px-8 py-6",
-    headerLeft: "flex items-center gap-3",
-    iconButton:
-        "flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-700 cursor-pointer hover:bg-zinc-200",
-    title: "text-2xl font-bold text-zinc-900",
-    content:
-        "flex-1 overflow-y-auto px-8 py-8",
-    description:
-        "mb-8 text-base font-medium text-zinc-600",
-    section: "flex flex-col gap-5",
-    sectionTitle:
-        "text-lg font-bold text-zinc-900",
-    sectionGroup:
-        "flex flex-col gap-5",
-    requiredSection: "mb-14 flex flex-col gap-5",
-    loadingContainer:
-        "flex h-40 w-full max-w-md items-center justify-center rounded-3xl bg-white",
-    errorContainer:
-        "flex h-40 w-full max-w-md items-center justify-center rounded-3xl bg-white text-red-500",
-    footer:
-        "shrink-0 border-t border-zinc-200 bg-white px-8 py-5",
+        "flex h-[88%] min-h-0 w-full flex-col overflow-hidden rounded-t-[24px] bg-[#FAFAFA] shadow-[0_-4px_18px_rgba(0,0,0,0.08)]",
+    header: "flex shrink-0 items-start justify-between border-b border-gray-100 bg-white px-6 pb-5 pt-6",
+    title: "text-[20px] font-bold text-gray-900",
+    headerDescription: "mt-1.5 max-w-[320px] text-[13px] leading-5 text-gray-500",
+    closeButton:
+        "flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-900 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+    content: "flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-5 py-5",
+    preferenceCard: "rounded-[20px] border border-gray-100 bg-white px-5 py-5 shadow-[0_2px_8px_rgba(0,0,0,0.035)]",
+    sectionHeader: "mb-6 flex items-start justify-between gap-3",
+    sectionTitle: "text-[17px] font-bold text-gray-900",
+    sectionDescription: "mt-1 text-[12px] leading-5 text-gray-400",
+    requiredBadge: "shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-[#FB6F00]",
+    optionalBadge: "shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-500",
+    sectionGroup: "flex flex-col gap-7",
+    footer: "shrink-0 border-t border-gray-100 bg-white px-5 pb-6 pt-4",
     saveButton:
-        "w-full rounded-full bg-[#ff7043] py-4 text-base font-semibold text-white transition cursor-pointer hover:bg-[#f45f30] disabled:bg-zinc-300",
+        "h-14 w-full cursor-pointer rounded-2xl bg-[#FB6F00] text-[16px] font-semibold text-white shadow-[0_6px_16px_rgba(251,111,0,0.18)] transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none disabled:hover:opacity-100",
+    stateContainer: "flex min-h-[320px] flex-1 flex-col items-center justify-center gap-3 px-5 text-center",
+    stateText: "text-[14px] text-gray-500",
+    errorText: "text-[14px] leading-6 text-red-500",
+    loadingSpinner: "h-7 w-7 animate-spin rounded-full border-[3px] border-orange-100 border-t-[#FB6F00]",
 } as const;
