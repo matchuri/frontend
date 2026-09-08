@@ -21,6 +21,7 @@ import { appLayoutStyles } from "@/ui/styles/appLayoutStyles";
 
 const navbarHiddenPaths = [
     "/",
+    "/guest-recommendation",
     "/login",
     "/signup",
     "/terms",

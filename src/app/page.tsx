@@ -43,10 +43,6 @@ export default function Home() {
         return null;
     }
 
-    const handleClickStart = () => {
-        alert("게스트 메뉴 추천 기능을 준비 중입니다.");
-    };
-
     return (
         <main className={homePageStyles.container}>
             <header className={homePageStyles.header}>
@@ -103,9 +99,8 @@ export default function Home() {
                             지금 먹기 좋은 메뉴를 추천해드릴게요.
                         </p>
 
-                        <button
-                            type="button"
-                            onClick={handleClickStart}
+                        <Link
+                            href="/guest-recommendation"
                             className={homePageStyles.startButton}
                         >
                             지금 시작하기
@@ -114,10 +109,8 @@ export default function Home() {
                                 size={18}
                                 aria-hidden="true"
                             />
-                        </button>
+                        </Link>
                     </div>
-
-
                 </section>
 
                 <section className={homePageStyles.introSection}>
@@ -129,8 +122,6 @@ export default function Home() {
                         <h2 className={homePageStyles.sectionTitle}>
                             이렇게 사용하세요
                         </h2>
-
-
                     </div>
 
                     <div className={homePageStyles.stepList}>
