@@ -3,11 +3,11 @@ export interface GuestRecommendationCandidateResponse {
     readonly menuName: string;
     readonly rankNo: number;
     readonly score: number;
+    readonly thumbnailUrl: string | null;
 }
 
 export interface GuestRecommendationData {
-    readonly candidates:
-        readonly GuestRecommendationCandidateResponse[];
+    readonly candidates: readonly GuestRecommendationCandidateResponse[];
 }
 
 export interface GuestRecommendationResponse {

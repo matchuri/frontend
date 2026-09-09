@@ -5,13 +5,12 @@ export function mapGuestRecommendation(
     data: GuestRecommendationData,
 ): GuestRecommendation {
     return {
-        candidates: data.candidates.map(
-            (candidate) => ({
-                menuId: candidate.menuId,
-                menuName: candidate.menuName,
-                rankNo: candidate.rankNo,
-                score: candidate.score,
-            }),
-        ),
+        candidates: data.candidates.map((candidate) => ({
+            menuId: candidate.menuId,
+            menuName: candidate.menuName,
+            rankNo: candidate.rankNo,
+            score: candidate.score,
+            thumbnailUrl: candidate.thumbnailUrl,
+        })),
     };
 }

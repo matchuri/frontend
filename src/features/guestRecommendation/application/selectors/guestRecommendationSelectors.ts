@@ -14,6 +14,12 @@ export const guestRecommendationCandidatesAtom = atom((get) => {
     return recommendation?.candidates ?? [];
 });
 
+export const guestRecommendationRankedCandidatesAtom = atom((get) => {
+    const candidates = get(guestRecommendationCandidatesAtom);
+
+    return [...candidates].sort((a, b) => a.rankNo - b.rankNo);
+});
+
 export const isGuestRecommendationLoadingAtom = atom((get) =>
     get(guestRecommendationAtom).status === "LOADING",
 );
