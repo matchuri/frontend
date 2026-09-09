@@ -4,12 +4,14 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { useGuestRecommendationSetting } from "@/features/guestRecommendation/application/hooks/useGuestRecommendationSetting";
+import { useGuestRecommendationStart } from "@/features/guestRecommendation/application/hooks/useGuestRecommendationStart";
 
 import { usePreferenceOptionList } from "@/features/preference/application/hooks/usePreferenceOptionList";
 import { useLocationSearch } from "@/features/locationSetting/application/hooks/useLocationSearch";
 
 import GuestPreferenceSettingSection from "@/features/guestRecommendation/ui/components/GuestPreferenceSettingSection";
 import GuestLocationSettingSection from "@/features/guestRecommendation/ui/components/GuestLocationSettingSection";
+import GuestRecommendationLoadingView from "@/features/guestRecommendation/ui/components/GuestRecommendationLoadingView";
 
 import { guestRecommendationPageStyles } from "@/ui/styles/guestRecommendationPageStyles";
 
@@ -43,9 +45,24 @@ export default function GuestRecommendationPage() {
         handleSearchFailed,
     } = useLocationSearch();
 
+    const {
+        canStartRecommendation,
+        isCreating,
+        startRecommendation,
+    } = useGuestRecommendationStart({
+        setting: {
+            preference,
+            location,
+        },
+    });
+
     const handleClickBack = () => {
         router.push("/");
     };
+
+    if (isCreating) {
+        return <GuestRecommendationLoadingView />;
+    }
 
     return (
         <main className={guestRecommendationPageStyles.page}>
@@ -79,11 +96,7 @@ export default function GuestRecommendationPage() {
 
                 {preferenceOptionState.status === "LOADING" && (
                     <section className={guestRecommendationPageStyles.stateCard}>
-                        <div
-                            className={
-                                guestRecommendationPageStyles.loadingSpinner
-                            }
-                        />
+                        <div className={guestRecommendationPageStyles.loadingSpinner} />
 
                         <p className={guestRecommendationPageStyles.stateText}>
                             취향 선택 항목을 불러오는 중입니다.
@@ -131,7 +144,13 @@ export default function GuestRecommendationPage() {
             <footer className={guestRecommendationPageStyles.footer}>
                 <button
                     type="button"
-                    className={guestRecommendationPageStyles.startButton}
+                    onClick={() => void startRecommendation()}
+                    disabled={!canStartRecommendation}
+                    className={`${guestRecommendationPageStyles.startButton} ${
+                        canStartRecommendation
+                            ? guestRecommendationPageStyles.startButtonEnabled
+                            : guestRecommendationPageStyles.startButtonDisabled
+                    }`}
                 >
                     메뉴 추천 시작
                     <ArrowRight size={18} aria-hidden="true" />

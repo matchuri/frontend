@@ -98,8 +98,11 @@ export const guestRecommendationPageStyles = {
     // Footer
     footer: "sticky bottom-0 z-20 flex justify-center px-5 pb-6 pt-4",
     startButton:
-        "flex h-14 w-[88%] cursor-pointer items-center justify-center gap-2 " +
-        "rounded-2xl bg-[#FB6F00] text-[16px] font-semibold text-white " +
-        "shadow-[0_8px_20px_rgba(251,111,0,0.22)] transition-opacity duration-200 " +
+        "flex h-14 w-[88%] items-center justify-center gap-2 rounded-2xl " +
+        "text-[16px] font-semibold text-white transition-all duration-200",
+    startButtonEnabled:
+        "cursor-pointer bg-[#FB6F00] shadow-[0_8px_20px_rgba(251,111,0,0.22)] " +
         "animate-[guestCtaFloat_2.2s_ease-in-out_infinite] hover:opacity-90",
+    startButtonDisabled:
+        "cursor-not-allowed bg-gray-300 shadow-none",
 } as const;
