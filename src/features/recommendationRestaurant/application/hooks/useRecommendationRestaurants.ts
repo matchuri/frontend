@@ -17,6 +17,7 @@ interface UseRecommendationRestaurantsParams {
     readonly latitude: number;
     readonly longitude: number;
     readonly baseRadiusMeters: LocationRadiusMeters;
+    readonly selectFirstRestaurant?: boolean;
 }
 
 export function useRecommendationRestaurants({
@@ -24,6 +25,7 @@ export function useRecommendationRestaurants({
     latitude,
     longitude,
     baseRadiusMeters,
+    selectFirstRestaurant = true,
 }: UseRecommendationRestaurantsParams) {
     const [restaurants, setRestaurants] = useState<
         readonly RecommendationRestaurant[]
@@ -99,7 +101,9 @@ export function useRecommendationRestaurants({
 
                 setRestaurants(data);
                 setSelectedRestaurantId(
-                    data[0]?.id ?? null,
+                    selectFirstRestaurant
+                        ? data[0]?.id ?? null
+                        : null,
                 );
 
                 return;
@@ -137,6 +141,7 @@ export function useRecommendationRestaurants({
         longitude,
         menuName,
         resetSearchState,
+        selectFirstRestaurant,
     ]);
 
     useEffect(() => {
@@ -173,6 +178,10 @@ export function useRecommendationRestaurants({
         effectiveRadiusMeters ===
         MAX_RESTAURANT_SEARCH_RADIUS_METERS;
 
+    const clearRestaurantSelection = useCallback(() => {
+        setSelectedRestaurantId(null);
+    }, []);
+
     return {
         restaurants,
         selectedRestaurant,
@@ -191,6 +200,7 @@ export function useRecommendationRestaurants({
         hasReachedMaximumRadius,
 
         selectRestaurant: setSelectedRestaurantId,
+        clearRestaurantSelection,
         refetchRestaurants: loadRestaurants,
     };
 }

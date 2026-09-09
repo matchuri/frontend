@@ -14,6 +14,26 @@ declare global {
             getLng(): number;
         }
 
+        class Size {
+            constructor(width: number, height: number);
+        }
+
+        class Point {
+            constructor(x: number, y: number);
+        }
+
+        interface MarkerImageOptions {
+            readonly offset?: Point;
+        }
+
+        class MarkerImage {
+            constructor(
+                src: string,
+                size: Size,
+                options?: MarkerImageOptions,
+            );
+        }
+
         class Map {
             constructor(container: HTMLElement, options: MapOptions);
 
@@ -22,7 +42,13 @@ declare global {
             panTo(latlng: LatLng): void;
 
             getBounds(): LatLngBounds;
-            setBounds(bounds: LatLngBounds): void;
+            setBounds(
+                bounds: LatLngBounds,
+                paddingTop?: number,
+                paddingRight?: number,
+                paddingBottom?: number,
+                paddingLeft?: number,
+            ): void;
 
             getLevel(): number;
             setLevel(level: number): void;
@@ -33,6 +59,8 @@ declare global {
         class Marker {
             constructor(options: MarkerOptions);
             setMap(map: Map | null): void;
+            setImage(image: MarkerImage): void;
+            setZIndex(zIndex: number): void;
         }
 
         class Circle {
@@ -68,6 +96,7 @@ declare global {
         interface MarkerOptions {
             map?: Map;
             position: LatLng;
+            image?: MarkerImage;
         }
 
         interface CircleOptions {

@@ -10,7 +10,7 @@ export const preferenceModalStyles = {
     content: "flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-5 py-5",
     preferenceCard: "rounded-[20px] border border-gray-100 bg-white px-5 py-5 shadow-[0_2px_8px_rgba(0,0,0,0.035)]",
     sectionHeader: "mb-6 flex items-start justify-between gap-3",
-    sectionTitle: "text-[17px] font-bold text-gray-900",
+    sectionTitle: "text-[16px] font-bold text-gray-900",
     sectionDescription: "mt-1 text-[12px] leading-5 text-gray-400",
     requiredBadge: "shrink-0 rounded-full bg-orange-50 px-2.5 py-1 text-[11px] font-semibold text-[#FB6F00]",
     optionalBadge: "shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-gray-500",
