@@ -9,11 +9,13 @@ import { guestRecommendationResultPageStyles } from "@/ui/styles/guestRecommenda
 interface GuestRecommendationResultContentProps {
     readonly candidates: readonly GuestRecommendedMenu[];
     readonly onBack: () => void;
+    readonly onClickRestaurant: (menuId: number) => void;
 }
 
 export default function GuestRecommendationResultContent({
     candidates,
     onBack,
+    onClickRestaurant,
 }: GuestRecommendationResultContentProps) {
     return (
         <main className={guestRecommendationResultPageStyles.page}>
@@ -69,6 +71,7 @@ export default function GuestRecommendationResultContent({
                             <GuestRecommendationResultCard
                                 key={candidate.menuId}
                                 candidate={candidate}
+                                onClickRestaurant={onClickRestaurant}
                             />
                         ))}
                     </div>

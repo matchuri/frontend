@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Crosshair } from "lucide-react";
 
 import { clientEnv } from "@/infrastructure/config/env";
 import { captureExternalSdkError } from "@/infrastructure/monitoring/sentryMonitoring";
@@ -12,6 +13,49 @@ import {
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
 
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
+
+const NORMAL_MARKER_SIZE = 34;
+const SELECTED_MARKER_SIZE = 44;
+
+function createRestaurantMarkerImage(
+    selected: boolean,
+) {
+    const size = selected ? SELECTED_MARKER_SIZE : NORMAL_MARKER_SIZE;
+    const fillColor = selected ? "#FB6F00" : "#2563EB";
+    const svg = `
+        <svg
+            width="${size}"
+            height="${size}"
+            viewBox="0 0 48 48"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="M24 3C15.7 3 9 9.7 9 18c0 11 15 27 15 27s15-16 15-27C39 9.7 32.3 3 24 3Z"
+                fill="${fillColor}"
+                stroke="white"
+                stroke-width="3"
+            />
+            <circle
+                cx="24"
+                cy="18"
+                r="6"
+                fill="white"
+            />
+        </svg>
+    `;
+
+    return new window.kakao.maps.MarkerImage(
+        `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+        new window.kakao.maps.Size(size, size),
+        {
+            offset:
+                new window.kakao.maps.Point(
+                    size / 2,
+                    size,
+                ),
+        },
+    );
+}
 
 interface MarkerRecord {
     readonly restaurantId: string;
@@ -30,8 +74,12 @@ interface RecommendationRestaurantMapProps {
     readonly onSelectRestaurant: (
         restaurantId: string,
     ) => void;
+    readonly onClearSelection?: () => void;
     readonly sectionClassName?: string;
     readonly mapClassName?: string;
+
+    readonly showRecenterButton?: boolean;
+    readonly recenterButtonClassName?: string;
 }
 
 export default function RecommendationRestaurantMap({
@@ -41,12 +89,30 @@ export default function RecommendationRestaurantMap({
     restaurants,
     selectedRestaurant,
     onSelectRestaurant,
+    onClearSelection,
     sectionClassName,
     mapClassName,
+    showRecenterButton = false,
+    recenterButtonClassName,
 }: RecommendationRestaurantMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<kakao.maps.Map | null>(null);
     const markerRecordsRef = useRef<MarkerRecord[]>([]);
+
+    const handleRecenter = () => {
+        const map = mapRef.current;
+
+        if (!map || !window.kakao?.maps) {
+            return;
+        }
+
+        map.panTo(
+            new window.kakao.maps.LatLng(
+                latitude,
+                longitude,
+            ),
+        );
+    };
 
     const [
         mapInitializationVersion,
@@ -95,10 +161,7 @@ export default function RecommendationRestaurantMap({
                     error,
                     sdk: "kakao_map",
                     operation: "map_initialization",
-                    context: {
-                        mapType:
-                            "recommendation_restaurant",
-                    },
+                    context: {mapType: "recommendation_restaurant"},
                 });
             }
 
@@ -109,6 +172,27 @@ export default function RecommendationRestaurantMap({
             cancelled = true;
         };
     }, [latitude, level, longitude]);
+
+    useEffect(() => {
+        const map = mapRef.current;
+
+        if (
+            !map ||
+            !window.kakao?.maps ||
+            !onClearSelection
+        ) {
+            return;
+        }
+
+        window.kakao.maps.event.addListener(
+            map,
+            "click",
+            onClearSelection,
+        );
+    }, [
+        mapInitializationVersion,
+        onClearSelection,
+    ]);
 
     useEffect(() => {
         const map = mapRef.current;
@@ -147,6 +231,10 @@ export default function RecommendationRestaurantMap({
                     new window.kakao.maps.Marker({
                         map,
                         position,
+                        image:
+                            createRestaurantMarkerImage(
+                                false,
+                            ),
                     });
 
                 const infoWindow =
@@ -173,18 +261,8 @@ export default function RecommendationRestaurantMap({
                         onSelectRestaurant(
                             restaurant.id,
                         );
+
                         map.panTo(position);
-
-                        markerRecordsRef.current.forEach(
-                            (record) => {
-                                record.infoWindow?.close();
-                            },
-                        );
-
-                        infoWindow.open(
-                            map,
-                            marker,
-                        );
                     },
                 );
 
@@ -222,7 +300,31 @@ export default function RecommendationRestaurantMap({
     useEffect(() => {
         const map = mapRef.current;
 
-        if (!map || !selectedRestaurant) {
+        if (!map || !window.kakao?.maps) {
+            return;
+        }
+
+        markerRecordsRef.current.forEach(
+            (record) => {
+                const isSelected =
+                    selectedRestaurant?.id ===
+                    record.restaurantId;
+
+                record.marker.setImage(
+                    createRestaurantMarkerImage(
+                        isSelected,
+                    ),
+                );
+
+                record.marker.setZIndex(
+                    isSelected ? 10 : 1,
+                );
+
+                record.infoWindow?.close();
+            },
+        );
+
+        if (!selectedRestaurant) {
             return;
         }
 
@@ -237,13 +339,9 @@ export default function RecommendationRestaurantMap({
             return;
         }
 
-        markerRecordsRef.current.forEach(
-            (record) => {
-                record.infoWindow?.close();
-            },
+        map.panTo(
+            selectedMarkerRecord.position,
         );
-
-        map.panTo(selectedMarkerRecord.position);
 
         selectedMarkerRecord.infoWindow?.open(
             map,
@@ -268,6 +366,21 @@ export default function RecommendationRestaurantMap({
                     recommendationRestaurantPageStyles.mapContainer
                 }
             />
+
+            {showRecenterButton && (
+                <button
+                    type="button"
+                    onClick={handleRecenter}
+                    className={recenterButtonClassName}
+                    aria-label="설정한 위치로 이동"
+                >
+                    <Crosshair
+                        size={21}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                    />
+                </button>
+            )}
         </section>
     );
 }

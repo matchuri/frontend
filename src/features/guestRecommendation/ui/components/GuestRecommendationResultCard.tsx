@@ -7,10 +7,12 @@ import { guestRecommendationResultPageStyles } from "@/ui/styles/guestRecommenda
 
 interface GuestRecommendationResultCardProps {
     readonly candidate: GuestRecommendedMenu;
+    readonly onClickRestaurant: (menuId: number) => void;
 }
 
 export default function GuestRecommendationResultCard({
     candidate,
+    onClickRestaurant,
 }: GuestRecommendationResultCardProps) {
     const isFirstRank = candidate.rankNo === 1;
 
@@ -55,6 +57,7 @@ export default function GuestRecommendationResultCard({
 
                 <button
                     type="button"
+                    onClick={() => onClickRestaurant(candidate.menuId)}
                     className={guestRecommendationResultPageStyles.restaurantButton}
                     aria-label={`${candidate.menuName} 맛집 보기`}
                 >
