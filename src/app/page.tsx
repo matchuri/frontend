@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { useRootRedirectGuard } from "@/features/routeGuard/application/hooks/useRootRedirectGuard";
+import { usePublicHomeScrollReveal } from "@/features/home/application/hooks/usePublicHomeScrollReveal";
 
 import { homePageStyles } from "@/ui/styles/homePageStyles";
 
@@ -38,6 +39,8 @@ const recommendationSteps = [
 
 export default function Home() {
     const { shouldShowPublicHome } = useRootRedirectGuard();
+
+    usePublicHomeScrollReveal(shouldShowPublicHome);
 
     if (!shouldShowPublicHome) {
         return null;
@@ -114,7 +117,10 @@ export default function Home() {
                 </section>
 
                 <section className={homePageStyles.introSection}>
-                    <div className={homePageStyles.sectionHeader}>
+                    <div
+                        data-scroll-reveal
+                        className={`${homePageStyles.sectionHeader} ${homePageStyles.scrollReveal}`}
+                    >
                         <span className={homePageStyles.sectionEyebrow}>
                             MATCHURI
                         </span>
@@ -125,13 +131,17 @@ export default function Home() {
                     </div>
 
                     <div className={homePageStyles.stepList}>
-                        {recommendationSteps.map((step) => {
+                        {recommendationSteps.map((step, index) => {
                             const Icon = step.icon;
 
                             return (
                                 <article
                                     key={step.id}
-                                    className={homePageStyles.stepCard}
+                                    data-scroll-reveal
+                                    className={`${homePageStyles.stepCard} ${homePageStyles.scrollReveal}`}
+                                    style={{
+                                        transitionDelay: `${index * 200}ms`,
+                                    }}
                                 >
                                     <div className={homePageStyles.stepIcon}>
                                         <Icon
@@ -163,7 +173,10 @@ export default function Home() {
                 </section>
 
                 <section className={homePageStyles.featureSection}>
-                    <div className={homePageStyles.featureCard}>
+                    <div
+                        data-scroll-reveal
+                        className={`${homePageStyles.featureCard} ${homePageStyles.revealFromLeft}`}
+                    >
                         <div className={homePageStyles.featureIcon}>
                             <MapPin
                                 size={22}
@@ -183,7 +196,10 @@ export default function Home() {
                         </div>
                     </div>
 
-                    <div className={homePageStyles.featureCard}>
+                    <div
+                        data-scroll-reveal
+                        className={`${homePageStyles.featureCard} ${homePageStyles.revealFromRight}`}
+                    >
                         <div className={homePageStyles.featureIcon}>
                             <UsersRound
                                 size={22}
@@ -204,7 +220,10 @@ export default function Home() {
                     </div>
                 </section>
 
-                <section className={homePageStyles.signupSection}>
+                <section
+                    data-scroll-reveal
+                    className={`${homePageStyles.signupSection} ${homePageStyles.signupReveal}`}
+                >
                     <div>
                         <h2 className={homePageStyles.signupTitle}>
                             Matchuri를 더 편리하게 이용해보세요
