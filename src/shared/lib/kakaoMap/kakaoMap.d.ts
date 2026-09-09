@@ -42,7 +42,13 @@ declare global {
             panTo(latlng: LatLng): void;
 
             getBounds(): LatLngBounds;
-            setBounds(bounds: LatLngBounds): void;
+            setBounds(
+                bounds: LatLngBounds,
+                paddingTop?: number,
+                paddingRight?: number,
+                paddingBottom?: number,
+                paddingLeft?: number,
+            ): void;
 
             getLevel(): number;
             setLevel(level: number): void;

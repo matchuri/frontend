@@ -20,6 +20,10 @@ import GuestRecommendationRestaurantCard from "@/features/guestRecommendation/ui
 
 import { guestRecommendationRestaurantPageStyles } from "@/ui/styles/guestRecommendationRestaurantPageStyles";
 
+const MAP_BOUNDS_HORIZONTAL_PADDING = 32;
+const MAP_BOUNDS_TOP_PADDING = 48;
+const COLLAPSED_SHEET_VIEWPORT_RATIO = 0.42;
+
 type SheetState =
     | "COLLAPSED"
     | "MIDDLE"
@@ -71,6 +75,13 @@ export default function GuestRecommendationRestaurantContent({
     const touchStartYRef = useRef<number | null>(null);
     const restaurantListRef = useRef<HTMLDivElement | null>(null);
     const sheetTransitionLockedRef = useRef(false);
+
+    const mapBoundsBottomPadding =
+        typeof window !== "undefined"
+            ? Math.round(
+                  window.innerHeight * COLLAPSED_SHEET_VIEWPORT_RATIO,
+              ) + 24
+            : 340;
 
     const lockSheetTransition = () => {
         sheetTransitionLockedRef.current = true;
@@ -240,6 +251,10 @@ export default function GuestRecommendationRestaurantContent({
                 mapClassName={guestRecommendationRestaurantPageStyles.map}
                 showRecenterButton
                 recenterButtonClassName={guestRecommendationRestaurantPageStyles.recenterButton}
+                boundsPaddingTop={MAP_BOUNDS_TOP_PADDING}
+                boundsPaddingRight={MAP_BOUNDS_HORIZONTAL_PADDING}
+                boundsPaddingBottom={mapBoundsBottomPadding}
+                boundsPaddingLeft={MAP_BOUNDS_HORIZONTAL_PADDING}
             />
 
             <section

@@ -17,6 +17,8 @@ import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRe
 const NORMAL_MARKER_SIZE = 34;
 const SELECTED_MARKER_SIZE = 44;
 
+const DEFAULT_MAP_BOUNDS_PADDING = 32;
+
 function createRestaurantMarkerImage(
     selected: boolean,
 ) {
@@ -80,6 +82,11 @@ interface RecommendationRestaurantMapProps {
 
     readonly showRecenterButton?: boolean;
     readonly recenterButtonClassName?: string;
+
+    readonly boundsPaddingTop?: number;
+    readonly boundsPaddingRight?: number;
+    readonly boundsPaddingBottom?: number;
+    readonly boundsPaddingLeft?: number;
 }
 
 export default function RecommendationRestaurantMap({
@@ -94,10 +101,19 @@ export default function RecommendationRestaurantMap({
     mapClassName,
     showRecenterButton = false,
     recenterButtonClassName,
+    boundsPaddingTop = DEFAULT_MAP_BOUNDS_PADDING,
+    boundsPaddingRight = DEFAULT_MAP_BOUNDS_PADDING,
+    boundsPaddingBottom = DEFAULT_MAP_BOUNDS_PADDING,
+    boundsPaddingLeft = DEFAULT_MAP_BOUNDS_PADDING,
 }: RecommendationRestaurantMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<kakao.maps.Map | null>(null);
     const markerRecordsRef = useRef<MarkerRecord[]>([]);
+
+    const [
+        mapInitializationVersion,
+        setMapInitializationVersion,
+    ] = useState(0);
 
     const handleRecenter = () => {
         const map = mapRef.current;
@@ -114,13 +130,10 @@ export default function RecommendationRestaurantMap({
         );
     };
 
-    const [
-        mapInitializationVersion,
-        setMapInitializationVersion,
-    ] = useState(0);
-
     useEffect(() => {
-        if (!mapContainerRef.current) return;
+        if (!mapContainerRef.current) {
+            return;
+        }
 
         let cancelled = false;
 
@@ -171,7 +184,11 @@ export default function RecommendationRestaurantMap({
         return () => {
             cancelled = true;
         };
-    }, [latitude, level, longitude]);
+    }, [
+        latitude,
+        level,
+        longitude,
+    ]);
 
     useEffect(() => {
         const map = mapRef.current;
@@ -276,7 +293,15 @@ export default function RecommendationRestaurantMap({
             });
 
         if (restaurants.length > 0) {
-            map.setBounds(bounds);
+            map.relayout();
+
+            map.setBounds(
+                bounds,
+                boundsPaddingTop,
+                boundsPaddingRight,
+                boundsPaddingBottom,
+                boundsPaddingLeft,
+            );
         }
 
         return () => {
@@ -295,6 +320,10 @@ export default function RecommendationRestaurantMap({
         mapInitializationVersion,
         onSelectRestaurant,
         restaurants,
+        boundsPaddingTop,
+        boundsPaddingRight,
+        boundsPaddingBottom,
+        boundsPaddingLeft,
     ]);
 
     useEffect(() => {
@@ -316,9 +345,7 @@ export default function RecommendationRestaurantMap({
                     ),
                 );
 
-                record.marker.setZIndex(
-                    isSelected ? 10 : 1,
-                );
+                record.marker.setZIndex(isSelected ? 10 : 1);
 
                 record.infoWindow?.close();
             },
@@ -339,9 +366,7 @@ export default function RecommendationRestaurantMap({
             return;
         }
 
-        map.panTo(
-            selectedMarkerRecord.position,
-        );
+        map.panTo(selectedMarkerRecord.position);
 
         selectedMarkerRecord.infoWindow?.open(
             map,
