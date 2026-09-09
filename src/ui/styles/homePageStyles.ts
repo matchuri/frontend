@@ -62,4 +62,29 @@ export const homePageStyles = {
         "mt-5 flex h-12 w-full items-center justify-center rounded-2xl bg-[#FB6F00] text-[14px] font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.99]",
     loginGuide: "mt-3 text-[12px] text-gray-500",
     loginLink: "font-semibold text-[#FB6F00] underline underline-offset-2",
+
+    // Scroll Reveal
+    scrollReveal:
+        "translate-y-[14px] scale-[0.985] opacity-0 " +
+        "transition-[opacity,transform] duration-750 ease-out " +
+        "data-[revealed=true]:translate-y-0 data-[revealed=true]:scale-100 data-[revealed=true]:opacity-100 " +
+        "motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 motion-reduce:transition-none",
+
+    revealFromLeft:
+        "-translate-x-[14px] opacity-0 " +
+        "transition-[opacity,transform] duration-750 ease-out " +
+        "data-[revealed=true]:translate-x-0 data-[revealed=true]:opacity-100 " +
+        "motion-reduce:translate-x-0 motion-reduce:opacity-100 motion-reduce:transition-none",
+
+    revealFromRight:
+        "translate-x-[14px] opacity-0 " +
+        "transition-[opacity,transform] duration-750 ease-out " +
+        "data-[revealed=true]:translate-x-0 data-[revealed=true]:opacity-100 " +
+        "motion-reduce:translate-x-0 motion-reduce:opacity-100 motion-reduce:transition-none",
+
+    signupReveal:
+        "translate-y-[14px] scale-[0.985] opacity-0 " +
+        "transition-[opacity,transform] duration-750 ease-out " +
+        "data-[revealed=true]:translate-y-0 data-[revealed=true]:scale-100 data-[revealed=true]:opacity-100 " +
+        "motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 motion-reduce:transition-none",
 } as const;
