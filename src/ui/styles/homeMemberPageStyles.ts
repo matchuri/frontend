@@ -6,7 +6,8 @@ export const homeMemberPageStyles = {
     header: "flex items-center justify-between px-5 pb-5 pt-6",
     userSection: "flex min-w-0 items-center gap-3",
     profileIcon:
-        "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-50 text-[#FB6F00]",
+        "flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-50 text-[#FB6F00]",
+    profileImage: "h-full w-full object-cover",
     userTextBox: "min-w-0",
     welcomeText: "text-[15px] text-gray-800",
     locationButton: "mt-1 flex max-w-[230px] cursor-pointer items-center gap-1 rounded-md text-xs text-gray-500 transition-colors hover:text-[#FB6F00]",
