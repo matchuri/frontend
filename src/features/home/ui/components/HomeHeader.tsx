@@ -1,3 +1,4 @@
+import Image from "next/image";
 import {
     ChevronDown,
     MapPin,
@@ -8,12 +9,14 @@ import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 interface HomeHeaderProps {
     readonly nickname: string;
+    readonly profileImageUrl: string | null;
     readonly address: string;
     readonly onClickLocation: () => void;
 }
 
 export default function HomeHeader({
     nickname,
+    profileImageUrl,
     address,
     onClickLocation,
 }: HomeHeaderProps) {
@@ -21,10 +24,21 @@ export default function HomeHeader({
         <header className={homeMemberPageStyles.header}>
             <div className={homeMemberPageStyles.userSection}>
                 <div className={homeMemberPageStyles.profileIcon}>
-                    <UserRound
-                        size={24}
-                        strokeWidth={2}
-                    />
+                    {profileImageUrl ? (
+                        <Image
+                            src={profileImageUrl}
+                            alt={`${nickname}님의 프로필 이미지`}
+                            width={44}
+                            height={44}
+                            className={homeMemberPageStyles.profileImage}
+                        />
+                    ) : (
+                        <UserRound
+                            size={24}
+                            strokeWidth={2}
+                            aria-hidden="true"
+                        />
+                    )}
                 </div>
 
                 <div className={homeMemberPageStyles.userTextBox}>

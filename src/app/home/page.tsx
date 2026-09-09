@@ -257,6 +257,7 @@ export default function HomePage() {
             <main className={homeMemberPageStyles.container}>
                 <HomeHeader
                     nickname={homeData.user.nickname}
+                    profileImageUrl={homeData.user.profileImageUrl}
                     address={
                         homeData.location?.address ??
                         "설정된 위치가 없습니다."
