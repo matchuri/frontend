@@ -10,6 +10,7 @@ import { usePreferenceOptionList } from "@/features/preference/application/hooks
 import { useLocationSearch } from "@/features/locationSetting/application/hooks/useLocationSearch";
 
 import GuestPreferenceSettingSection from "@/features/guestRecommendation/ui/components/GuestPreferenceSettingSection";
+import GuestPreferenceSettingSkeleton from "@/features/guestRecommendation/ui/components/GuestPreferenceSettingSkeleton";
 import GuestLocationSettingSection from "@/features/guestRecommendation/ui/components/GuestLocationSettingSection";
 import GuestRecommendationLoadingView from "@/features/guestRecommendation/ui/components/GuestRecommendationLoadingView";
 
@@ -95,13 +96,7 @@ export default function GuestRecommendationPage() {
                 </section>
 
                 {preferenceOptionState.status === "LOADING" && (
-                    <section className={guestRecommendationPageStyles.stateCard}>
-                        <div className={guestRecommendationPageStyles.loadingSpinner} />
-
-                        <p className={guestRecommendationPageStyles.stateText}>
-                            취향 선택 항목을 불러오는 중입니다.
-                        </p>
-                    </section>
+                    <GuestPreferenceSettingSkeleton />
                 )}
 
                 {preferenceOptionState.status === "ERROR" && (

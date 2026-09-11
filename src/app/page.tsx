@@ -14,6 +14,8 @@ import {
 import { useRootRedirectGuard } from "@/features/routeGuard/application/hooks/useRootRedirectGuard";
 import { usePublicHomeScrollReveal } from "@/features/home/application/hooks/usePublicHomeScrollReveal";
 
+import PublicHomeSkeleton from "@/features/home/ui/components/PublicHomeSkeleton";
+
 import { homePageStyles } from "@/ui/styles/homePageStyles";
 
 const recommendationSteps = [
@@ -38,9 +40,13 @@ const recommendationSteps = [
 ] as const;
 
 export default function Home() {
-    const { shouldShowPublicHome } = useRootRedirectGuard();
+    const { isAuthLoading, shouldShowPublicHome } = useRootRedirectGuard();
 
     usePublicHomeScrollReveal(shouldShowPublicHome);
+
+    if (isAuthLoading) {
+        return <PublicHomeSkeleton />;
+    }
 
     if (!shouldShowPublicHome) {
         return null;

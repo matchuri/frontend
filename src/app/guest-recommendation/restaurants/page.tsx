@@ -6,12 +6,13 @@ import { useGuestRecommendationRestaurantContext } from "@/features/guestRecomme
 import { useRecommendationRestaurants } from "@/features/recommendationRestaurant/application/hooks/useRecommendationRestaurants";
 
 import GuestRecommendationRestaurantContent from "@/features/guestRecommendation/ui/components/GuestRecommendationRestaurantContent";
+import GuestRecommendationRestaurantSkeleton from "@/features/guestRecommendation/ui/components/GuestRecommendationRestaurantSkeleton";
 
 import { isLocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 
 export default function GuestRecommendationRestaurantsPage() {
     return (
-        <Suspense fallback={null}>
+        <Suspense fallback={<GuestRecommendationRestaurantSkeleton />}>
             <GuestRecommendationRestaurantsPageContent />
         </Suspense>
     );
@@ -38,7 +39,7 @@ function GuestRecommendationRestaurantsPageContent() {
         });
 
     if (!isValidContext || selectedMenu === null) {
-        return null;
+        return <GuestRecommendationRestaurantSkeleton />;
     }
 
     return (

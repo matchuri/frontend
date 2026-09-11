@@ -18,7 +18,10 @@ import { updateNickname } from "@/features/settings/infrastructure/api/settingsA
 
 import { updateMemberNickname } from "@/features/auth/application/store/authStore";
 
+import Skeleton from "@/ui/components/Skeleton";
+
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
+import { settingsSkeletonStyles } from "@/ui/styles/settingsSkeletonStyles";
 
 interface MyPageProfileSectionProps {
     readonly profileImageUrl: string | null;
@@ -53,10 +56,10 @@ export default function MyPageProfileSection({
 
     if (isLoading) {
         return (
-            <section className={settingsPageStyles.profileSection}>
-                <div className={settingsPageStyles.skeletonProfileImage} />
-                <div className={settingsPageStyles.skeletonNickname} />
-                <div className={settingsPageStyles.skeletonEmail} />
+            <section className={settingsSkeletonStyles.profileSection}>
+                <Skeleton className={settingsSkeletonStyles.profileImage} />
+                <Skeleton className={settingsSkeletonStyles.nickname} />
+                <Skeleton className={settingsSkeletonStyles.email} />
             </section>
         );
     }

@@ -35,6 +35,7 @@ import HomeRecommendationHero from "@/features/home/ui/components/HomeRecommenda
 import HomeTasteProfileCard from "@/features/home/ui/components/HomeTasteProfileCard";
 import HomeRecommendationHistory from "@/features/home/ui/components/HomeRecommendationHistory";
 import HomeRecentGroupActivity from "@/features/home/ui/components/HomeRecentGroupActivity";
+import HomePageSkeleton from "@/features/home/ui/components/HomePageSkeleton";
 
 import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
 import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
@@ -55,7 +56,7 @@ export default function HomePage() {
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
     const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
 
-    const { canAccess } = useHomeGuard();
+    const { isAuthLoading, canAccess } = useHomeGuard();
     const { refetchHome } = useHomeData(canAccess);
 
     const homeData = useAtomValue(homeDataAtom);
@@ -120,18 +121,16 @@ export default function HomePage() {
         hasPreference,
     });
 
+    if (isAuthLoading) {
+        return <HomePageSkeleton />;
+    }
+
     if (!canAccess) {
         return null;
     }
 
     if (isHomeLoading && !homeData) {
-        return (
-            <main className={homeMemberPageStyles.stateContainer}>
-                <p className={homeMemberPageStyles.stateText}>
-                    홈 정보를 불러오는 중입니다.
-                </p>
-            </main>
-        );
+        return <HomePageSkeleton />;
     }
 
     if (homeErrorMessage && !homeData) {

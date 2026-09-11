@@ -50,10 +50,6 @@ function AppContent({ children }: { children: ReactNode }) {
         isMemberReady &&
         !shouldHideBottomNavigation(pathname);
 
-    if (isAuthLoading) {
-        return null;
-    }
-
     return (
         <div className={appLayoutStyles.pageBackground}>
             <div className={appLayoutStyles.appContainer}>

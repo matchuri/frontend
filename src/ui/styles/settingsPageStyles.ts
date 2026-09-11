@@ -35,10 +35,6 @@ export const settingsPageStyles = {
     stateContainer: "flex min-h-[420px] items-center justify-center px-5",
     errorText: "text-center text-sm text-red-500",
 
-    skeletonProfileImage: "h-24 w-24 animate-pulse rounded-full bg-gray-200",
-    skeletonNickname: "mt-5 h-5 w-24 animate-pulse rounded bg-gray-200",
-    skeletonEmail: "mt-2 h-4 w-40 animate-pulse rounded bg-gray-100",
-
     profileImageModalOverlay: "absolute inset-0 z-[60] flex items-end bg-black/20 backdrop-blur-[2px]",
     profileImageModal:
         "flex h-[68%] min-h-[520px] w-full flex-col rounded-t-[24px] bg-white px-7 pb-7 pt-6 shadow-[0_-4px_18px_rgba(0,0,0,0.08)]",

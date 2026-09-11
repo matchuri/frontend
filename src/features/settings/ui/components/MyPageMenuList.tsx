@@ -1,6 +1,9 @@
 import { ChevronRight } from "lucide-react";
 
+import Skeleton from "@/ui/components/Skeleton";
+
 import { settingsPageStyles } from "@/ui/styles/settingsPageStyles";
+import { settingsSkeletonStyles } from "@/ui/styles/settingsSkeletonStyles";
 
 interface MyPageMenuListProps {
     readonly showPasswordChange: boolean;
@@ -51,7 +54,23 @@ export default function MyPageMenuList({
     onClickLogout,
     onClickDeleteMember,
 }: MyPageMenuListProps) {
-    const isDisabled = isLoading || isLoggingOut;
+    if (isLoading) {
+        return (
+            <section className={settingsSkeletonStyles.menuSection}>
+                {Array.from({ length: 4 }).map((_, index) => (
+                    <div
+                        key={index}
+                        className={settingsSkeletonStyles.menuItem}
+                    >
+                        <Skeleton className={settingsSkeletonStyles.menuLabel} />
+                        <Skeleton className={settingsSkeletonStyles.menuChevron} />
+                    </div>
+                ))}
+            </section>
+        );
+    }
+
+    const isDisabled = isLoggingOut;
 
     return (
         <section className={settingsPageStyles.menuSection}>
