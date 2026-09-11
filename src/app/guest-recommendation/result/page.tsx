@@ -4,6 +4,7 @@ import { useGuestRecommendationResult } from "@/features/guestRecommendation/app
 import { useGuestRecommendationRestaurantNavigation } from "@/features/guestRecommendation/application/hooks/useGuestRecommendationRestaurantNavigation";
 
 import GuestRecommendationResultContent from "@/features/guestRecommendation/ui/components/GuestRecommendationResultContent";
+import GuestRecommendationResultSkeleton from "@/features/guestRecommendation/ui/components/GuestRecommendationResultSkeleton";
 
 export default function GuestRecommendationResultPage() {
     const {
@@ -17,7 +18,7 @@ export default function GuestRecommendationResultPage() {
     } = useGuestRecommendationRestaurantNavigation();
 
     if (recommendation === null) {
-        return null;
+        return <GuestRecommendationResultSkeleton />;
     }
 
     return (

@@ -10,15 +10,27 @@ export interface AccountData {
 
 export const accountStorage = {
     save: (data: AccountData) => {
-        sessionStorage.setItem(KEY, JSON.stringify(data));
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        window.sessionStorage.setItem(KEY, JSON.stringify(data));
     },
 
     load: (): AccountData | null => {
-        const data = sessionStorage.getItem(KEY);
+        if (typeof window === "undefined") {
+            return null;
+        }
+
+        const data = window.sessionStorage.getItem(KEY);
         return data ? JSON.parse(data) : null;
     },
 
     clear: () => {
-        sessionStorage.removeItem(KEY);
+        if (typeof window === "undefined") {
+            return;
+        }
+
+        window.sessionStorage.removeItem(KEY);
     },
 };
