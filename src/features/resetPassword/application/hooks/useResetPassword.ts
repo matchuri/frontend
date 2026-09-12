@@ -8,6 +8,10 @@ import { confirmPasswordVerification } from "@/features/resetPassword/applicatio
 import { resetPassword } from "@/features/resetPassword/application/usecase/resetPassword";
 import { validateResetPassword } from "@/features/resetPassword/domain/validator/validateResetPassword";
 
+const MAX_SEND_ATTEMPTS = 5;
+const MAX_CONFIRM_ATTEMPTS = 5;
+const VERIFICATION_EXPIRES_IN_SECONDS = 300;
+
 export function useResetPassword() {
     const setResetPasswordState = useSetAtom(resetPasswordAtom);
 
@@ -18,8 +22,13 @@ export function useResetPassword() {
     const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
 
     const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+    const [resendRemainingSeconds, setResendRemainingSeconds] = useState<number | null>(null);
+    const [sendAttemptCount, setSendAttemptCount] = useState(0);
+    const [confirmAttemptCount, setConfirmAttemptCount] = useState(0);
     const [message, setMessage] = useState<string | null>(null);
+    const [resendMessage, setResendMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isResending, setIsResending] = useState(false);
 
     const passwordValidationResult = validateResetPassword(newPassword);
 
@@ -35,9 +44,22 @@ export function useResetPassword() {
         setMessage("인증 시간이 만료되었습니다. 다시 시도해주세요.");
     };
 
+    const handleResendAvailable = () => {
+        setResendRemainingSeconds(0);
+    };
+
+    const handleCodeChange = (nextCode: string) => {
+        setCode(nextCode);
+
+        if (message?.startsWith("이메일 인증번호가 올바르지 않습니다.")) {
+            setMessage(null);
+        }
+    };
+
     const handleRequestVerification = async () => {
         setIsLoading(true);
         setMessage(null);
+        setResendMessage(null);
 
         const result = await requestPasswordVerification({
             loginId,
@@ -51,16 +73,61 @@ export function useResetPassword() {
             return;
         }
 
-        setRemainingSeconds(300);
+        setSendAttemptCount(1);
+        setConfirmAttemptCount(0);
+        setRemainingSeconds(VERIFICATION_EXPIRES_IN_SECONDS);
+        setResendRemainingSeconds(result.resendAvailableAfterSeconds);
 
         setResetPasswordState({
             status: "CODE_INPUT",
         });
     };
 
+    const handleResendCode = async () => {
+        if (resendRemainingSeconds !== 0 ||
+            isLoading ||
+            isResending
+        ) {
+            return;
+        }
+
+        if (sendAttemptCount >= MAX_SEND_ATTEMPTS) {
+            setResendMessage("인증번호 발송 가능 횟수를 초과했습니다.");
+            return;
+        }
+
+        setIsResending(true);
+        setMessage(null);
+        setResendMessage(null);
+
+        const result = await requestPasswordVerification({
+            loginId,
+            email,
+        });
+
+        setIsResending(false);
+
+        if (!result.success) {
+            setResendMessage(result.message);
+            return;
+        }
+
+        setCode("");
+        setConfirmAttemptCount(0);
+        setSendAttemptCount((prev) => prev + 1);
+        setRemainingSeconds(VERIFICATION_EXPIRES_IN_SECONDS);
+        setResendRemainingSeconds(result.resendAvailableAfterSeconds);
+    };
+
     const handleConfirmCode = async () => {
         if (remainingSeconds === 0) {
             setMessage("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+            return;
+        }
+
+        if (confirmAttemptCount >= MAX_CONFIRM_ATTEMPTS ||
+            isResending
+        ) {
             return;
         }
 
@@ -76,7 +143,20 @@ export function useResetPassword() {
         setIsLoading(false);
 
         if (!result.success) {
-            setMessage(result.message);
+            const nextConfirmAttemptCount = confirmAttemptCount + 1;
+
+            setConfirmAttemptCount(nextConfirmAttemptCount);
+
+            if (nextConfirmAttemptCount >= MAX_CONFIRM_ATTEMPTS) {
+                setMessage(
+                    `이메일 인증번호가 올바르지 않습니다. 인증 시도 횟수를 초과했습니다. (${nextConfirmAttemptCount}/${MAX_CONFIRM_ATTEMPTS})`,
+                );
+                return;
+            }
+
+            setMessage(
+                `이메일 인증번호가 올바르지 않습니다. 다시 시도하세요. (${nextConfirmAttemptCount}/${MAX_CONFIRM_ATTEMPTS})`,
+            );
             return;
         }
 
@@ -125,21 +205,33 @@ export function useResetPassword() {
         newPassword,
         newPasswordConfirm,
         remainingSeconds,
+        resendRemainingSeconds,
+        sendAttemptCount,
+        confirmAttemptCount,
         message,
+        resendMessage,
         passwordMessage,
         isPasswordValid,
         isLoading,
+        isResending,
         canRequestVerification: !!loginId.trim() && !!email.trim(),
-        canConfirmCode: !!code.trim() && remainingSeconds !== 0,
+        canConfirmCode:
+            code.length === 6 &&
+            remainingSeconds !== 0 &&
+            confirmAttemptCount < MAX_CONFIRM_ATTEMPTS,
+        canResendCode: resendRemainingSeconds === 0,
         canResetPassword: isPasswordValid && isPasswordConfirmMatched,
         setLoginId,
         setEmail,
-        setCode,
+        setCode: handleCodeChange,
         setNewPassword,
         setNewPasswordConfirm,
         setRemainingSeconds,
+        setResendRemainingSeconds,
         handleExpired,
+        handleResendAvailable,
         handleRequestVerification,
+        handleResendCode,
         handleConfirmCode,
         handleResetPassword,
     };

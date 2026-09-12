@@ -1,6 +1,9 @@
 "use client";
 
-import { resetPasswordPageStyles } from "@/ui/styles/resetPasswordPageStyles";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
+
+import { authPageStyles } from "@/ui/styles/authPageStyles";
 
 interface ResetPasswordNewPasswordInputProps {
     readonly newPassword: string;
@@ -25,63 +28,109 @@ export default function ResetPasswordNewPasswordInput({
     setNewPasswordConfirm,
     handleResetPassword,
 }: ResetPasswordNewPasswordInputProps) {
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isPasswordConfirmVisible, setIsPasswordConfirmVisible] =
+        useState(false);
+
     const passwordConfirmMessage =
         newPasswordConfirm && newPassword !== newPasswordConfirm
             ? "비밀번호가 일치하지 않습니다."
             : "";
 
     return (
-        <div className={resetPasswordPageStyles.form}>
-            <p className={resetPasswordPageStyles.description}>
-                새 비밀번호를 입력하세요
-            </p>
+        <div>
+            <div className={authPageStyles.intro}>
+                <h1 className={authPageStyles.title}>비밀번호 찾기</h1>
 
-            <label className={`${resetPasswordPageStyles.label} mt-8`}>
-                새 비밀번호
-            </label>
-            <input
-                type="password"
-                value={newPassword}
-                onChange={(event) => setNewPassword(event.target.value)}
-                className={resetPasswordPageStyles.input}
-            />
-
-            {passwordMessage && (
-                <p className={resetPasswordPageStyles.message}>
-                    {passwordMessage}
+                <p className={authPageStyles.description}>
+                    새로운 비밀번호를 입력해 주세요.
                 </p>
-            )}
+            </div>
 
-            <label className={`${resetPasswordPageStyles.label} mt-6`}>
-                새 비밀번호 확인
-            </label>
-            <input
-                type="password"
-                value={newPasswordConfirm}
-                onChange={(event) =>
-                    setNewPasswordConfirm(event.target.value)
-                }
-                className={resetPasswordPageStyles.input}
-            />
+            <div className={authPageStyles.form}>
+                <div className={authPageStyles.inputGroup}>
+                    <label className={authPageStyles.label}>
+                        새 비밀번호
+                    </label>
 
-            {passwordConfirmMessage && (
-                <p className={resetPasswordPageStyles.message}>
-                    {passwordConfirmMessage}
-                </p>
-            )}
+                    <div className={authPageStyles.passwordInputWrapper}>
+                        <input
+                            type={isPasswordVisible ? "text" : "password"}
+                            value={newPassword}
+                            onChange={(event) => setNewPassword(event.target.value)}
+                            className={`${authPageStyles.input} ${authPageStyles.passwordInput}`}
+                            placeholder="새 비밀번호를 입력하세요"
+                        />
 
-            {message && (
-                <p className={resetPasswordPageStyles.message}>{message}</p>
-            )}
+                        <button
+                            type="button"
+                            onClick={() => setIsPasswordVisible((prev) => !prev)}
+                            className={authPageStyles.passwordToggle}
+                            aria-label={isPasswordVisible ? "비밀번호 숨기기" : "비밀번호 보기"}
+                        >
+                            {isPasswordVisible ? (
+                                <EyeOff size={20} />
+                            ) : (
+                                <Eye size={20} />
+                            )}
+                        </button>
+                    </div>
 
-            <button
-                type="button"
-                onClick={handleResetPassword}
-                disabled={!canResetPassword || isLoading}
-                className={resetPasswordPageStyles.button}
-            >
-                {isLoading ? "변경 중..." : "확인"}
-            </button>
+                    {passwordMessage && (
+                        <p className={authPageStyles.message}>
+                            {passwordMessage}
+                        </p>
+                    )}
+                </div>
+
+                <div className={authPageStyles.inputGroup}>
+                    <label className={authPageStyles.label}>
+                        새 비밀번호 확인
+                    </label>
+
+                    <div className={authPageStyles.passwordInputWrapper}>
+                        <input
+                            type={isPasswordConfirmVisible ? "text" : "password"}
+                            value={newPasswordConfirm}
+                            onChange={(event) => setNewPasswordConfirm(event.target.value)}
+                            className={`${authPageStyles.input} ${authPageStyles.passwordInput}`}
+                            placeholder="새 비밀번호를 다시 입력하세요"
+                        />
+
+                        <button
+                            type="button"
+                            onClick={() => setIsPasswordConfirmVisible((prev) => !prev)}
+                            className={authPageStyles.passwordToggle}
+                            aria-label={isPasswordConfirmVisible ? "비밀번호 숨기기" : "비밀번호 보기"}
+                        >
+                            {isPasswordConfirmVisible ? (
+                                <EyeOff size={20} />
+                            ) : (
+                                <Eye size={20} />
+                            )}
+                        </button>
+                    </div>
+
+                    {passwordConfirmMessage && (
+                        <p className={authPageStyles.message}>
+                            {passwordConfirmMessage}
+                        </p>
+                    )}
+                </div>
+
+                {message && (
+                    <p className={authPageStyles.message}>{message}</p>
+                )}
+
+                <button
+                    type="button"
+                    onClick={handleResetPassword}
+                    disabled={!canResetPassword || isLoading}
+                    className={authPageStyles.primaryButton}
+                >
+                    {isLoading ? "변경 중..." : "확인"}
+                </button>
+            </div>
         </div>
     );
 }
