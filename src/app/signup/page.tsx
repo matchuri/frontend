@@ -1,9 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
+import {
+    isAuthenticatedAtom,
+    isAuthLoadingAtom,
+    onboardingAtom,
+} from "@/features/auth/application/selectors/authSelectors";
+import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 import SignupProgress from "@/features/signup/ui/components/SignupProgress";
 import SignupLoginIdStep from "@/features/signup/ui/components/SignupLoginIdStep";
@@ -14,11 +21,14 @@ import SignupVerificationStep from "@/features/signup/ui/components/SignupVerifi
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
 
 import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
+import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
 import { useLoginIdValidation } from "@/features/signup/application/hooks/useLoginIdValidation";
 import { usePasswordValidation } from "@/features/signup/application/hooks/usePasswordValidation";
 import { useEmailVerification } from "@/features/emailVerification/application/hooks/useEmailVerification";
 import { useVerificationExpireTimer } from "@/features/emailVerification/application/hooks/useVerificationExpireTimer";
 import { useResendTimer } from "@/features/emailVerification/application/hooks/useResendTimer";
+
+import { clearSignupData } from "@/features/signup/application/usecase/clearSignupData";
 
 import { authPageStyles } from "@/ui/styles/authPageStyles";
 
@@ -28,6 +38,10 @@ type SignupStep = 1 | 2 | 3 | 4;
 
 export default function SignupPage() {
     const router = useRouter();
+
+    const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+    const onboarding = useAtomValue(onboardingAtom);
 
     const [step, setStep] = useState<SignupStep>(1);
 
@@ -82,8 +96,44 @@ export default function SignupPage() {
         setResendSeconds,
     });
 
+    useEffect(() => {
+        if (isAuthLoading) {
+            return;
+        }
+
+        const signupMode = signupOnboardingModeStorage.load();
+
+        if (isAuthenticated) {
+            if (!onboarding?.nextStep) {
+                router.replace("/home");
+                return;
+            }
+
+            if (
+                signupMode === "SOCIAL" &&
+                onboarding.nextStep === "READY"
+            ) {
+                router.replace("/signup/preference");
+                return;
+            }
+
+            router.replace(
+                getOnboardingRoute(onboarding.nextStep),
+            );
+            return;
+        }
+
+        signupOnboardingModeStorage.save("GENERAL");
+    }, [
+        isAuthLoading,
+        isAuthenticated,
+        onboarding,
+        router,
+    ]);
+
     const handleBack = () => {
         if (step === 1) {
+            clearSignupData();
             router.push("/");
             return;
         }
@@ -157,6 +207,10 @@ export default function SignupPage() {
         emailVerificationStatus === "EXPIRED"
             ? emailVerificationMessage
             : "";
+
+    if (isAuthLoading || isAuthenticated) {
+        return null;
+    }
 
     return (
         <main className={authPageStyles.page}>

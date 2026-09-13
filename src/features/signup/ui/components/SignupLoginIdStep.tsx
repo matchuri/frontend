@@ -89,7 +89,7 @@ export default function SignupLoginIdStep({
                         className={authPageStyles.input}
                         placeholder="아이디를 입력하세요"
                         autoComplete="username"
-                        pattern="[A-Za-z0-9._-]{1,50}"
+                        pattern="[A-Za-z0-9._\-]{1,50}"
                         maxLength={50}
                         required
                         autoFocus
