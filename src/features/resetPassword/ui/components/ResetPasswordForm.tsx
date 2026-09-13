@@ -19,6 +19,12 @@ export default function ResetPasswordForm() {
         onExpired: resetPassword.handleExpired,
     });
 
+    useVerificationExpireTimer({
+        remainingSeconds: resetPassword.resendRemainingSeconds,
+        setRemainingSeconds: resetPassword.setResendRemainingSeconds,
+        onExpired: resetPassword.handleResendAvailable,
+    });
+
     if (state.status === "CODE_INPUT") {
         return <ResetPasswordCodeInput {...resetPassword} />;
     }
