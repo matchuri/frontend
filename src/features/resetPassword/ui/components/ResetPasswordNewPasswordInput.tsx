@@ -47,7 +47,18 @@ export default function ResetPasswordNewPasswordInput({
                 </p>
             </div>
 
-            <div className={authPageStyles.form}>
+            <form
+                className={authPageStyles.form}
+                onSubmit={(event) => {
+                    event.preventDefault();
+
+                    if (!canResetPassword || isLoading) {
+                        return;
+                    }
+
+                    handleResetPassword();
+                }}
+            >
                 <div className={authPageStyles.inputGroup}>
                     <label className={authPageStyles.label}>
                         새 비밀번호
@@ -123,14 +134,13 @@ export default function ResetPasswordNewPasswordInput({
                 )}
 
                 <button
-                    type="button"
-                    onClick={handleResetPassword}
+                    type="submit"
                     disabled={!canResetPassword || isLoading}
                     className={authPageStyles.primaryButton}
                 >
                     {isLoading ? "변경 중..." : "확인"}
                 </button>
-            </div>
+            </form>
         </div>
     );
 }

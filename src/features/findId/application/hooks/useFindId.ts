@@ -6,6 +6,7 @@ import { findIdAtom } from "@/features/findId/application/atoms/findIdAtom";
 import { sendEmailVerification } from "@/features/emailVerification/application/usecase/sendEmailVerification";
 import { confirmEmailVerification } from "@/features/emailVerification/application/usecase/confirmEmailVerification";
 import { findIdByVerificationToken } from "@/features/findId/application/usecase/findIdByVerificationToken";
+import type { EmailVerificationFeedback } from "@/features/emailVerification/domain/model/EmailVerificationFeedback";
 
 const MAX_SEND_ATTEMPTS = 5;
 const MAX_CONFIRM_ATTEMPTS = 5;
@@ -22,8 +23,12 @@ export function useFindId() {
     const [confirmAttemptCount, setConfirmAttemptCount] = useState(0);
     const [message, setMessage] = useState<string | null>(null);
     const [resendMessage, setResendMessage] = useState<string | null>(null);
+    const [verificationFeedback, setVerificationFeedback] =
+        useState<EmailVerificationFeedback | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isResending, setIsResending] = useState(false);
+
+    const hasReachedSendLimit = sendAttemptCount >= MAX_SEND_ATTEMPTS;
 
     const handleExpired = () => {
         setRemainingSeconds(0);
@@ -35,10 +40,10 @@ export function useFindId() {
 
     const handleCodeChange = (nextCode: string) => {
         setCode(nextCode);
+    };
 
-        if (message?.startsWith("이메일 인증번호가 올바르지 않습니다.")) {
-            setMessage(null);
-        }
+    const closeVerificationFeedback = () => {
+        setVerificationFeedback(null);
     };
 
     const handleSendCode = async () => {
@@ -49,6 +54,7 @@ export function useFindId() {
         setIsLoading(true);
         setMessage(null);
         setResendMessage(null);
+        setVerificationFeedback(null);
 
         const result = await sendEmailVerification({
             email: trimmedEmail,
@@ -76,7 +82,7 @@ export function useFindId() {
     };
 
     const handleResendCode = async () => {
-        if (resendRemainingSeconds !== 0 ||
+        if (
             isLoading ||
             isResending
         ) {
@@ -84,7 +90,10 @@ export function useFindId() {
         }
 
         if (sendAttemptCount >= MAX_SEND_ATTEMPTS) {
-            setResendMessage("인증번호 발송 가능 횟수를 초과했습니다.");
+            return;
+        }
+
+        if (resendRemainingSeconds !== 0) {
             return;
         }
 
@@ -95,6 +104,7 @@ export function useFindId() {
         setIsResending(true);
         setMessage(null);
         setResendMessage(null);
+        setVerificationFeedback(null);
 
         const result = await sendEmailVerification({
             email: trimmedEmail,
@@ -108,11 +118,20 @@ export function useFindId() {
             return;
         }
 
+        const nextSendAttemptCount = sendAttemptCount + 1;
+
         setCode("");
         setConfirmAttemptCount(0);
-        setSendAttemptCount((prev) => prev + 1);
+        setSendAttemptCount(nextSendAttemptCount);
         setRemainingSeconds(VERIFICATION_EXPIRES_IN_SECONDS);
-        setResendRemainingSeconds(result.resendAvailableAfterSeconds);
+        setResendRemainingSeconds(3);
+        setVerificationFeedback({
+            type: "RESEND_SUCCESS",
+            remainingCount: Math.max(
+                MAX_SEND_ATTEMPTS - nextSendAttemptCount,
+                0,
+            ),
+        });
     };
 
     const handleFindId = async () => {
@@ -130,6 +149,7 @@ export function useFindId() {
 
         setIsLoading(true);
         setMessage(null);
+        setVerificationFeedback(null);
 
         const confirmResult = await confirmEmailVerification({
             email: trimmedEmail,
@@ -142,17 +162,13 @@ export function useFindId() {
 
             setIsLoading(false);
             setConfirmAttemptCount(nextConfirmAttemptCount);
-
-            if (nextConfirmAttemptCount >= MAX_CONFIRM_ATTEMPTS) {
-                setMessage(
-                    `이메일 인증번호가 올바르지 않습니다. 인증 시도 횟수를 초과했습니다. (${nextConfirmAttemptCount}/${MAX_CONFIRM_ATTEMPTS})`,
-                );
-                return;
-            }
-
-            setMessage(
-                `이메일 인증번호가 올바르지 않습니다. 다시 시도하세요. (${nextConfirmAttemptCount}/${MAX_CONFIRM_ATTEMPTS})`,
-            );
+            setVerificationFeedback({
+                type: "CONFIRM_FAILURE",
+                remainingCount: Math.max(
+                    MAX_CONFIRM_ATTEMPTS - nextConfirmAttemptCount,
+                    0,
+                ),
+            });
             return;
         }
 
@@ -175,19 +191,24 @@ export function useFindId() {
         confirmAttemptCount,
         message,
         resendMessage,
+        verificationFeedback,
+        hasReachedSendLimit,
         isLoading,
         isResending,
         canConfirmCode:
             code.length === 6 &&
             remainingSeconds !== 0 &&
             confirmAttemptCount < MAX_CONFIRM_ATTEMPTS,
-        canResendCode: resendRemainingSeconds === 0,
+        canResendCode:
+            !hasReachedSendLimit &&
+            resendRemainingSeconds === 0,
         setEmail,
         setCode: handleCodeChange,
         setRemainingSeconds,
         setResendRemainingSeconds,
         handleExpired,
         handleResendAvailable,
+        closeVerificationFeedback,
         handleSendCode,
         handleResendCode,
         handleFindId,

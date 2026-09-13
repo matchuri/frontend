@@ -57,7 +57,18 @@ export default function ResetPasswordAccountInput({
                 </p>
             </div>
 
-            <div className={authPageStyles.form}>
+            <form
+                className={authPageStyles.form}
+                onSubmit={(event) => {
+                    event.preventDefault();
+
+                    if (!canRequestVerification || isLoading) {
+                        return;
+                    }
+
+                    handleSubmit();
+                }}
+            >
                 <div className={authPageStyles.inputGroup}>
                     <label className={authPageStyles.label}>아이디</label>
 
@@ -93,14 +104,13 @@ export default function ResetPasswordAccountInput({
                 )}
 
                 <button
-                    type="button"
-                    onClick={handleSubmit}
+                    type="submit"
                     disabled={!canRequestVerification || isLoading}
                     className={authPageStyles.primaryButton}
                 >
                     {isLoading ? "발송 중..." : "비밀번호 찾기"}
                 </button>
-            </div>
+            </form>
         </div>
     );
 }

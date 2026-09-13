@@ -18,6 +18,8 @@ export default function FindIdForm() {
         resendRemainingSeconds,
         message,
         resendMessage,
+        verificationFeedback,
+        hasReachedSendLimit,
         isLoading,
         isResending,
         canConfirmCode,
@@ -28,6 +30,7 @@ export default function FindIdForm() {
         setResendRemainingSeconds,
         handleExpired,
         handleResendAvailable,
+        closeVerificationFeedback,
         handleSendCode,
         handleResendCode,
         handleFindId,
@@ -53,6 +56,8 @@ export default function FindIdForm() {
                 resendRemainingSeconds={resendRemainingSeconds}
                 message={message}
                 resendMessage={resendMessage}
+                verificationFeedback={verificationFeedback}
+                hasReachedSendLimit={hasReachedSendLimit}
                 isLoading={isLoading}
                 isResending={isResending}
                 canConfirmCode={canConfirmCode}
@@ -60,6 +65,7 @@ export default function FindIdForm() {
                 onCodeChange={setCode}
                 onSubmit={handleFindId}
                 onResend={handleResendCode}
+                onCloseVerificationFeedback={closeVerificationFeedback}
             />
         );
     }

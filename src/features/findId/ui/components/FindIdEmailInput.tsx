@@ -50,7 +50,18 @@ export default function FindIdEmailInput({
                 </p>
             </div>
 
-            <div className={authPageStyles.form}>
+            <form
+                className={authPageStyles.form}
+                onSubmit={(event) => {
+                    event.preventDefault();
+
+                    if (!canSubmit) {
+                        return;
+                    }
+
+                    handleSubmit();
+                }}
+            >
                 <div className={authPageStyles.inputGroup}>
                     <label className={authPageStyles.label}>이메일</label>
 
@@ -70,14 +81,13 @@ export default function FindIdEmailInput({
                 </div>
 
                 <button
-                    type="button"
-                    onClick={handleSubmit}
+                    type="submit"
                     disabled={!canSubmit}
                     className={authPageStyles.primaryButton}
                 >
                     {isLoading ? "발송 중..." : "아이디 찾기"}
                 </button>
-            </div>
+            </form>
         </div>
     );
 }

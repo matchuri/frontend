@@ -98,6 +98,22 @@ export const authPageStyles = {
     verificationHelpCardTitle: "flex items-center gap-2 text-[14px] font-semibold text-gray-700",
     verificationHelpCardList: "mt-3 list-disc space-y-1 pl-5 text-[12px] leading-5 text-gray-500",
 
+    verificationResultModalOverlay:
+        "absolute inset-0 z-[80] flex items-center justify-center bg-black/35 px-5 backdrop-blur-[1px]",
+    verificationResultModal:
+        "w-full rounded-[22px] bg-white px-5 pb-5 pt-10 text-center " +
+        "shadow-[0_16px_40px_rgba(0,0,0,0.18)]",
+    verificationResultErrorIcon:
+        "mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500",
+    verificationResultSuccessIcon:
+        "mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-500",
+    verificationResultTitle:
+        "mt-7 text-[20px] font-bold tracking-[-0.03em] text-gray-900",
+    verificationResultDescription:
+        "mt-3 text-[15px] leading-6 text-gray-600",
+    verificationResultCount: "font-bold text-[#FB6F00]",
+    verificationResultButton: "mt-8",
+
     resultBox:
         "flex flex-col items-center rounded-[20px] border border-gray-100 bg-gray-50 " +
         "px-5 py-8 text-center",

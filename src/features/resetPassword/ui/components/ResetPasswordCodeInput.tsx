@@ -2,8 +2,10 @@
 
 import { Clock3 } from "lucide-react";
 
+import type { EmailVerificationFeedback } from "@/features/emailVerification/domain/model/EmailVerificationFeedback";
 import VerificationCodeInput from "@/features/emailVerification/ui/components/VerificationCodeInput";
 import EmailVerificationHelpCard from "@/features/emailVerification/ui/components/EmailVerificationHelpCard";
+import EmailVerificationResultModal from "@/features/emailVerification/ui/components/EmailVerificationResultModal";
 import { authPageStyles } from "@/ui/styles/authPageStyles";
 
 interface ResetPasswordCodeInputProps {
@@ -12,11 +14,14 @@ interface ResetPasswordCodeInputProps {
     readonly resendRemainingSeconds: number | null;
     readonly message: string | null;
     readonly resendMessage: string | null;
+    readonly verificationFeedback: EmailVerificationFeedback | null;
+    readonly hasReachedSendLimit: boolean;
     readonly isLoading: boolean;
     readonly isResending: boolean;
     readonly canConfirmCode: boolean;
     readonly canResendCode: boolean;
     readonly setCode: (code: string) => void;
+    readonly closeVerificationFeedback: () => void;
     readonly handleConfirmCode: () => void;
     readonly handleResendCode: () => void;
 }
@@ -27,11 +32,14 @@ export default function ResetPasswordCodeInput({
     resendRemainingSeconds,
     message,
     resendMessage,
+    verificationFeedback,
+    hasReachedSendLimit,
     isLoading,
     isResending,
     canConfirmCode,
     canResendCode,
     setCode,
+    closeVerificationFeedback,
     handleConfirmCode,
     handleResendCode,
 }: ResetPasswordCodeInputProps) {
@@ -49,8 +57,6 @@ export default function ResetPasswordCodeInput({
         return `${minutes.toString().padStart(2, "0")}:${remaining.toString().padStart(2, "0")}`;
     };
 
-    const isCodeError = message?.startsWith("이메일 인증번호가 올바르지 않습니다.") ?? false;
-
     return (
         <div>
             <div className={authPageStyles.intro}>
@@ -61,7 +67,18 @@ export default function ResetPasswordCodeInput({
                 </p>
             </div>
 
-            <div className={authPageStyles.verificationSection}>
+            <form
+                className={authPageStyles.verificationSection}
+                onSubmit={(event) => {
+                    event.preventDefault();
+
+                    if (!canConfirmCode || isLoading) {
+                        return;
+                    }
+
+                    handleConfirmCode();
+                }}
+            >
                 {remainingSeconds !== null && (
                     <div className={authPageStyles.codeInfo}>
                         <Clock3 size={16} />
@@ -78,7 +95,6 @@ export default function ResetPasswordCodeInput({
                     value={code}
                     onChange={setCode}
                     disabled={isLoading}
-                    isError={isCodeError}
                 />
 
                 {message && (
@@ -88,8 +104,7 @@ export default function ResetPasswordCodeInput({
                 )}
 
                 <button
-                    type="button"
-                    onClick={handleConfirmCode}
+                    type="submit"
                     disabled={!canConfirmCode || isLoading}
                     className={`${authPageStyles.primaryButton} mt-8`}
                 >
@@ -108,7 +123,8 @@ export default function ResetPasswordCodeInput({
                         >
                             {isResending
                                 ? "재전송 중..."
-                                : resendRemainingSeconds !== null &&
+                                : !hasReachedSendLimit &&
+                                    resendRemainingSeconds !== null &&
                                     resendRemainingSeconds > 0
                                   ? `인증번호 재전송 (${formatResendSeconds(resendRemainingSeconds)})`
                                   : "인증번호 재전송"}
@@ -123,7 +139,12 @@ export default function ResetPasswordCodeInput({
                 </div>
 
                 <EmailVerificationHelpCard />
-            </div>
+            </form>
+
+            <EmailVerificationResultModal
+                feedback={verificationFeedback}
+                onClose={closeVerificationFeedback}
+            />
         </div>
     );
 }
