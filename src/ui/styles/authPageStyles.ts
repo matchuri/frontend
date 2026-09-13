@@ -94,6 +94,10 @@ export const authPageStyles = {
     verificationResendMessage: "text-[12px] leading-5 text-red-500",
     verificationResendTime: "text-[12px] text-gray-400",
 
+    verificationHelpCard: "mt-10 w-full rounded-[18px] bg-gray-50 px-5 py-5 text-gray-600",
+    verificationHelpCardTitle: "flex items-center gap-2 text-[14px] font-semibold text-gray-700",
+    verificationHelpCardList: "mt-3 list-disc space-y-1 pl-5 text-[12px] leading-5 text-gray-500",
+
     resultBox:
         "flex flex-col items-center rounded-[20px] border border-gray-100 bg-gray-50 " +
         "px-5 py-8 text-center",

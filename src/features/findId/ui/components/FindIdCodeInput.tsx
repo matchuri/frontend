@@ -3,6 +3,7 @@
 import { Clock3 } from "lucide-react";
 
 import VerificationCodeInput from "@/features/emailVerification/ui/components/VerificationCodeInput";
+import EmailVerificationHelpCard from "@/features/emailVerification/ui/components/EmailVerificationHelpCard";
 import { authPageStyles } from "@/ui/styles/authPageStyles";
 
 interface FindIdCodeInputProps {
@@ -120,6 +121,8 @@ export default function FindIdCodeInput({
                         </p>
                     )}
                 </div>
+
+                <EmailVerificationHelpCard />
             </div>
         </div>
     );
