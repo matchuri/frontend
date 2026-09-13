@@ -1,12 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { signupPageStyles } from "@/ui/styles/signupPageStyles";
 import type { AuthProvider } from "@/features/auth/domain/model/AuthProvider";
 
-import SocialLoginButton from "@/features/auth/ui/components/SocialLoginButton";
-import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
+import SignupProgress from "@/features/signup/ui/components/SignupProgress";
+import SignupLoginIdStep from "@/features/signup/ui/components/SignupLoginIdStep";
+import SignupPasswordStep from "@/features/signup/ui/components/SignupPasswordStep";
+import SignupEmailStep from "@/features/signup/ui/components/SignupEmailStep";
+import SignupVerificationStep from "@/features/signup/ui/components/SignupVerificationStep";
+
+import AuthPageHeader from "@/ui/components/AuthPageHeader";
 
 import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
 import { useLoginIdValidation } from "@/features/signup/application/hooks/useLoginIdValidation";
@@ -15,13 +20,20 @@ import { useEmailVerification } from "@/features/emailVerification/application/h
 import { useVerificationExpireTimer } from "@/features/emailVerification/application/hooks/useVerificationExpireTimer";
 import { useResendTimer } from "@/features/emailVerification/application/hooks/useResendTimer";
 
+import { authPageStyles } from "@/ui/styles/authPageStyles";
+
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
+
+type SignupStep = 1 | 2 | 3 | 4;
 
 export default function SignupPage() {
     const router = useRouter();
 
+    const [step, setStep] = useState<SignupStep>(1);
+
     const {
         loginId,
+        status: loginIdStatus,
         message: loginIdMessage,
         canUseLoginId,
         handleLoginIdChange,
@@ -39,15 +51,11 @@ export default function SignupPage() {
         code: verificationCode,
         status: emailVerificationStatus,
         message: emailVerificationMessage,
-        emailVerificationToken,
         remainingSeconds,
         resendSeconds,
-        confirmAttemptCount,
-        maxConfirmAttempts,
-        resendAttemptCount,
-        maxResendAttempts,
+        verificationFeedback,
         hasSentVerificationEmail,
-        isVerified: isEmailVerified,
+        hasReachedSendLimit,
         canSendVerificationEmail,
         canResendVerificationEmail,
         canConfirmVerificationEmail,
@@ -56,6 +64,7 @@ export default function SignupPage() {
         handleExpired,
         handleEmailChange,
         handleCodeChange,
+        closeVerificationFeedback,
         sendVerificationEmail,
         confirmVerificationEmail,
     } = useEmailVerification({
@@ -73,14 +82,61 @@ export default function SignupPage() {
         setResendSeconds,
     });
 
-    const canSubmit =
-        canUseLoginId &&
-        isPasswordValid &&
-        isEmailVerified &&
-        !!emailVerificationToken;
+    const handleBack = () => {
+        if (step === 1) {
+            router.push("/");
+            return;
+        }
 
-    const handleSubmit = () => {
-        if (!canSubmit) return;
+        setStep((prev) => (prev - 1) as SignupStep);
+    };
+
+    const handleLoginIdSubmit = () => {
+        if (!canUseLoginId) {
+            return;
+        }
+
+        setStep(2);
+    };
+
+    const handlePasswordSubmit = () => {
+        if (!isPasswordValid) {
+            return;
+        }
+
+        setStep(3);
+    };
+
+    const handleEmailSubmit = async () => {
+        if (hasSentVerificationEmail) {
+            setStep(4);
+            return;
+        }
+
+        const isSent = await sendVerificationEmail();
+
+        if (!isSent) {
+            return;
+        }
+
+        setStep(4);
+    };
+
+    const handleResendVerificationEmail = () => {
+        void sendVerificationEmail();
+    };
+
+    const handleVerificationSubmit = async () => {
+        if (!canConfirmVerificationEmail) {
+            return;
+        }
+
+        const emailVerificationToken =
+            await confirmVerificationEmail(stopVerificationTimer);
+
+        if (!emailVerificationToken) {
+            return;
+        }
 
         accountStorage.save({
             id: loginId.trim(),
@@ -93,227 +149,85 @@ export default function SignupPage() {
         router.push("/terms");
     };
 
-    const getLoginIdMessageColor = () => {
-        if (!loginIdMessage) return "";
+    const canResend =
+        canResendVerificationEmail &&
+        (resendSeconds === null || resendSeconds === 0);
 
-        if (canUseLoginId) {
-            return "text-blue-500";
-        }
-
-         if (loginIdMessage === "확인 중...") {
-            return "text-gray-400";
-         }
-
-        return "text-red-500";
-    };
-
-    const getEmailVerificationMessageColor = () => {
-        switch (emailVerificationStatus) {
-            case "VERIFIED":
-                return "text-blue-500";
-            case "ERROR":
-            case "EXPIRED":
-                return "text-red-500";
-            case "SENDING":
-            case "VERIFYING":
-            case "SENT":
-                return "text-gray-500";
-            default:
-                return "";
-        }
-    };
-
-    const formatSeconds = (seconds: number) => {
-        const minutes = Math.floor(seconds / 60);
-        const remaining = seconds % 60;
-
-        return `${minutes}:${remaining.toString().padStart(2, "0")}`;
-    };
+    const verificationMessage =
+        emailVerificationStatus === "EXPIRED"
+            ? emailVerificationMessage
+            : "";
 
     return (
-        <div className={signupPageStyles.container}>
-            <HomeNavigationButton />
+        <main className={authPageStyles.page}>
+            <AuthPageHeader
+                backHref="/"
+                backLabel={
+                    step === 1
+                        ? "홈으로 돌아가기"
+                        : "이전 단계로 돌아가기"
+                }
+                onBack={handleBack}
+            />
 
-            <div className={signupPageStyles.card}>
-                {/* 제목 */}
-                <div className="flex flex-col gap-1 w-full">
-                    <h1 className={signupPageStyles.title}>계정 만들기</h1>
-                </div>
+            <div className={authPageStyles.flowContent}>
+                <SignupProgress
+                    step={step}
+                    totalSteps={4}
+                />
 
-                {/* 소셜 로그인 */}
-                <div className={signupPageStyles.socialGroup}>
-                    {providers.map((provider) => (
-                        <SocialLoginButton key={provider} provider={provider} />
-                    ))}
-                </div>
+                {step === 1 && (
+                    <SignupLoginIdStep
+                        loginId={loginId}
+                        loginIdStatus={loginIdStatus}
+                        loginIdMessage={loginIdMessage}
+                        canUseLoginId={canUseLoginId}
+                        providers={providers}
+                        onLoginIdChange={handleLoginIdChange}
+                        onSubmit={handleLoginIdSubmit}
+                    />
+                )}
 
-                {/* divider */}
-                <div className={signupPageStyles.divider}>
-                    <div className={signupPageStyles.dividerLine}></div>
-                        <span>또는</span>
-                    <div className={signupPageStyles.dividerLine}></div>
-                </div>
+                {step === 2 && (
+                    <SignupPasswordStep
+                        password={password}
+                        isPasswordValid={isPasswordValid}
+                        passwordMessage={passwordMessage}
+                        onPasswordChange={handlePasswordChange}
+                        onSubmit={handlePasswordSubmit}
+                    />
+                )}
 
-                {/* 입력 영역 */}
-                <div className={signupPageStyles.formGroup}>
-                    {/* 아이디 */}
-                    <div className={signupPageStyles.inputGroup}>
-                        <label className={signupPageStyles.label}>아이디</label>
+                {step === 3 && (
+                    <SignupEmailStep
+                        email={email}
+                        isSending={emailVerificationStatus === "SENDING"}
+                        hasSentVerificationEmail={hasSentVerificationEmail}
+                        canSendVerificationEmail={canSendVerificationEmail}
+                        onEmailChange={handleEmailChange}
+                        onSubmit={() => void handleEmailSubmit()}
+                    />
+                )}
 
-                        <input
-                            type="text"
-                            className={signupPageStyles.input}
-                            value={loginId}
-                            onChange={(e) => handleLoginIdChange(e.target.value)}
-                            placeholder="아이디를 입력하세요"
-                        />
-
-                        {loginIdMessage && (
-                            <p className={`mt-2 text-sm ${getLoginIdMessageColor()}`}>
-                                {loginIdMessage}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* 비밀번호 */}
-                    <div className={signupPageStyles.inputGroup}>
-                        <label className={signupPageStyles.label}>비밀번호</label>
-
-                        <input
-                            type="password"
-                            className={signupPageStyles.input}
-                            value={password}
-                            onChange={(e) => handlePasswordChange(e.target.value)}
-                            placeholder="비밀번호를 입력하세요"
-                        />
-
-                        {passwordMessage && (
-                            <p className="mt-2 text-sm text-red-500">
-                                {passwordMessage}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className={signupPageStyles.inputGroup}>
-                        <label className={signupPageStyles.label}>이메일</label>
-
-                        <div className="flex gap-2">
-                            <input
-                                type="email"
-                                className={signupPageStyles.input}
-                                value={email}
-                                onChange={(e) => handleEmailChange(e.target.value)}
-                                placeholder="이메일을 입력하세요"
-                            />
-
-                            {!hasSentVerificationEmail ? (
-                                <button
-                                    type="button"
-                                    onClick={sendVerificationEmail}
-                                    disabled={!canSendVerificationEmail}
-                                    className={
-                                        canSendVerificationEmail
-                                            ? `${signupPageStyles.nextButton} whitespace-nowrap`
-                                            : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
-                                    }
-                                >
-                                    인증
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={sendVerificationEmail}
-                                    disabled={isEmailVerified}
-                                    className={
-                                        canResendVerificationEmail && !isEmailVerified
-                                            ? `${signupPageStyles.nextButton} whitespace-nowrap`
-                                            : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
-                                    }
-                                >
-                                    {isEmailVerified ? "완료" : "재발송"}
-                                </button>
-                            )}
-                        </div>
-
-                        {hasSentVerificationEmail && !isEmailVerified && (
-                            <p className="mt-2 text-xs text-gray-400">
-                                인증 코드 발송 횟수 {resendAttemptCount}/{maxResendAttempts}
-                                {resendSeconds !== null &&
-                                    resendSeconds > 0 &&
-                                    `, 인증코드 재발송 가능 시간: ${resendSeconds}초 후`}
-                            </p>
-                        )}
-                    </div>
-
-                    <div className={signupPageStyles.inputGroup}>
-                        <label className={signupPageStyles.label}>인증 코드</label>
-
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                className={signupPageStyles.input}
-                                value={verificationCode}
-                                onChange={(e) => handleCodeChange(e.target.value)}
-                                placeholder="인증 코드를 입력하세요"
-                                disabled={isEmailVerified}
-                            />
-
-                            <button
-                                type="button"
-                                onClick={() => confirmVerificationEmail(stopVerificationTimer)}
-                                disabled={!canConfirmVerificationEmail || isEmailVerified}
-                                className={
-                                    canConfirmVerificationEmail && !isEmailVerified
-                                        ? `${signupPageStyles.nextButton} whitespace-nowrap`
-                                        : `${signupPageStyles.nextButton} whitespace-nowrap opacity-50 cursor-not-allowed`
-                                }
-                            >
-                                {isEmailVerified ? "완료" : "확인"}
-                            </button>
-                        </div>
-
-                        {/*
-                        {remainingSeconds !== null && !isEmailVerified && (
-                            <p className="mt-2 text-sm text-gray-500">
-                                인증 유효시간 {formatSeconds(remainingSeconds)}
-                            </p>
-                        )}
-                        */}
-
-                        {!isEmailVerified && (
-                            <p className="mt-2 text-xs text-gray-400">
-                                인증 시도 {confirmAttemptCount}/{maxConfirmAttempts}
-                                {remainingSeconds !== null &&
-                                    `, 인증 유효시간 ${formatSeconds(remainingSeconds)}`}
-                          </p>
-                        )}
-
-                        {emailVerificationMessage && (
-                            <p
-                                className={`mt-2 text-sm ${getEmailVerificationMessageColor()}`}
-                            >
-                                {emailVerificationMessage}
-                            </p>
-                        )}
-                    </div>
-
-                    {/* 계속 버튼 */}
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={!canSubmit}
-                            className={
-                                canSubmit
-                                    ? signupPageStyles.nextButton
-                                    : `${signupPageStyles.nextButton} opacity-50 cursor-not-allowed`
-                            }
-                        >
-                        계속
-                        </button>
-                    </div>
-                </div>
-          </div>
-        </div>
+                {step === 4 && (
+                    <SignupVerificationStep
+                        email={email}
+                        code={verificationCode}
+                        remainingSeconds={remainingSeconds}
+                        resendSeconds={resendSeconds}
+                        message={verificationMessage}
+                        verificationFeedback={verificationFeedback}
+                        isVerifying={emailVerificationStatus === "VERIFYING"}
+                        hasReachedSendLimit={hasReachedSendLimit}
+                        canConfirmVerificationEmail={canConfirmVerificationEmail}
+                        canResendVerificationEmail={canResend}
+                        onCodeChange={handleCodeChange}
+                        onConfirm={() => void handleVerificationSubmit()}
+                        onResend={handleResendVerificationEmail}
+                        onCloseVerificationFeedback={closeVerificationFeedback}
+                    />
+                )}
+            </div>
+        </main>
     );
 }

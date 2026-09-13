@@ -1,16 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { LoginIdValidationStatus } from "@/features/signup/domain/model/LoginIdValidationStatus";
 import { signupApi } from "@/features/signup/infrastructure/api/signupApi";
 import { logger } from "@/shared/lib/logger";
-
-type LoginIdValidationStatus =
-    | "IDLE"
-    | "CHECKING"
-    | "AVAILABLE"
-    | "DUPLICATED"
-    | "INVALID"
-    | "ERROR";
 
 const LOGIN_ID_REGEX = /^[A-Za-z0-9._-]{1,50}$/;
 

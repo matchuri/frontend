@@ -1,3 +1,4 @@
+import { HttpError } from "@/infrastructure/http/httpClient";
 import { emailVerificationApi } from "@/features/emailVerification/infrastructure/api/emailVerificationApi";
 import type { EmailVerificationPurpose } from "@/features/emailVerification/domain/model/EmailVerificationPurpose";
 
@@ -14,6 +15,7 @@ type SendEmailVerificationResult =
     }
     | {
         readonly success: false;
+        readonly status?: number;
         readonly message: string;
     };
 
@@ -40,7 +42,15 @@ export async function sendEmailVerification({
             success: true,
             resendAvailableAfterSeconds: response.data.resendAvailableAfterSeconds,
         };
-    } catch {
+    } catch (error) {
+        if (error instanceof HttpError) {
+            return {
+                success: false,
+                status: error.status,
+                message: error.body?.error?.message || "인증 코드 발송에 실패했습니다.",
+            };
+        }
+
         return {
             success: false,
             message: "인증 코드 발송에 실패했습니다.",
