@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 
 import type { EmailVerificationPurpose } from "@/features/emailVerification/domain/model/EmailVerificationPurpose";
 import type { EmailVerificationStatus } from "@/features/emailVerification/domain/model/EmailVerificationStatus";
+import type { EmailVerificationFeedback } from "@/features/emailVerification/domain/model/EmailVerificationFeedback";
 import { sendEmailVerification } from "@/features/emailVerification/application/usecase/sendEmailVerification";
 import { confirmEmailVerification } from "@/features/emailVerification/application/usecase/confirmEmailVerification";
 
@@ -40,8 +41,13 @@ export function useEmailVerification({
     // 재발송 횟수 상태
     const [resendAttemptCount, setResendAttemptCount] = useState(0);
 
+    const [verificationFeedback, setVerificationFeedback] =
+        useState<EmailVerificationFeedback | null>(null);
+
     // 실제 발송 성공 여부 상태
     const [hasSentVerificationEmail, setHasSentVerificationEmail] = useState(false);
+
+    const hasReachedSendLimit = resendAttemptCount >= MAX_RESEND_ATTEMPTS;
 
     // 이메일 검증
     const validateEmail = (nextEmail: string): string | null => {
@@ -72,11 +78,16 @@ export function useEmailVerification({
         setResendSeconds(null);
         setConfirmAttemptCount(0);
         setResendAttemptCount(0);
+        setVerificationFeedback(null);
         setHasSentVerificationEmail(false);
     };
 
     const handleCodeChange = (nextCode: string) => {
         setCode(nextCode);
+    };
+
+    const closeVerificationFeedback = () => {
+        setVerificationFeedback(null);
     };
 
     const handleExpired = useCallback(() => {
@@ -86,25 +97,22 @@ export function useEmailVerification({
 
     const sendVerificationEmail = async () => {
         const trimmedEmail = validateEmail(email);
-        if (!trimmedEmail) return;
+        if (!trimmedEmail) return false;
 
         if (resendSeconds && resendSeconds > 0) {
             alert(`${resendSeconds}초 후 인증코드 재발송이 가능합니다.`);
-            return;
+            return false;
         }
 
         if (resendAttemptCount >= MAX_RESEND_ATTEMPTS) {
-            setStatus("ERROR");
-            setMessage("인증 코드 발송 횟수를 초과했습니다.");
-            return;
+            return false;
         }
 
+        const isResend = hasSentVerificationEmail;
+
         setStatus("SENDING");
-        setMessage(
-            hasSentVerificationEmail
-                ? "인증 코드를 재발송하는 중입니다."
-                : "인증 코드를 발송하는 중입니다.",
-        );
+        setMessage("");
+        setVerificationFeedback(null);
 
         const result = await sendEmailVerification({
             email: trimmedEmail,
@@ -112,20 +120,25 @@ export function useEmailVerification({
         });
 
         if (!result.success) {
+            if (purpose === "SIGNUP" && result.status === 409) {
+                setStatus("ERROR");
+                setMessage("");
+                alert("이미 가입중인 메일입니다.");
+                return false;
+            }
+
             setStatus("ERROR");
             setMessage(result.message);
-            return;
+            return false;
         }
 
+        const nextResendAttemptCount = resendAttemptCount + 1;
+
         setStatus("SENT");
-        setMessage(
-            hasSentVerificationEmail
-                ? "인증 코드가 재발송되었습니다."
-                : "인증 코드가 발송되었습니다.",
-        );
+        setMessage("");
 
         setHasSentVerificationEmail(true);
-        setResendAttemptCount((prev) => prev + 1);
+        setResendAttemptCount(nextResendAttemptCount);
 
         setEmailVerificationToken(null);
         setCode("");
@@ -133,34 +146,45 @@ export function useEmailVerification({
 
         setRemainingSeconds(VERIFICATION_EXPIRE_SECONDS);
         setResendSeconds(result.resendAvailableAfterSeconds);
+
+        if (isResend) {
+            setVerificationFeedback({
+                type: "RESEND_SUCCESS",
+                remainingCount: Math.max(
+                    MAX_RESEND_ATTEMPTS - nextResendAttemptCount,
+                    0,
+                ),
+            });
+        }
+
+        return true;
     };
 
     const confirmVerificationEmail = async (stopVerificationTimer: () => void) => {
         const trimmedEmail = validateEmail(email);
         const trimmedCode = code.trim();
 
-        if (!trimmedEmail) return;
+        if (!trimmedEmail) return null;
 
         if (remainingSeconds === 0 || status === "EXPIRED") {
             setStatus("EXPIRED");
             setMessage("인증 코드가 만료되었습니다. 다시 발송해주세요.");
-            return;
+            return null;
         }
 
         if (confirmAttemptCount >= MAX_CONFIRM_ATTEMPTS) {
-            setStatus("ERROR");
-            setMessage("인증 시도 횟수를 초과했습니다. 인증 코드를 다시 발송해주세요.");
-            return;
+            return null;
         }
 
         if (!VERIFICATION_CODE_REGEX.test(trimmedCode)) {
             setStatus("ERROR");
             setMessage("인증 코드는 6자리 숫자여야 합니다.");
-            return;
+            return null;
         }
 
         setStatus("VERIFYING");
-        setMessage("인증 코드를 확인하는 중입니다.");
+        setMessage("");
+        setVerificationFeedback(null);
 
         const result = await confirmEmailVerification({
             email: trimmedEmail,
@@ -170,25 +194,28 @@ export function useEmailVerification({
 
         if (!result.success) {
             const nextCount = confirmAttemptCount + 1;
+
             setConfirmAttemptCount(nextCount);
-
-            if (nextCount >= MAX_CONFIRM_ATTEMPTS) {
-                setStatus("ERROR");
-                setMessage("인증 시도 횟수를 초과했습니다. 인증 코드를 다시 발송해주세요.");
-                return;
-            }
-
             setStatus("ERROR");
-            setMessage(`이메일 인증에 실패했습니다. (${nextCount}/${MAX_CONFIRM_ATTEMPTS})`);
-            return;
+            setMessage("");
+            setVerificationFeedback({
+                type: "CONFIRM_FAILURE",
+                remainingCount: Math.max(
+                    MAX_CONFIRM_ATTEMPTS - nextCount,
+                    0,
+                ),
+            });
+            return null;
         }
 
         setStatus("VERIFIED");
-        setMessage("이메일 인증이 완료되었습니다.");
+        setMessage("");
         setEmailVerificationToken(result.emailVerificationToken);
 
         stopVerificationTimer();
         setRemainingSeconds(null);
+
+        return result.emailVerificationToken;
     };
 
     // 버튼 활성화 조건
@@ -227,7 +254,9 @@ export function useEmailVerification({
         maxConfirmAttempts: MAX_CONFIRM_ATTEMPTS,
         resendAttemptCount,
         maxResendAttempts: MAX_RESEND_ATTEMPTS,
+        verificationFeedback,
         hasSentVerificationEmail,
+        hasReachedSendLimit,
         canSendVerificationEmail,
         canResendVerificationEmail,
         canConfirmVerificationEmail,
@@ -237,6 +266,7 @@ export function useEmailVerification({
         handleExpired,
         handleEmailChange,
         handleCodeChange,
+        closeVerificationFeedback,
         sendVerificationEmail,
         confirmVerificationEmail,
     };

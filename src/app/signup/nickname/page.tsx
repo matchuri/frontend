@@ -1,28 +1,38 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useAtomValue } from "jotai";
 
-import { nicknamePageStyles } from "@/ui/styles/nicknamePageStyles";
 import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
+import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
-import { signupApi } from "@/features/signup/infrastructure/api/signupApi"
+import { nicknameStorage } from "@/features/signup/infrastructure/storage/nicknameStorage";
 
-import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
 import { useSubmitMyNickname } from "@/features/auth/application/hooks/useSubmitMyNickname";
 import { useNicknameValidation } from "@/features/nickname/application/hooks/useNicknameValidation";
 import { useSignupNicknameGuard } from "@/features/signup/application/hooks/useSignupNicknameGuard";
 
-import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
+import SignupProgress from "@/features/signup/ui/components/SignupProgress";
+import AuthPageHeader from "@/ui/components/AuthPageHeader";
+
+import { authPageStyles } from "@/ui/styles/authPageStyles";
+import { signupOnboardingStyles } from "@/ui/styles/signupOnboardingStyles";
 
 export default function NicknamePage() {
     const router = useRouter();
-    const onboarding = useAtomValue(onboardingAtom);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     useSignupNicknameGuard();
 
-    const { submit: submitMyNickname, isSubmitting } = useSubmitMyNickname();
-    const isSocialOnboarding = onboarding?.nextStep === "REQUIRED_NICKNAME";
+    const signupMode = signupOnboardingModeStorage.load();
+    const isSocialOnboarding = signupMode === "SOCIAL";
+
+    const {
+        submit: submitMyNickname,
+        isSubmitting,
+    } = useSubmitMyNickname({
+        nextRoute: "/signup/preference",
+    });
 
     const {
         nickname,
@@ -35,117 +45,122 @@ export default function NicknamePage() {
 
     const canSubmit = canSaveNickname && !isSubmitting;
 
+    useEffect(() => {
+        const input = inputRef.current;
+
+        if (!input) {
+            return;
+        }
+
+        if (
+            nicknameStatus === "DUPLICATED" ||
+            nicknameStatus === "INVALID" ||
+            nicknameStatus === "ERROR"
+        ) {
+            input.setCustomValidity(nicknameMessage);
+            return;
+        }
+
+        input.setCustomValidity("");
+    }, [nicknameMessage, nicknameStatus]);
+
     const handleSubmit = async () => {
         if (!canSubmit) return;
 
-        try {
-            if (isSocialOnboarding) {
-                await submitMyNickname(nickname.trim());
-                return;
-            }
-
-            const account = accountStorage.load();
-            const savedAgreements = termsStorage.load();
-
-            if (!account || !savedAgreements || savedAgreements.length === 0) {
-                router.replace("/signup");
-                return;
-            }
-
-            const payload = {
-                loginId: account.id,
-                password: account.password,
-                nickname: nickname.trim(),
-                email: account.email,
-                emailVerificationToken: account.emailVerificationToken,
-                agreements: savedAgreements
-                    .filter((item) => item.agreed)
-                    .map((item) => ({
-                        agreementType: item.agreementType,
-                        agreementVersion: item.agreementVersion,
-                    })),
-            };
-
-            const response = await signupApi.signup(payload);
-
-            if (response.success) {
-                accountStorage.clear();
-                termsStorage.clear();
-
-                router.push("/");
-                return;
-            }
-
-            router.push("/login");
-        } catch (error) {
-            console.error("회원가입 실패:", error);
-            router.push("/login");
+        if (isSocialOnboarding) {
+            await submitMyNickname(nickname.trim());
+            return;
         }
-    };
 
-    const getMessageColor = () => {
-        switch (nicknameStatus) {
-            case "AVAILABLE":
-                return "text-blue-500";
-            case "DUPLICATED":
-            case "INVALID":
-            case "ERROR":
-                return "text-red-500";
-            case "CHECKING":
-                return "text-gray-400";
-            default:
-                return "";
+        const account = accountStorage.load();
+        const savedAgreements = termsStorage.load();
+
+        if (!account || !savedAgreements || savedAgreements.length === 0) {
+            router.replace("/signup");
+            return;
         }
+
+        nicknameStorage.save(nickname.trim());
+
+        router.push("/signup/preference");
     };
 
     return (
-        <div className={nicknamePageStyles.container}>
-            <HomeNavigationButton />
+        <main className={authPageStyles.page}>
+            <AuthPageHeader
+                backHref="/terms"
+                backLabel="약관 동의 화면으로 돌아가기"
+                onBack={() => router.push("/terms")}
+            />
 
-            <div className={nicknamePageStyles.card}>
-                <div className="flex flex-col gap-1 w-full">
-                    <h1 className={nicknamePageStyles.title}>닉네임 설정</h1>
+            <div className={signupOnboardingStyles.content}>
+                <SignupProgress
+                    step={2}
+                    totalSteps={3}
+                />
+
+                <div className={signupOnboardingStyles.intro}>
+                    <h1 className={signupOnboardingStyles.title}>
+                        사용할 닉네임을 알려주세요
+                    </h1>
+
+                    <p className={signupOnboardingStyles.description}>
+                        맛추리에서 사용할 나만의 닉네임을 설정해주세요.
+                    </p>
                 </div>
 
-                <div className={nicknamePageStyles.formGroup}>
-                    <div className={nicknamePageStyles.inputGroup}>
-                        <label className={nicknamePageStyles.label}>닉네임</label>
+                <form
+                    className={signupOnboardingStyles.form}
+                    onSubmit={(event) => {
+                        event.preventDefault();
+
+                        if (!canSubmit) {
+                            return;
+                        }
+
+                        void handleSubmit();
+                    }}
+                >
+                    <div className={signupOnboardingStyles.inputGroup}>
+                        <label
+                            htmlFor="signup-nickname"
+                            className={signupOnboardingStyles.label}
+                        >
+                            닉네임
+                        </label>
 
                         <input
+                            ref={inputRef}
+                            id="signup-nickname"
                             type="text"
-                            className={nicknamePageStyles.input}
+                            className={signupOnboardingStyles.input}
                             value={nickname}
-                            onChange={(e) => {
-                                const nextNickname = e.target.value;
+                            onChange={(event) => {
+                                const nextNickname = event.target.value;
                                 handleNicknameChange(nextNickname);
                                 validateNickname(nextNickname);
                             }}
                             placeholder="닉네임을 입력하세요"
+                            autoComplete="nickname"
+                            maxLength={100}
+                            required
+                            autoFocus
                         />
-
-                        {nicknameMessage && (
-                            <p className={`mt-2 text-sm ${getMessageColor()}`}>
-                                {nicknameMessage}
-                            </p>
-                        )}
                     </div>
 
-                    <div className="flex justify-end">
-                        <button
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={!canSubmit}
-                            className={
-                                canSubmit
-                                    ? nicknamePageStyles.button
-                                    : `${nicknamePageStyles.button} opacity-50 cursor-not-allowed`
-                            }
-                        >
-                            가입
-                        </button>
-                    </div>
-                </div>
+                    <button
+                        type="submit"
+                        disabled={
+                            !nickname.trim() ||
+                            nicknameStatus === "CHECKING" ||
+                            isSubmitting
+                        }
+                        className={signupOnboardingStyles.primaryButton}
+                    >
+                        {isSubmitting ? "처리 중..." : "계속"}
+                    </button>
+                </form>
             </div>
-        </div>
+        </main>
     );
 }
