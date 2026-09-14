@@ -226,6 +226,7 @@ export default function SignupPage() {
 
             <div className={authPageStyles.flowContent}>
                 <SignupProgress
+                    label="계정 만들기"
                     step={step}
                     totalSteps={4}
                 />
