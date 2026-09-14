@@ -38,9 +38,11 @@ export function useSignupNicknameGuard() {
             savedAgreements.length > 0;
 
         const isSocialSignup =
-            signupMode === "SOCIAL" &&
             isAuthenticated &&
-            !!onboarding;
+            (
+                onboarding?.nextStep === "REQUIRED_NICKNAME" ||
+                onboarding?.nextStep === "REQUIRED_TASTE_PROFILE"
+            );
 
         if (isGeneralSignup || isSocialSignup) return;
 

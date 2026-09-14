@@ -9,8 +9,7 @@ import {
     isAuthenticatedAtom,
     onboardingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
-
-import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
+import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export function useRootRedirectGuard() {
     const router = useRouter();
@@ -19,10 +18,6 @@ export function useRootRedirectGuard() {
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const onboarding = useAtomValue(onboardingAtom);
 
-    const signupMode = signupOnboardingModeStorage.load();
-    const isSocialSignupInProgress =
-        signupMode === "SOCIAL";
-
     useEffect(() => {
         if (isAuthLoading) return;
 
@@ -30,41 +25,10 @@ export function useRootRedirectGuard() {
 
         if (!onboarding) return;
 
-        if (isSocialSignupInProgress) {
-            if (onboarding.nextStep === "REQUIRED_AGREEMENTS") {
-                router.replace("/terms");
-                return;
-            }
-
-            if (onboarding.nextStep === "REQUIRED_NICKNAME") {
-                router.replace("/signup/nickname");
-                return;
-            }
-
-            if (onboarding.nextStep === "READY") {
-                router.replace("/signup/preference");
-                return;
-            }
-        }
-
-        if (onboarding.nextStep === "REQUIRED_AGREEMENTS") {
-            router.replace("/terms");
-            return;
-        }
-
-        if (onboarding.nextStep === "REQUIRED_NICKNAME") {
-            router.replace("/signup/nickname");
-            return;
-        }
-
-        if (onboarding.nextStep === "READY") {
-            router.replace("/home");
-            return;
-        }
+        router.replace(getOnboardingRoute(onboarding.nextStep));
     }, [
         isAuthLoading,
         isAuthenticated,
-        isSocialSignupInProgress,
         onboarding,
         router,
     ]);

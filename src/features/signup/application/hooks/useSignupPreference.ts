@@ -10,6 +10,8 @@ import {
     onboardingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { setAuthenticated } from "@/features/auth/application/store/authStore";
+import { authApi } from "@/features/auth/infrastructure/api/authApi";
 import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
 import { preferenceApi } from "@/features/preference/infrastructure/api/preferenceApi";
 import { mapUserPreferenceToUpdateRequest } from "@/features/preference/infrastructure/api/mapper/preferenceUpdateRequestMapper";
@@ -58,9 +60,8 @@ export function useSignupPreference() {
         !!account;
 
     const isSocialSignup =
-        signupMode === "SOCIAL" &&
         isAuthenticated &&
-        onboarding?.nextStep === "READY";
+        onboarding?.nextStep === "REQUIRED_TASTE_PROFILE";
 
     useEffect(() => {
         if (isLeavingSignupRef.current) {
@@ -101,7 +102,6 @@ export function useSignupPreference() {
         }
 
         if (
-            signupMode === "SOCIAL" &&
             isAuthenticated &&
             onboarding?.nextStep
         ) {
@@ -120,7 +120,6 @@ export function useSignupPreference() {
         onboarding,
         router,
         setPreferenceState,
-        signupMode,
     ]);
 
     const saveSignupPreference = useCallback(async () => {
@@ -225,6 +224,21 @@ export function useSignupPreference() {
 
         try {
             await preferenceApi.savePreference(request);
+
+            const response = await authApi.refresh();
+
+            setAuthenticated(
+                response.data.accessToken,
+                response.data.onboarding,
+                response.data.member,
+            );
+
+            if (response.data.onboarding.nextStep !== "READY") {
+                router.replace(
+                    getOnboardingRoute(response.data.onboarding.nextStep),
+                );
+                return;
+            }
 
             isLeavingSignupRef.current = true;
 
