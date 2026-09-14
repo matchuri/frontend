@@ -34,9 +34,9 @@ export function useTermsGuard() {
             !!account.emailVerificationToken;
 
         const isSocialSignup =
-            signupMode === "SOCIAL" &&
             isAuthenticated &&
-            !!onboarding;
+            !!onboarding &&
+            onboarding.nextStep !== "READY";
 
         return isGeneralSignup || isSocialSignup;
     }, [

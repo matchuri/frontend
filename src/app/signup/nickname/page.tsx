@@ -2,9 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useAtomValue } from "jotai";
+
+import {
+    isAuthenticatedAtom,
+    onboardingAtom,
+} from "@/features/auth/application/selectors/authSelectors";
 
 import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
-import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
 import { nicknameStorage } from "@/features/signup/infrastructure/storage/nicknameStorage";
 
@@ -24,15 +29,17 @@ export default function NicknamePage() {
 
     useSignupNicknameGuard();
 
-    const signupMode = signupOnboardingModeStorage.load();
-    const isSocialOnboarding = signupMode === "SOCIAL";
+    const isAuthenticated = useAtomValue(isAuthenticatedAtom);
+    const onboarding = useAtomValue(onboardingAtom);
+
+    const isSocialOnboarding =
+        isAuthenticated &&
+        !!onboarding;
 
     const {
         submit: submitMyNickname,
         isSubmitting,
-    } = useSubmitMyNickname({
-        nextRoute: "/signup/preference",
-    });
+    } = useSubmitMyNickname();
 
     const {
         nickname,

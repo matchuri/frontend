@@ -60,6 +60,7 @@ export function useHomeData(
                     updateOnboarding({
                         requiredAgreementsCompleted: false,
                         nicknameCompleted: false,
+                        tasteProfileCompleted: false,
                         completed: false,
                         nextStep: "REQUIRED_AGREEMENTS",
                     });
@@ -75,6 +76,7 @@ export function useHomeData(
                     updateOnboarding({
                         requiredAgreementsCompleted: true,
                         nicknameCompleted: false,
+                        tasteProfileCompleted: false,
                         completed: false,
                         nextStep: "REQUIRED_NICKNAME",
                     });

@@ -2,11 +2,13 @@
 export type OnboardingNextStep =
     | "REQUIRED_AGREEMENTS"
     | "REQUIRED_NICKNAME"
+    | "REQUIRED_TASTE_PROFILE"
     | "READY";
 
 export interface OnboardingState {
     readonly requiredAgreementsCompleted: boolean;
     readonly nicknameCompleted: boolean;
+    readonly tasteProfileCompleted: boolean;
     readonly completed: boolean;
     readonly nextStep: OnboardingNextStep;
 }
