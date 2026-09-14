@@ -14,7 +14,7 @@ export default function OAuthCallbackLoadingView() {
             />
 
             <h1 className={oauthCallbackLoadingStyles.title}>
-                로그인 처리 중입니다
+                계정 정보를 확인하고 있습니다
             </h1>
 
             <p className={oauthCallbackLoadingStyles.description}>
