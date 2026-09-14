@@ -10,6 +10,7 @@ import { useSignupPreference } from "@/features/signup/application/hooks/useSign
 
 import SignupPreferenceForm from "@/features/signup/ui/components/SignupPreferenceForm";
 import SignupProgress from "@/features/signup/ui/components/SignupProgress";
+import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
 
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
 
@@ -21,6 +22,7 @@ export default function SignupPreferencePage() {
 
     const {
         preferenceState,
+        isAuthLoading,
         isSaving,
         saveSignupPreference,
     } = useSignupPreference();
@@ -42,17 +44,11 @@ export default function SignupPreferencePage() {
         router.push("/signup/nickname");
     };
 
-    if (
+    if (isAuthLoading ||
         preferenceState.status === "LOADING" ||
         preferenceOptionState.status === "LOADING"
     ) {
-        return (
-            <main className={signupOnboardingStyles.stateContainer}>
-                <p className={signupOnboardingStyles.stateText}>
-                    취향 정보를 불러오는 중...
-                </p>
-            </main>
-        );
+        return <AuthPageSkeleton variant="PREFERENCE" />;
     }
 
     if (preferenceState.status === "ERROR") {

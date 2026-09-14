@@ -259,6 +259,7 @@ export function useSignupPreference() {
 
     return {
         preferenceState,
+        isAuthLoading,
         isGeneralSignup,
         isSocialSignup,
         isSaving,

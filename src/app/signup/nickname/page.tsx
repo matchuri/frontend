@@ -19,6 +19,7 @@ import { useSignupNicknameGuard } from "@/features/signup/application/hooks/useS
 
 import SignupProgress from "@/features/signup/ui/components/SignupProgress";
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
+import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
 
 import { authPageStyles } from "@/ui/styles/authPageStyles";
 import { signupOnboardingStyles } from "@/ui/styles/signupOnboardingStyles";
@@ -27,7 +28,7 @@ export default function NicknamePage() {
     const router = useRouter();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useSignupNicknameGuard();
+    const { isAuthLoading, canAccess } = useSignupNicknameGuard();
 
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const onboarding = useAtomValue(onboardingAtom);
@@ -91,6 +92,14 @@ export default function NicknamePage() {
 
         router.push("/signup/preference");
     };
+
+    if (isAuthLoading) {
+        return <AuthPageSkeleton variant="NICKNAME" />;
+    }
+
+    if (!canAccess) {
+        return null;
+    }
 
     return (
         <main className={authPageStyles.page}>

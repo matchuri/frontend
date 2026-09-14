@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 
@@ -20,9 +20,9 @@ export function useSignupNicknameGuard() {
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const onboarding = useAtomValue(onboardingAtom);
 
-    useEffect(() => {
+    const canAccess = useMemo(() => {
         if (isAuthLoading) {
-            return;
+            return false;
         }
 
         const signupMode = signupOnboardingModeStorage.load();
@@ -44,7 +44,19 @@ export function useSignupNicknameGuard() {
                 onboarding?.nextStep === "REQUIRED_TASTE_PROFILE"
             );
 
-        if (isGeneralSignup || isSocialSignup) return;
+        return isGeneralSignup || isSocialSignup;
+    }, [
+        isAuthLoading,
+        isAuthenticated,
+        onboarding,
+    ]);
+
+    useEffect(() => {
+        if (isAuthLoading) {
+            return;
+        }
+
+        if (canAccess) return;
 
         if (onboarding?.nextStep) {
             router.replace(getOnboardingRoute(onboarding.nextStep));
@@ -53,9 +65,14 @@ export function useSignupNicknameGuard() {
 
         router.replace("/signup");
     }, [
+        canAccess,
         isAuthLoading,
-        isAuthenticated,
         router,
         onboarding,
     ]);
+
+    return {
+        isAuthLoading,
+        canAccess,
+    };
 }

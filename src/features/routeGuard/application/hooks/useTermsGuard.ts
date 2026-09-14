@@ -63,6 +63,7 @@ export function useTermsGuard() {
     ]);
 
     return {
+        isAuthLoading,
         canAccess,
     };
 }
