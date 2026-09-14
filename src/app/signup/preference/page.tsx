@@ -88,10 +88,11 @@ export default function SignupPreferencePage() {
             />
 
             <div className={signupOnboardingStyles.content}>
-                <SignupProgress
-                    step={3}
-                    totalSteps={3}
-                />
+               <SignupProgress
+                   label="회원가입 마무리"
+                   step={2}
+                   totalSteps={3}
+               />
 
                 <div className={signupOnboardingStyles.intro}>
                     <h1 className={signupOnboardingStyles.title}>

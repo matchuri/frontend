@@ -102,6 +102,7 @@ export default function NicknamePage() {
 
             <div className={signupOnboardingStyles.content}>
                 <SignupProgress
+                    label="회원가입 마무리"
                     step={2}
                     totalSteps={3}
                 />

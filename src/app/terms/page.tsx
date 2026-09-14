@@ -116,6 +116,7 @@ export default function TermsPage() {
 
             <div className={signupOnboardingStyles.content}>
                 <SignupProgress
+                    label="회원가입 마무리"
                     step={1}
                     totalSteps={3}
                 />

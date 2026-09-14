@@ -1,5 +1,7 @@
 export const signupMultiStepStyles = {
     progressHeader: "mb-8 flex flex-col gap-3",
+    progressMeta: "flex items-center justify-between",
+    progressLabel: "text-[13px] font-semibold text-[#FB6F00]",
     progressText: "text-[13px] font-semibold text-[#FB6F00]",
     progressTrack: "h-1.5 w-full overflow-hidden rounded-full bg-orange-100",
     progressBar: "h-full rounded-full bg-[#FB6F00] transition-[width] duration-300 ease-out",
