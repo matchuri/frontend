@@ -53,7 +53,7 @@ const NO_REFRESH_PATHS = [
     "/api/v1/auth/oauth2/exchange",
     "/api/v1/auth/login",
     REFRESH_PATH,
-    "/api/v1/members/signup",
+    "/api/v2/members/signup",
     "/api/v1/auth/email",
     "/api/v1/auth/email/confirm",
     "/api/v1/guest/recommendations",
