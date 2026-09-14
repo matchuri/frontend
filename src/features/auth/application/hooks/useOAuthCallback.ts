@@ -77,6 +77,15 @@ export function useOAuthCallback() {
 
                 // 6. onboarding 기준으로 분기
                 const nextStep = response.data.onboarding.nextStep;
+                const signupMode = signupOnboardingModeStorage.load();
+
+                if (
+                    signupMode === "SOCIAL" &&
+                    nextStep === "READY"
+                ) {
+                    router.replace("/signup/preference");
+                    return;
+                }
 
                 if (nextStep === "READY") {
                     signupOnboardingModeStorage.clear();
