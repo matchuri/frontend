@@ -15,6 +15,7 @@ import {
     isAuthLoadingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
+import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
 
 const providers: AuthProvider[] = ["GOOGLE", "KAKAO", "NAVER"];
 
@@ -43,11 +44,7 @@ export default function LoginPage() {
     }, [isAuthLoading, isAuthenticated, router]);
 
     if (isAuthLoading) {
-        return (
-            <div className={authPageStyles.stateContainer}>
-                <p className={authPageStyles.stateText}>인증 상태 확인 중...</p>
-            </div>
-        );
+        return <AuthPageSkeleton variant="LOGIN" />;
     }
 
     return (

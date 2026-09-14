@@ -17,6 +17,7 @@ import SignupLoginIdStep from "@/features/signup/ui/components/SignupLoginIdStep
 import SignupPasswordStep from "@/features/signup/ui/components/SignupPasswordStep";
 import SignupEmailStep from "@/features/signup/ui/components/SignupEmailStep";
 import SignupVerificationStep from "@/features/signup/ui/components/SignupVerificationStep";
+import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
 
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
 
@@ -208,7 +209,11 @@ export default function SignupPage() {
             ? emailVerificationMessage
             : "";
 
-    if (isAuthLoading || isAuthenticated) {
+    if (isAuthLoading) {
+        return <AuthPageSkeleton variant="SIGNUP_ACCOUNT" />;
+    }
+
+    if (isAuthenticated) {
         return null;
     }
 

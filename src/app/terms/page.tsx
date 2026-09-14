@@ -19,6 +19,7 @@ import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/st
 
 import SignupProgress from "@/features/signup/ui/components/SignupProgress";
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
+import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
 
 import { authPageStyles } from "@/ui/styles/authPageStyles";
 import { signupOnboardingStyles } from "@/ui/styles/signupOnboardingStyles";
@@ -27,7 +28,7 @@ export default function TermsPage() {
     const router = useRouter();
     const terms = getTerms();
 
-    const { canAccess } = useTermsGuard();
+    const { isAuthLoading, canAccess } = useTermsGuard();
 
     const onboarding = useAtomValue(onboardingAtom);
     const { submit, isSubmitting } = useSubmitRequiredAgreements();
@@ -97,6 +98,10 @@ export default function TermsPage() {
                 })),
         );
     };
+
+    if (isAuthLoading) {
+        return <AuthPageSkeleton variant="TERMS" />;
+    }
 
     if (!canAccess) {
         return null;
