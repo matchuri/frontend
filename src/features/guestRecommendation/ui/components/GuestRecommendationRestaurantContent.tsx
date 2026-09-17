@@ -3,7 +3,7 @@ import {
     useState,
 } from "react";
 import type {
-    TouchEvent,
+    PointerEvent,
     WheelEvent,
 } from "react";
 
@@ -17,17 +17,18 @@ import type { RecommendationRestaurantSearchContext } from "@/features/recommend
 
 import RecommendationRestaurantMap from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantMap";
 import GuestRecommendationRestaurantCard from "@/features/guestRecommendation/ui/components/GuestRecommendationRestaurantCard";
+import {
+    clampSheetHeight,
+    getInitialSheetHeight,
+    getMaximumSheetHeight,
+    getMinimumSheetHeight,
+    SHEET_WHEEL_MULTIPLIER,
+} from "@/features/guestRecommendation/ui/config/guestRecommendationBottomSheetConfig";
 
 import { guestRecommendationRestaurantPageStyles } from "@/ui/styles/guestRecommendationRestaurantPageStyles";
 
 const MAP_BOUNDS_HORIZONTAL_PADDING = 32;
 const MAP_BOUNDS_TOP_PADDING = 48;
-const COLLAPSED_SHEET_VIEWPORT_RATIO = 0.42;
-
-type SheetState =
-    | "COLLAPSED"
-    | "MIDDLE"
-    | "EXPANDED";
 
 interface GuestRecommendationRestaurantContentProps {
     readonly menuName: string;
@@ -69,152 +70,136 @@ export default function GuestRecommendationRestaurantContent({
     const visibleRestaurants =
         selectedRestaurant ? [selectedRestaurant] : restaurants;
 
-    const [sheetState, setSheetState] =
-        useState<SheetState>("COLLAPSED");
+    const [sheetHeight, setSheetHeight] =
+        useState<number | null>(null);
 
-    const touchStartYRef = useRef<number | null>(null);
+    const dragStartYRef = useRef<number | null>(null);
+    const dragStartHeightRef = useRef<number | null>(null);
     const restaurantListRef = useRef<HTMLDivElement | null>(null);
-    const sheetTransitionLockedRef = useRef(false);
+
+    const getViewportHeight = () => {
+        if (typeof window === "undefined") {
+            return 800;
+        }
+
+        return window.innerHeight;
+    };
+
+    const currentSheetHeight =
+        sheetHeight ??
+        getInitialSheetHeight(
+            getViewportHeight(),
+        );
+
+    const updateSheetHeight = (
+        height: number,
+    ) => {
+        setSheetHeight(
+            clampSheetHeight(
+                height,
+                getViewportHeight(),
+            ),
+        );
+    };
 
     const mapBoundsBottomPadding =
-        typeof window !== "undefined"
-            ? Math.round(
-                  window.innerHeight * COLLAPSED_SHEET_VIEWPORT_RATIO,
-              ) + 24
-            : 340;
+        Math.round(currentSheetHeight) + 24;
 
-    const lockSheetTransition = () => {
-        sheetTransitionLockedRef.current = true;
+    const handleDragStart = (
+        event: PointerEvent<HTMLButtonElement>,
+    ) => {
+        event.stopPropagation();
 
-        window.setTimeout(() => {
-            sheetTransitionLockedRef.current = false;
-        }, 320);
+        event.currentTarget.setPointerCapture(event.pointerId);
+
+        dragStartYRef.current = event.clientY;
+        dragStartHeightRef.current = currentSheetHeight;
     };
 
-    const moveSheetUp = () => {
-        if (sheetTransitionLockedRef.current) {
+    const handleDragMove = (
+        event: PointerEvent<HTMLButtonElement>,
+    ) => {
+        if (dragStartYRef.current === null ||
+            dragStartHeightRef.current === null
+        ) {
             return;
         }
 
-        setSheetState((prev) => {
-            if (prev === "COLLAPSED") {
-                return "MIDDLE";
-            }
+        const movedDistance = dragStartYRef.current - event.clientY;
 
-            if (prev === "MIDDLE") {
-                return "EXPANDED";
-            }
-
-            return prev;
-        });
-
-        lockSheetTransition();
+        updateSheetHeight(
+            dragStartHeightRef.current + movedDistance,
+        );
     };
 
-    const moveSheetDown = () => {
-        if (sheetTransitionLockedRef.current) {
+    const handleDragEnd = (
+        event: PointerEvent<HTMLButtonElement>,
+    ) => {
+        if (dragStartYRef.current === null ||
+            dragStartHeightRef.current === null
+        ) {
             return;
         }
 
-        setSheetState((prev) => {
-            if (prev === "EXPANDED") {
-                return "MIDDLE";
-            }
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+            event.currentTarget.releasePointerCapture(
+                event.pointerId,
+            );
+        }
 
-            if (prev === "MIDDLE") {
-                return "COLLAPSED";
-            }
-
-            return prev;
-        });
-
-        lockSheetTransition();
+        dragStartYRef.current = null;
+        dragStartHeightRef.current = null;
     };
 
     const handleSheetWheel = (
         event: WheelEvent<HTMLElement>,
     ) => {
+        const viewportHeight = getViewportHeight();
+        const minimumSheetHeight = getMinimumSheetHeight(viewportHeight);
+        const maximumSheetHeight = getMaximumSheetHeight(viewportHeight);
         const restaurantList = restaurantListRef.current;
-
-        if (event.deltaY > 0) {
-            if (sheetState !== "EXPANDED") {
-                moveSheetUp();
-            }
-
-            return;
-        }
+        const isAtMaximumHeight = currentSheetHeight >= maximumSheetHeight - 1;
 
         if (event.deltaY < 0) {
-            if (restaurantList && restaurantList.scrollTop > 0) {
-                return;
-            }
-
-            if (sheetState !== "COLLAPSED") {
-                moveSheetDown();
-            }
-        }
-    };
-
-    const handleTouchStart = (
-        event: TouchEvent<HTMLElement>,
-    ) => {
-        touchStartYRef.current =
-            event.touches[0]?.clientY ?? null;
-    };
-
-    const handleTouchMove = (
-        event: TouchEvent<HTMLElement>,
-    ) => {
-        if (touchStartYRef.current === null) {
-            return;
-        }
-
-        const currentY = event.touches[0]?.clientY;
-
-        if (currentY === undefined) {
-            return;
-        }
-
-        const movedDistance = touchStartYRef.current - currentY;
-
-        if (movedDistance > 20) {
-            if (sheetState !== "EXPANDED") {
-                moveSheetUp();
-                touchStartYRef.current = null;
-            }
-
-            return;
-        }
-
-        if (movedDistance < -20) {
-            const restaurantList =
-                restaurantListRef.current;
-
-            if (
+            if (isAtMaximumHeight &&
                 restaurantList &&
                 restaurantList.scrollTop > 0
             ) {
                 return;
             }
 
-            if (sheetState !== "COLLAPSED") {
-                moveSheetDown();
-                touchStartYRef.current = null;
+            if (currentSheetHeight > minimumSheetHeight) {
+                event.preventDefault();
+
+                updateSheetHeight(
+                    currentSheetHeight + event.deltaY * SHEET_WHEEL_MULTIPLIER,
+                );
             }
-        }
-    };
 
-    const handleTouchEnd = () => {
-        touchStartYRef.current = null;
-    };
-
-    const handleSheetHandleClick = () => {
-        if (sheetState === "EXPANDED") {
-            moveSheetDown();
             return;
         }
 
-        moveSheetUp();
+        if (event.deltaY > 0) {
+            if (isAtMaximumHeight && restaurantList) {
+                const maximumScrollTop =
+                    restaurantList.scrollHeight -
+                    restaurantList.clientHeight;
+
+                if (restaurantList.scrollTop <
+                    maximumScrollTop - 1
+                ) {
+                    return;
+                }
+            }
+
+            if (currentSheetHeight < maximumSheetHeight) {
+                event.preventDefault();
+
+                updateSheetHeight(
+                    currentSheetHeight + event.deltaY * SHEET_WHEEL_MULTIPLIER,
+                );
+            }
+        }
     };
 
     return (
@@ -260,29 +245,18 @@ export default function GuestRecommendationRestaurantContent({
             <section
                 onClick={clearRestaurantSelection}
                 onWheel={handleSheetWheel}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-                className={
-                    sheetState === "EXPANDED"
-                        ? guestRecommendationRestaurantPageStyles.expandedContent
-                        : sheetState === "MIDDLE"
-                            ? guestRecommendationRestaurantPageStyles.middleContent
-                            : guestRecommendationRestaurantPageStyles.content
-                }
+                style={{height: `${currentSheetHeight}px`}}
+                className={guestRecommendationRestaurantPageStyles.content}
             >
                 <button
                     type="button"
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        handleSheetHandleClick();
-                    }}
+                    onClick={(event) => {event.stopPropagation();}}
+                    onPointerDown={handleDragStart}
+                    onPointerMove={handleDragMove}
+                    onPointerUp={handleDragEnd}
+                    onPointerCancel={handleDragEnd}
                     className={guestRecommendationRestaurantPageStyles.sheetHandleButton}
-                    aria-label={
-                        sheetState === "EXPANDED"
-                            ? "바텀 시트 한 단계 내리기"
-                            : "바텀 시트 한 단계 올리기"
-                    }
+                    aria-label="바텀 시트 높이 조절"
                 >
                     <span
                         className={guestRecommendationRestaurantPageStyles.sheetHandle}

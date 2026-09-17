@@ -23,23 +23,13 @@ export const guestRecommendationRestaurantPageStyles = {
 
     // Content
     content:
-        "absolute inset-x-0 bottom-0 z-30 flex h-[42dvh] " +
+        "absolute inset-x-0 bottom-0 z-30 flex " +
         "flex-col gap-4 overflow-hidden rounded-t-[28px] bg-white px-5 pb-5 pt-4 " +
-        "shadow-[0_-8px_30px_rgba(0,0,0,0.10)] transition-[height] duration-300 ease-out",
-
-    middleContent:
-        "absolute inset-x-0 bottom-0 z-30 flex h-[56dvh] " +
-        "flex-col gap-4 overflow-hidden rounded-t-[28px] bg-white px-5 pb-5 pt-4 " +
-        "shadow-[0_-8px_30px_rgba(0,0,0,0.10)] transition-[height] duration-300 ease-out",
-
-    expandedContent:
-        "absolute inset-x-0 bottom-0 z-30 flex h-[72dvh] " +
-        "flex-col gap-4 overflow-hidden rounded-t-[28px] bg-white px-5 pb-5 pt-4 " +
-        "shadow-[0_-8px_30px_rgba(0,0,0,0.10)] transition-[height] duration-300 ease-out",
+        "shadow-[0_-8px_30px_rgba(0,0,0,0.10)]",
 
     sheetHandleButton:
-        "mx-auto flex h-6 w-16 shrink-0 cursor-pointer items-center justify-center rounded-full " +
-        "transition-colors hover:bg-gray-50",
+        "mx-auto flex h-6 w-16 shrink-0 touch-none select-none cursor-grab items-center " +
+        "justify-center rounded-full transition-colors hover:bg-gray-50 active:cursor-grabbing",
     sheetHandle: "h-1 w-10 rounded-full bg-gray-200",
     searchSummary: "flex shrink-0 items-start justify-between gap-4",
     eyebrow: "text-[11px] font-bold tracking-[0.06em] text-[#FB6F00]",
