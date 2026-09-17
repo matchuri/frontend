@@ -222,16 +222,6 @@ function LocationModalContent({
                                 }}
                                 onSearchFailed={handleSearchFailed}
                             />
-
-                            <div
-                                className={locationModalStyles.centerPin}
-                                aria-hidden="true"
-                            >
-                                <MapPin
-                                    size={36}
-                                    fill="currentColor"
-                                />
-                            </div>
                         </div>
 
                         <div className={locationModalStyles.locationInfo}>
