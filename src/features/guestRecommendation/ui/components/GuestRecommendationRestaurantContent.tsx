@@ -1,4 +1,5 @@
 import {
+    useEffect,
     useRef,
     useState,
 } from "react";
@@ -67,15 +68,13 @@ export default function GuestRecommendationRestaurantContent({
     clearRestaurantSelection,
     onBack,
 }: GuestRecommendationRestaurantContentProps) {
-    const visibleRestaurants =
-        selectedRestaurant ? [selectedRestaurant] : restaurants;
-
     const [sheetHeight, setSheetHeight] =
         useState<number | null>(null);
 
     const dragStartYRef = useRef<number | null>(null);
     const dragStartHeightRef = useRef<number | null>(null);
     const restaurantListRef = useRef<HTMLDivElement | null>(null);
+    const restaurantCardRefs = useRef<Map<string, HTMLElement>>(new Map());
 
     const getViewportHeight = () => {
         if (typeof window === "undefined") {
@@ -202,6 +201,39 @@ export default function GuestRecommendationRestaurantContent({
         }
     };
 
+    useEffect(() => {
+        if (!selectedRestaurantId) {
+            return;
+        }
+
+        const restaurantList = restaurantListRef.current;
+        const selectedRestaurantCard =
+            restaurantCardRefs.current.get(selectedRestaurantId);
+
+        if (!restaurantList || !selectedRestaurantCard) {
+            return;
+        }
+
+        const listRect =
+            restaurantList.getBoundingClientRect();
+
+        const cardRect =
+            selectedRestaurantCard.getBoundingClientRect();
+
+        const isCardOutsideViewport =
+            cardRect.top < listRect.top ||
+            cardRect.bottom > listRect.bottom;
+
+        if (!isCardOutsideViewport) {
+            return;
+        }
+
+        selectedRestaurantCard.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+        });
+    }, [selectedRestaurantId]);
+
     return (
         <main className={guestRecommendationRestaurantPageStyles.page}>
             <header className={guestRecommendationRestaurantPageStyles.header}>
@@ -312,18 +344,31 @@ export default function GuestRecommendationRestaurantContent({
                     )}
 
                 {!isLoading &&
-                    !errorMessage && visibleRestaurants.length > 0 && (
+                    !errorMessage && restaurants.length > 0 && (
                         <div
                             ref={restaurantListRef}
                             className={guestRecommendationRestaurantPageStyles.restaurantList}
                         >
-                            {visibleRestaurants.map(
+                            {restaurants.map(
                                 (restaurant) => (
                                     <GuestRecommendationRestaurantCard
                                         key={restaurant.id}
                                         restaurant={restaurant}
                                         selected={restaurant.id === selectedRestaurantId}
                                         onSelect={() => selectRestaurant(restaurant.id)}
+                                        cardRef={(element) => {
+                                            if (element) {
+                                                restaurantCardRefs.current.set(
+                                                    restaurant.id,
+                                                    element,
+                                                );
+                                                return;
+                                            }
+
+                                            restaurantCardRefs.current.delete(
+                                                restaurant.id,
+                                            );
+                                        }}
                                     />
                                 ),
                             )}
