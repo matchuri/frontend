@@ -13,6 +13,7 @@ import {
     isAuthLoadingAtom,
     isOnboardingReadyAtom,
 } from "@/features/auth/application/selectors/authSelectors";
+import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 
 import BottomNavigation from "@/ui/components/BottomNavigation";
 
@@ -40,6 +41,7 @@ function AppContent({ children }: { children: ReactNode }) {
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
     const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
+    const isPersonalRecommendationLoading = useAtomValue(isPersonalRecommendationLoadingAtom);
 
     const isMemberReady =
         !isAuthLoading &&
@@ -48,6 +50,7 @@ function AppContent({ children }: { children: ReactNode }) {
 
     const showBottomNavigation =
         isMemberReady &&
+        !isPersonalRecommendationLoading &&
         !shouldHideBottomNavigation(pathname);
 
     return (

@@ -41,7 +41,7 @@ import GroupInviteNotification from "@/features/groupInviteNotification/ui/compo
 import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
 
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
-import PersonalRecommendationLoadingView from "@/features/personalRecommendation/ui/components/PersonalRecommendationLoadingView";
+import RecommendationLoadingView from "@/ui/components/RecommendationLoadingView";
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import PreferenceModal from "@/features/preference/ui/components/PreferenceModal";
 
@@ -248,7 +248,7 @@ export default function HomePage() {
     };
 
     if (isCreating) {
-        return <PersonalRecommendationLoadingView />;
+        return <RecommendationLoadingView />;
     }
 
     return (
