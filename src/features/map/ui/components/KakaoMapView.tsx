@@ -12,6 +12,7 @@ import {
 import { kakaoMapViewStyles } from "@/ui/styles/kakaoMapViewStyles";
 import type { KakaoMapChangeValue } from "@/features/map/domain/model/KakaoMapChangeValue";
 import { getAddressFromCenter } from "@/features/map/application/utils/kakaoGeocoder";
+import { createRestaurantMarkerImage } from "@/features/recommendationRestaurant/ui/config/recommendationRestaurantMapConfig";
 
 interface KakaoMapViewProps {
     readonly centerLatitude: number;
@@ -61,6 +62,7 @@ export default function KakaoMapView({
     const geocoderRef = useRef<kakao.maps.services.Geocoder | null>(null);
     const placesRef = useRef<kakao.maps.services.Places | null>(null);
     const radiusCircleRef = useRef<kakao.maps.Circle | null>(null);
+    const selectedLocationMarkerRef = useRef<kakao.maps.Marker | null>(null);
 
     const [isMapReady, setIsMapReady] = useState(false);
 
@@ -75,6 +77,22 @@ export default function KakaoMapView({
         longitude: centerLongitude,
         level,
     });
+
+    const updateSelectedLocationMarker = (
+        map: kakao.maps.Map,
+        position: kakao.maps.LatLng,
+    ) => {
+        selectedLocationMarkerRef.current?.setMap(null);
+
+        selectedLocationMarkerRef.current =
+            new window.kakao.maps.Marker({
+                map,
+                position,
+                image: createRestaurantMarkerImage(true),
+            });
+
+        selectedLocationMarkerRef.current.setZIndex(20);
+    };
 
     useEffect(() => {
         onCenterChangedRef.current = onCenterChanged;
@@ -127,9 +145,21 @@ export default function KakaoMapView({
             geocoderRef.current = geocoder;
             placesRef.current = places;
 
+            updateSelectedLocationMarker(
+                map,
+                center,
+            );
+
             const notifyMapChanged = () => {
+                const center = map.getCenter();
+
+                updateSelectedLocationMarker(
+                    map,
+                    center,
+                );
+
                 radiusCircleRef.current?.setPosition(
-                    map.getCenter(),
+                    center,
                 );
 
                 onCenterChangedRef.current?.(
@@ -146,12 +176,6 @@ export default function KakaoMapView({
             window.kakao.maps.event.addListener(
                 map,
                 "dragend",
-                notifyMapChanged,
-            );
-
-            window.kakao.maps.event.addListener(
-                map,
-                "zoom_changed",
                 notifyMapChanged,
             );
 
@@ -183,6 +207,9 @@ export default function KakaoMapView({
             cancelled = true;
 
             setIsMapReady(false);
+
+            selectedLocationMarkerRef.current?.setMap(null);
+            selectedLocationMarkerRef.current = null;
 
             radiusCircleRef.current?.setMap(null);
             radiusCircleRef.current = null;
@@ -278,6 +305,13 @@ export default function KakaoMapView({
                         );
 
                     mapRef.current?.setCenter(nextCenter);
+
+                    if (mapRef.current) {
+                        updateSelectedLocationMarker(
+                            mapRef.current,
+                            nextCenter,
+                        );
+                    }
 
                     radiusCircleRef.current?.setPosition(nextCenter);
 

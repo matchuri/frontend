@@ -115,13 +115,6 @@ export default function GuestLocationSettingSection({
                         onAddressChanged={onAddressChange}
                         onSearchFailed={onSearchFailed}
                     />
-
-                    <div
-                        className={guestRecommendationPageStyles.centerPin}
-                        aria-hidden="true"
-                    >
-                        <MapPin size={34} fill="currentColor" />
-                    </div>
                 </div>
 
                 <div className={guestRecommendationPageStyles.selectedLocation}>
