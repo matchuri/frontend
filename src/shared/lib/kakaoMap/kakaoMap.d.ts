@@ -20,6 +20,9 @@ declare global {
 
         class Point {
             constructor(x: number, y: number);
+
+            readonly x: number;
+            readonly y: number;
         }
 
         interface MarkerImageOptions {
@@ -35,13 +38,17 @@ declare global {
         }
 
         class Map {
-            constructor(container: HTMLElement, options: MapOptions);
+            constructor(
+                container: HTMLElement,
+                options: MapOptions,
+            );
 
             getCenter(): LatLng;
             setCenter(latlng: LatLng): void;
             panTo(latlng: LatLng): void;
 
             getBounds(): LatLngBounds;
+
             setBounds(
                 bounds: LatLngBounds,
                 paddingTop?: number,
@@ -53,14 +60,22 @@ declare global {
             getLevel(): number;
             setLevel(level: number): void;
 
+            getProjection(): MapProjection;
+
             relayout(): void;
+        }
+
+        class MapProjection {
+            containerPointFromCoords(latlng: LatLng): Point;
         }
 
         class Marker {
             constructor(options: MarkerOptions);
+
             setMap(map: Map | null): void;
             setImage(image: MarkerImage): void;
             setZIndex(zIndex: number): void;
+            setClickable(clickable: boolean): void;
         }
 
         class Circle {
@@ -75,12 +90,28 @@ declare global {
 
         class InfoWindow {
             constructor(options: InfoWindowOptions);
-            open(map: Map, marker: Marker): void;
+
+            open(
+                map: Map,
+                marker: Marker,
+            ): void;
+
             close(): void;
         }
 
+        class CustomOverlay {
+            constructor(
+                options: CustomOverlayOptions,
+            );
+
+            setMap(map: Map | null): void;
+        }
+
         class LatLngBounds {
-            constructor(sw?: LatLng, ne?: LatLng);
+            constructor(
+                sw?: LatLng,
+                ne?: LatLng,
+            );
 
             getSouthWest(): LatLng;
             getNorthEast(): LatLng;
@@ -97,6 +128,7 @@ declare global {
             map?: Map;
             position: LatLng;
             image?: MarkerImage;
+            clickable?: boolean;
         }
 
         interface CircleOptions {
@@ -117,12 +149,30 @@ declare global {
             content: string;
         }
 
+        interface CustomOverlayOptions {
+            map?: Map;
+            position: LatLng;
+            content: string | HTMLElement;
+            xAnchor?: number;
+            yAnchor?: number;
+            zIndex?: number;
+            clickable?: boolean;
+        }
+
         namespace event {
             function addListener(
                 target: Map | Marker,
                 type: string,
                 callback: () => void,
             ): void;
+
+            function removeListener(
+                target: Map | Marker,
+                type: string,
+                callback: () => void,
+            ): void;
+
+            function preventMap(): void;
         }
 
         namespace services {
@@ -168,6 +218,7 @@ declare global {
                 readonly address?: {
                     readonly address_name: string;
                 };
+
                 readonly road_address?: {
                     readonly address_name: string;
                 };
