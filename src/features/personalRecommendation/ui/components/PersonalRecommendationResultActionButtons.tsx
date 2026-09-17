@@ -1,3 +1,4 @@
+import { RotateCcw } from "lucide-react";
 import { personalRecommendationResultActionButtonsStyles } from "@/ui/styles/personalRecommendationResultActionButtonsStyles";
 
 interface PersonalRecommendationResultActionButtonsProps {
@@ -31,7 +32,14 @@ export default function PersonalRecommendationResultActionButtons({
                     personalRecommendationResultActionButtonsStyles.retryRecommendationButton
                 }
             >
-                {isRetryRecommendationLoading ? "재요청 중..." : "재요청"}
+                {isRetryRecommendationLoading ? (
+                    "재요청 중..."
+                ) : (
+                    <>
+                        <RotateCcw size={15} strokeWidth={2} aria-hidden="true" />
+                        재요청
+                    </>
+                )}
             </button>
 
             <button

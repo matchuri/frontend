@@ -17,21 +17,21 @@ import type { RecommendationRestaurant } from "@/features/recommendationRestaura
 import type { RecommendationRestaurantSearchContext } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurantSearchContext";
 
 import RecommendationRestaurantMap from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantMap";
-import GuestRecommendationRestaurantCard from "@/features/guestRecommendation/ui/components/GuestRecommendationRestaurantCard";
+import RecommendationRestaurantResultCard from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantResultCard";
 import {
     clampSheetHeight,
     getInitialSheetHeight,
     getMaximumSheetHeight,
     getMinimumSheetHeight,
     SHEET_WHEEL_MULTIPLIER,
-} from "@/features/guestRecommendation/ui/config/guestRecommendationBottomSheetConfig";
+} from "@/features/recommendationRestaurant/ui/config/recommendationRestaurantBottomSheetConfig";
 
-import { guestRecommendationRestaurantPageStyles } from "@/ui/styles/guestRecommendationRestaurantPageStyles";
+import { recommendationRestaurantContentStyles } from "@/ui/styles/recommendationRestaurantContentStyles";
 
 const MAP_BOUNDS_HORIZONTAL_PADDING = 32;
 const MAP_BOUNDS_TOP_PADDING = 48;
 
-interface GuestRecommendationRestaurantContentProps {
+interface RecommendationRestaurantContentProps {
     readonly menuName: string;
     readonly location: LocationSetting;
 
@@ -50,9 +50,10 @@ interface GuestRecommendationRestaurantContentProps {
     readonly selectRestaurant: (restaurantId: string) => void;
     readonly clearRestaurantSelection: () => void;
     readonly onBack: () => void;
+    readonly onClickChangeLocation?: () => void;
 }
 
-export default function GuestRecommendationRestaurantContent({
+export default function RecommendationRestaurantContent({
     menuName,
     location,
     restaurants,
@@ -67,7 +68,8 @@ export default function GuestRecommendationRestaurantContent({
     selectRestaurant,
     clearRestaurantSelection,
     onBack,
-}: GuestRecommendationRestaurantContentProps) {
+    onClickChangeLocation,
+}: RecommendationRestaurantContentProps) {
     const [sheetHeight, setSheetHeight] =
         useState<number | null>(null);
 
@@ -235,12 +237,12 @@ export default function GuestRecommendationRestaurantContent({
     }, [selectedRestaurantId]);
 
     return (
-        <main className={guestRecommendationRestaurantPageStyles.page}>
-            <header className={guestRecommendationRestaurantPageStyles.header}>
+        <main className={recommendationRestaurantContentStyles.page}>
+            <header className={recommendationRestaurantContentStyles.header}>
                 <button
                     type="button"
                     onClick={onBack}
-                    className={guestRecommendationRestaurantPageStyles.backButton}
+                    className={recommendationRestaurantContentStyles.backButton}
                     aria-label="메뉴 추천 결과로 돌아가기"
                 >
                     <ArrowLeft
@@ -249,11 +251,11 @@ export default function GuestRecommendationRestaurantContent({
                     />
                 </button>
 
-                <h1 className={guestRecommendationRestaurantPageStyles.headerTitle}>
+                <h1 className={recommendationRestaurantContentStyles.headerTitle}>
                     주변 맛집
                 </h1>
 
-                <div className={guestRecommendationRestaurantPageStyles.headerSpacer}/>
+                <div className={recommendationRestaurantContentStyles.headerSpacer}/>
             </header>
 
             <RecommendationRestaurantMap
@@ -264,10 +266,10 @@ export default function GuestRecommendationRestaurantContent({
                 selectedRestaurant={selectedRestaurant}
                 onSelectRestaurant={selectRestaurant}
                 onClearSelection={clearRestaurantSelection}
-                sectionClassName={guestRecommendationRestaurantPageStyles.mapArea}
-                mapClassName={guestRecommendationRestaurantPageStyles.map}
+                sectionClassName={recommendationRestaurantContentStyles.mapArea}
+                mapClassName={recommendationRestaurantContentStyles.map}
                 showRecenterButton
-                recenterButtonClassName={guestRecommendationRestaurantPageStyles.recenterButton}
+                recenterButtonClassName={recommendationRestaurantContentStyles.recenterButton}
                 boundsPaddingTop={MAP_BOUNDS_TOP_PADDING}
                 boundsPaddingRight={MAP_BOUNDS_HORIZONTAL_PADDING}
                 boundsPaddingBottom={mapBoundsBottomPadding}
@@ -278,7 +280,7 @@ export default function GuestRecommendationRestaurantContent({
                 onClick={clearRestaurantSelection}
                 onWheel={handleSheetWheel}
                 style={{height: `${currentSheetHeight}px`}}
-                className={guestRecommendationRestaurantPageStyles.content}
+                className={recommendationRestaurantContentStyles.content}
             >
                 <button
                     type="button"
@@ -287,31 +289,31 @@ export default function GuestRecommendationRestaurantContent({
                     onPointerMove={handleDragMove}
                     onPointerUp={handleDragEnd}
                     onPointerCancel={handleDragEnd}
-                    className={guestRecommendationRestaurantPageStyles.sheetHandleButton}
+                    className={recommendationRestaurantContentStyles.sheetHandleButton}
                     aria-label="바텀 시트 높이 조절"
                 >
                     <span
-                        className={guestRecommendationRestaurantPageStyles.sheetHandle}
+                        className={recommendationRestaurantContentStyles.sheetHandle}
                         aria-hidden="true"
                     />
                 </button>
 
-                <div className={guestRecommendationRestaurantPageStyles.searchSummary}>
+                <div className={recommendationRestaurantContentStyles.searchSummary}>
                     <div>
-                        <span className={guestRecommendationRestaurantPageStyles.eyebrow}>
+                        <span className={recommendationRestaurantContentStyles.eyebrow}>
                             {menuName}
                         </span>
 
-                        <h2 className={guestRecommendationRestaurantPageStyles.title}>
+                        <h2 className={recommendationRestaurantContentStyles.title}>
                             주변 맛집을 찾았어요
                         </h2>
 
-                        <p className={guestRecommendationRestaurantPageStyles.address}>
+                        <p className={recommendationRestaurantContentStyles.address}>
                             {location.address}
                         </p>
                     </div>
 
-                    <span className={guestRecommendationRestaurantPageStyles.radiusBadge}>
+                    <span className={recommendationRestaurantContentStyles.radiusBadge}>
                         {formatLocationRadius(
                             searchContext.effectiveRadiusMeters,
                         )}
@@ -319,39 +321,55 @@ export default function GuestRecommendationRestaurantContent({
                 </div>
 
                 {isExpandedSearch && (
-                    <p className={guestRecommendationRestaurantPageStyles.expandedText}>
+                    <p className={recommendationRestaurantContentStyles.expandedText}>
                         기본 검색 반경에서 맛집을 찾지 못해 검색 범위를 넓혔어요.
                     </p>
                 )}
 
                 {isLoading && (
-                    <div className={guestRecommendationRestaurantPageStyles.stateBox}>
+                    <div className={recommendationRestaurantContentStyles.stateBox}>
                         주변 맛집을 찾고 있어요.
                     </div>
                 )}
 
                 {errorMessage && (
-                    <div className={guestRecommendationRestaurantPageStyles.errorBox}>
+                    <div className={recommendationRestaurantContentStyles.errorBox}>
                         {errorMessage}
                     </div>
                 )}
 
                 {hasNoRestaurants &&
                     hasReachedMaximumRadius && (
-                        <div className={guestRecommendationRestaurantPageStyles.stateBox}>
-                            설정한 최대 반경 내에서 맛집을 찾지 못했어요.
+                        <div className={recommendationRestaurantContentStyles.emptyResultBox}>
+                            <p className={recommendationRestaurantContentStyles.emptyResultText}>
+                                설정한 최대 반경 내에서 맛집을 찾지 못했어요.
+                            </p>
+
+                            {onClickChangeLocation && (
+                                <button
+                                    type="button"
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        onClickChangeLocation();
+                                    }}
+                                    className={recommendationRestaurantContentStyles.changeLocationButton}
+                                >
+                                    위치 변경
+                                </button>
+                            )}
                         </div>
-                    )}
+                    )
+                }
 
                 {!isLoading &&
                     !errorMessage && restaurants.length > 0 && (
                         <div
                             ref={restaurantListRef}
-                            className={guestRecommendationRestaurantPageStyles.restaurantList}
+                            className={recommendationRestaurantContentStyles.restaurantList}
                         >
                             {restaurants.map(
                                 (restaurant) => (
-                                    <GuestRecommendationRestaurantCard
+                                    <RecommendationRestaurantResultCard
                                         key={restaurant.id}
                                         restaurant={restaurant}
                                         selected={restaurant.id === selectedRestaurantId}

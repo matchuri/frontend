@@ -5,7 +5,7 @@ import { Suspense } from "react";
 import { useGuestRecommendationRestaurantContext } from "@/features/guestRecommendation/application/hooks/useGuestRecommendationRestaurantContext";
 import { useRecommendationRestaurants } from "@/features/recommendationRestaurant/application/hooks/useRecommendationRestaurants";
 
-import GuestRecommendationRestaurantContent from "@/features/guestRecommendation/ui/components/GuestRecommendationRestaurantContent";
+import RecommendationRestaurantContent from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantContent";
 import GuestRecommendationRestaurantSkeleton from "@/features/guestRecommendation/ui/components/GuestRecommendationRestaurantSkeleton";
 
 import { isLocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
@@ -43,7 +43,7 @@ function GuestRecommendationRestaurantsPageContent() {
     }
 
     return (
-        <GuestRecommendationRestaurantContent
+        <RecommendationRestaurantContent
             menuName={selectedMenu.menuName}
             location={location}
             onBack={moveToResult}

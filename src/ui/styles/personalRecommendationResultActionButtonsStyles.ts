@@ -1,11 +1,17 @@
 export const personalRecommendationResultActionButtonsStyles = {
-    container: "mt-14 flex justify-end gap-4",
+    container:
+        "absolute bottom-6 left-5 right-5 z-40 flex items-center gap-3",
     retryRecommendationButton:
-        "h-16 w-[150px] rounded-full bg-orange-200 text-base font-semibold text-orange-600 shadow-sm transition cursor-pointer hover:bg-orange-300 disabled:cursor-not-allowed disabled:opacity-60",
+        "flex h-[52px] w-[116px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[16px] bg-white " +
+        "text-[14px] font-semibold text-gray-600 " +
+        "shadow-[0_4px_16px_rgba(15,23,42,0.10)] ring-1 ring-black/[0.05] " +
+        "transition-all duration-200 hover:bg-gray-50 active:scale-[0.98] " +
+        "disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none",
     completeSelectionButton:
-        "h-16 w-[150px] rounded-full text-base font-semibold shadow-sm transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-60",
-    completeSelectionButtonDisabled:
-        "bg-zinc-300 text-zinc-800 hover:bg-zinc-400",
+        "h-[52px] min-w-0 flex-1 rounded-[16px] text-[14px] font-semibold transition-all duration-200",
     completeSelectionButtonEnabled:
-        "bg-green-500 text-white hover:bg-green-600",
+        "cursor-pointer bg-[#FB6F00] text-white " +
+        "shadow-[0_6px_18px_rgba(251,111,0,0.22)] hover:bg-[#E96500] active:scale-[0.98]",
+    completeSelectionButtonDisabled:
+        "cursor-not-allowed bg-gray-200 text-gray-400 shadow-[0_4px_14px_rgba(15,23,42,0.06)]",
 } as const;
