@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Crosshair } from "lucide-react";
 
 import { clientEnv } from "@/infrastructure/config/env";
@@ -11,59 +11,31 @@ import {
 } from "@/shared/lib/kakaoMap/loadKakaoMapScript";
 
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
+import {
+    createLocationMarkerImage,
+    createRestaurantMarkerImage,
+    createRestaurantNameOverlayContent,
+    createRestaurantSelectionOverlayContent,
+    DEFAULT_MAP_BOUNDS_PADDING,
+    RESTAURANT_MARKER_COLLISION_DISTANCE_PX,
+} from "@/features/recommendationRestaurant/ui/config/recommendationRestaurantMapConfig";
 
 import { recommendationRestaurantPageStyles } from "@/ui/styles/recommendationRestaurantPageStyles";
 
-const NORMAL_MARKER_SIZE = 34;
-const SELECTED_MARKER_SIZE = 44;
-
-const DEFAULT_MAP_BOUNDS_PADDING = 32;
-
-function createRestaurantMarkerImage(
-    selected: boolean,
-) {
-    const size = selected ? SELECTED_MARKER_SIZE : NORMAL_MARKER_SIZE;
-    const fillColor = selected ? "#FB6F00" : "#2563EB";
-    const svg = `
-        <svg
-            width="${size}"
-            height="${size}"
-            viewBox="0 0 48 48"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M24 3C15.7 3 9 9.7 9 18c0 11 15 27 15 27s15-16 15-27C39 9.7 32.3 3 24 3Z"
-                fill="${fillColor}"
-                stroke="white"
-                stroke-width="3"
-            />
-            <circle
-                cx="24"
-                cy="18"
-                r="6"
-                fill="white"
-            />
-        </svg>
-    `;
-
-    return new window.kakao.maps.MarkerImage(
-        `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-        new window.kakao.maps.Size(size, size),
-        {
-            offset:
-                new window.kakao.maps.Point(
-                    size / 2,
-                    size,
-                ),
-        },
-    );
+interface RestaurantMarkerGroup {
+    readonly key: string;
+    readonly latitude: number;
+    readonly longitude: number;
+    readonly restaurants:
+        readonly RecommendationRestaurant[];
 }
 
 interface MarkerRecord {
-    readonly restaurantId: string;
+    readonly groupKey: string;
+    readonly restaurantIds: readonly string[];
     readonly marker: kakao.maps.Marker;
-    readonly infoWindow?: kakao.maps.InfoWindow;
     readonly position: kakao.maps.LatLng;
+    readonly restaurantCount: number;
 }
 
 interface RecommendationRestaurantMapProps {
@@ -89,6 +61,81 @@ interface RecommendationRestaurantMapProps {
     readonly boundsPaddingLeft?: number;
 }
 
+function createRestaurantMarkerGroups(
+    map: kakao.maps.Map,
+    restaurants:
+        readonly RecommendationRestaurant[],
+): RestaurantMarkerGroup[] {
+    const projection = map.getProjection();
+
+    const groups: {
+        key: string;
+        latitude: number;
+        longitude: number;
+        restaurants: RecommendationRestaurant[];
+        point: kakao.maps.Point;
+    }[] = [];
+
+    restaurants.forEach((restaurant) => {
+        const position =
+            new window.kakao.maps.LatLng(
+                restaurant.latitude,
+                restaurant.longitude,
+            );
+
+        const point =
+            projection.containerPointFromCoords(
+                position,
+            );
+
+        const matchingGroup = groups.find(
+            (group) => {
+                const deltaX = group.point.x - point.x;
+                const deltaY = group.point.y - point.y;
+
+                const distance =
+                    Math.sqrt(
+                        deltaX * deltaX + deltaY * deltaY,
+                    );
+
+                return (
+                    distance <= RESTAURANT_MARKER_COLLISION_DISTANCE_PX
+                );
+            },
+        );
+
+        if (matchingGroup) {
+            matchingGroup.restaurants.push(
+                restaurant,
+            );
+
+            return;
+        }
+
+        groups.push({
+            key: `${restaurant.latitude}:${restaurant.longitude}:${restaurant.id}`,
+            latitude: restaurant.latitude,
+            longitude: restaurant.longitude,
+            restaurants: [restaurant],
+            point,
+        });
+    });
+
+    return groups.map(
+        ({
+            key,
+            latitude,
+            longitude,
+            restaurants: groupedRestaurants,
+        }) => ({
+            key,
+            latitude,
+            longitude,
+            restaurants: groupedRestaurants,
+        }),
+    );
+}
+
 export default function RecommendationRestaurantMap({
     latitude,
     longitude,
@@ -108,26 +155,106 @@ export default function RecommendationRestaurantMap({
 }: RecommendationRestaurantMapProps) {
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<kakao.maps.Map | null>(null);
+    const locationMarkerRef = useRef<kakao.maps.Marker | null>(null);
     const markerRecordsRef = useRef<MarkerRecord[]>([]);
+
+    const selectionOverlayRef =
+        useRef<kakao.maps.CustomOverlay | null>(
+            null,
+        );
+
+    const selectedNameOverlayRef =
+        useRef<kakao.maps.CustomOverlay | null>(
+            null,
+        );
+
+    const selectedRestaurantRef =
+        useRef<RecommendationRestaurant | null>(
+            selectedRestaurant,
+        );
+
+    const [
+        activeGroupKey,
+        setActiveGroupKey,
+    ] = useState<string | null>(null);
 
     const [
         mapInitializationVersion,
         setMapInitializationVersion,
     ] = useState(0);
 
-    const handleRecenter = () => {
+    const closeSelectionOverlay = useCallback(() => {
+        selectionOverlayRef.current?.setMap(null);
+        selectionOverlayRef.current = null;
+    }, []);
+
+    const closeGroupSelection = useCallback(() => {
+        closeSelectionOverlay();
+        setActiveGroupKey(null);
+    }, [closeSelectionOverlay]);
+
+    const closeSelectedNameOverlay = useCallback(() => {
+        selectedNameOverlayRef.current?.setMap(null);
+        selectedNameOverlayRef.current = null;
+    }, []);
+
+    useEffect(() => {
+        selectedRestaurantRef.current =
+            selectedRestaurant;
+    }, [selectedRestaurant]);
+
+    const setInitialBounds = useCallback(() => {
         const map = mapRef.current;
 
         if (!map || !window.kakao?.maps) {
             return;
         }
 
-        map.panTo(
+        const bounds =
+            new window.kakao.maps.LatLngBounds();
+
+        bounds.extend(
             new window.kakao.maps.LatLng(
                 latitude,
                 longitude,
             ),
         );
+
+        restaurants.forEach((restaurant) => {
+            bounds.extend(
+                new window.kakao.maps.LatLng(
+                    restaurant.latitude,
+                    restaurant.longitude,
+                ),
+            );
+        });
+
+        map.relayout();
+
+        map.setBounds(
+            bounds,
+            boundsPaddingTop,
+            boundsPaddingRight,
+            boundsPaddingBottom,
+            boundsPaddingLeft,
+        );
+    }, [
+        latitude,
+        longitude,
+        restaurants,
+        boundsPaddingTop,
+        boundsPaddingRight,
+        boundsPaddingBottom,
+        boundsPaddingLeft,
+    ]);
+
+    const handleRecenter = () => {
+        closeGroupSelection();
+        closeSelectedNameOverlay();
+
+        onClearSelection?.();
+
+        setInitialBounds();
     };
 
     useEffect(() => {
@@ -138,10 +265,11 @@ export default function RecommendationRestaurantMap({
         let cancelled = false;
 
         async function initializeMap() {
-            await loadKakaoMapScript(clientEnv.kakaoMapAppKey);
+            await loadKakaoMapScript(
+                clientEnv.kakaoMapAppKey,
+            );
 
-            if (
-                cancelled ||
+            if (cancelled ||
                 !mapContainerRef.current ||
                 !window.kakao?.maps
             ) {
@@ -174,7 +302,9 @@ export default function RecommendationRestaurantMap({
                     error,
                     sdk: "kakao_map",
                     operation: "map_initialization",
-                    context: {mapType: "recommendation_restaurant"},
+                    context: {
+                        mapType: "recommendation_restaurant",
+                    },
                 });
             }
 
@@ -193,22 +323,38 @@ export default function RecommendationRestaurantMap({
     useEffect(() => {
         const map = mapRef.current;
 
-        if (
-            !map ||
+        if (!map ||
             !window.kakao?.maps ||
             !onClearSelection
         ) {
             return;
         }
 
+        const handleMapClick = () => {
+            closeGroupSelection();
+            closeSelectedNameOverlay();
+
+            onClearSelection();
+        };
+
         window.kakao.maps.event.addListener(
             map,
             "click",
-            onClearSelection,
+            handleMapClick,
         );
+
+        return () => {
+            window.kakao.maps.event.removeListener(
+                map,
+                "click",
+                handleMapClick,
+            );
+        };
     }, [
         mapInitializationVersion,
         onClearSelection,
+        closeGroupSelection,
+        closeSelectedNameOverlay,
     ]);
 
     useEffect(() => {
@@ -218,96 +364,200 @@ export default function RecommendationRestaurantMap({
             return;
         }
 
+        locationMarkerRef.current?.setMap(null);
+
+        const locationPosition =
+            new window.kakao.maps.LatLng(latitude, longitude);
+
+        locationMarkerRef.current =
+            new window.kakao.maps.Marker({
+                map,
+                position: locationPosition,
+                image: createLocationMarkerImage(),
+                clickable: true,
+            });
+
+        locationMarkerRef.current.setZIndex(20);
+
+        return () => {
+            locationMarkerRef.current?.setMap(null);
+            locationMarkerRef.current = null;
+        };
+    }, [
+        latitude,
+        longitude,
+        mapInitializationVersion,
+    ]);
+
+    useEffect(() => {
+        const map = mapRef.current;
+
+        if (!map || !window.kakao?.maps) {
+            return;
+        }
+
+        closeSelectionOverlay();
+        closeSelectedNameOverlay();
+
         markerRecordsRef.current.forEach(
-            ({ marker, infoWindow }) => {
-                infoWindow?.close();
+            ({ marker }) => {
                 marker.setMap(null);
             },
         );
 
-        const bounds = new window.kakao.maps.LatLngBounds();
+        markerRecordsRef.current = [];
 
-        bounds.extend(
-            new window.kakao.maps.LatLng(
-                latitude,
-                longitude,
-            ),
-        );
+        const renderRestaurantMarkers = () => {
+            markerRecordsRef.current.forEach(
+                ({ marker }) => {
+                    marker.setMap(null);
+                },
+            );
 
-        markerRecordsRef.current =
-            restaurants.map((restaurant) => {
-                const position =
-                    new window.kakao.maps.LatLng(
-                        restaurant.latitude,
-                        restaurant.longitude,
-                    );
+            markerRecordsRef.current = [];
 
-                bounds.extend(position);
-
-                const marker =
-                    new window.kakao.maps.Marker({
-                        map,
-                        position,
-                        image:
-                            createRestaurantMarkerImage(
-                                false,
-                            ),
-                    });
-
-                const infoWindow =
-                    new window.kakao.maps.InfoWindow({
-                        content: `
-                            <div
-                                style="
-                                    padding:6px 10px;
-                                    font-size:13px;
-                                    font-weight:500;
-                                    color:#000000;
-                                    white-space:nowrap;
-                                "
-                            >
-                                ${restaurant.name}
-                            </div>
-                        `,
-                    });
-
-                window.kakao.maps.event.addListener(
-                    marker,
-                    "click",
-                    () => {
-                        onSelectRestaurant(
-                            restaurant.id,
-                        );
-
-                        map.panTo(position);
-                    },
+            const markerGroups =
+                createRestaurantMarkerGroups(
+                    map,
+                    restaurants,
                 );
 
-                return {
-                    restaurantId:
-                        restaurant.id,
-                    marker,
-                    infoWindow,
-                    position,
-                };
-            });
+            markerRecordsRef.current =
+                markerGroups.map((group) => {
+                    const position =
+                        new window.kakao.maps.LatLng(
+                            group.latitude,
+                            group.longitude,
+                        );
 
-        if (restaurants.length > 0) {
-            map.relayout();
+                    const restaurantCount =
+                        group.restaurants.length;
 
-            map.setBounds(
-                bounds,
-                boundsPaddingTop,
-                boundsPaddingRight,
-                boundsPaddingBottom,
-                boundsPaddingLeft,
-            );
-        }
+                    const isSelected =
+                        selectedRestaurantRef.current
+                            ? group.restaurants.some(
+                                (restaurant) =>
+                                    restaurant.id === selectedRestaurantRef.current?.id,
+                            )
+                            : false;
+
+                    const marker =
+                        new window.kakao.maps.Marker({
+                            map,
+                            position,
+                            image:
+                                createRestaurantMarkerImage(
+                                    isSelected,
+                                    restaurantCount,
+                                ),
+                            clickable: true,
+                        });
+
+                    marker.setZIndex(isSelected ? 30 : 10);
+
+                    const handleMarkerClick =
+                        () => {
+                            closeSelectionOverlay();
+                            closeSelectedNameOverlay();
+
+                            if (restaurantCount === 1) {
+                                setActiveGroupKey(null);
+
+                                onSelectRestaurant(
+                                    group.restaurants[0]
+                                        .id,
+                                );
+
+                                return;
+                            }
+
+                            setActiveGroupKey(group.key);
+
+                            const content =
+                                createRestaurantSelectionOverlayContent(
+                                    group.restaurants.map(
+                                        (restaurant) => ({
+                                            restaurantId: restaurant.id,
+                                            restaurantName: restaurant.name,
+                                        }),
+                                    ),
+                                    (
+                                        restaurantId,
+                                    ) => {
+                                        closeSelectionOverlay();
+                                        setActiveGroupKey(null);
+
+                                        onSelectRestaurant(
+                                            restaurantId,
+                                        );
+                                    },
+                                );
+
+                            const selectionOverlay =
+                                new window.kakao.maps.CustomOverlay(
+                                    {
+                                        position,
+                                        content,
+                                        xAnchor: 0.5,
+                                        yAnchor: 1.45,
+                                        zIndex: 100,
+                                        clickable: true,
+                                    },
+                                );
+
+                            selectionOverlay.setMap(map);
+
+                            selectionOverlayRef.current = selectionOverlay;
+                        };
+
+                    window.kakao.maps.event.addListener(
+                        marker,
+                        "click",
+                        handleMarkerClick,
+                    );
+
+                    return {
+                        groupKey: group.key,
+                        restaurantIds:
+                            group.restaurants.map(
+                                (restaurant) => restaurant.id
+                            ),
+                        marker,
+                        position,
+                        restaurantCount,
+                    };
+                });
+        };
+
+        // 모든 음식점 좌표가 화면 안에 들어오도록 설정
+        setInitialBounds();
+
+        const handleMapIdle = () => {
+            closeSelectionOverlay();
+            setActiveGroupKey(null);
+            renderRestaurantMarkers();
+        };
+
+        window.kakao.maps.event.addListener(
+            map,
+            "idle",
+            handleMapIdle,
+        );
+
+        renderRestaurantMarkers();
 
         return () => {
+            window.kakao.maps.event.removeListener(
+                map,
+                "idle",
+                handleMapIdle,
+            );
+
+            closeSelectionOverlay();
+            closeSelectedNameOverlay();
+
             markerRecordsRef.current.forEach(
-                ({ marker, infoWindow }) => {
-                    infoWindow?.close();
+                ({ marker }) => {
                     marker.setMap(null);
                 },
             );
@@ -315,15 +565,42 @@ export default function RecommendationRestaurantMap({
             markerRecordsRef.current = [];
         };
     }, [
-        latitude,
-        longitude,
         mapInitializationVersion,
         onSelectRestaurant,
         restaurants,
-        boundsPaddingTop,
-        boundsPaddingRight,
-        boundsPaddingBottom,
-        boundsPaddingLeft,
+        setInitialBounds,
+        closeSelectionOverlay,
+        closeSelectedNameOverlay,
+    ]);
+
+    useEffect(() => {
+        markerRecordsRef.current.forEach(
+            (record) => {
+                const isSelected =
+                    selectedRestaurant
+                        ? record.restaurantIds.includes(
+                            selectedRestaurant.id,
+                        )
+                        : false;
+
+                const isGroupSelected =
+                    record.groupKey === activeGroupKey;
+
+                record.marker.setImage(
+                    createRestaurantMarkerImage(
+                        isSelected || isGroupSelected,
+                        record.restaurantCount,
+                    ),
+                );
+
+                record.marker.setZIndex(
+                    isSelected || isGroupSelected ? 30 : 10,
+                );
+            },
+        );
+    }, [
+        activeGroupKey,
+        selectedRestaurant,
     ]);
 
     useEffect(() => {
@@ -333,23 +610,7 @@ export default function RecommendationRestaurantMap({
             return;
         }
 
-        markerRecordsRef.current.forEach(
-            (record) => {
-                const isSelected =
-                    selectedRestaurant?.id ===
-                    record.restaurantId;
-
-                record.marker.setImage(
-                    createRestaurantMarkerImage(
-                        isSelected,
-                    ),
-                );
-
-                record.marker.setZIndex(isSelected ? 10 : 1);
-
-                record.infoWindow?.close();
-            },
-        );
+        closeSelectedNameOverlay();
 
         if (!selectedRestaurant) {
             return;
@@ -358,23 +619,49 @@ export default function RecommendationRestaurantMap({
         const selectedMarkerRecord =
             markerRecordsRef.current.find(
                 (record) =>
-                    record.restaurantId ===
-                    selectedRestaurant.id,
+                    record.restaurantIds.includes(
+                        selectedRestaurant.id,
+                    ),
             );
 
         if (!selectedMarkerRecord) {
             return;
         }
 
-        map.panTo(selectedMarkerRecord.position);
+        closeSelectionOverlay();
 
-        selectedMarkerRecord.infoWindow?.open(
-            map,
-            selectedMarkerRecord.marker,
-        );
+        const overlay =
+            new window.kakao.maps.CustomOverlay({
+                position: selectedMarkerRecord.position,
+                content:
+                    createRestaurantNameOverlayContent(
+                        selectedRestaurant.name,
+                    ),
+                xAnchor: 0.5,
+                yAnchor:
+                    selectedMarkerRecord.restaurantCount > 1
+                        ? 2.05
+                        : 2.3,
+                zIndex: 50,
+                clickable: false,
+            });
+
+        overlay.setMap(map);
+
+        selectedNameOverlayRef.current = overlay;
+
+        return () => {
+            overlay.setMap(null);
+
+            if (selectedNameOverlayRef.current === overlay) {
+                selectedNameOverlayRef.current = null;
+            }
+        };
     }, [
         mapInitializationVersion,
         selectedRestaurant,
+        closeSelectionOverlay,
+        closeSelectedNameOverlay,
     ]);
 
     return (
@@ -397,7 +684,7 @@ export default function RecommendationRestaurantMap({
                     type="button"
                     onClick={handleRecenter}
                     className={recenterButtonClassName}
-                    aria-label="설정한 위치로 이동"
+                    aria-label="최초 지도 영역으로 이동"
                 >
                     <Crosshair
                         size={21}

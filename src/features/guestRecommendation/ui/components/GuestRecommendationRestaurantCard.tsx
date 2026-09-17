@@ -1,4 +1,7 @@
-import type { MouseEvent } from "react";
+import type {
+    MouseEvent,
+    Ref,
+} from "react";
 import { ArrowUpRight, MapPin } from "lucide-react";
 
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
@@ -9,12 +12,14 @@ interface GuestRecommendationRestaurantCardProps {
     readonly restaurant: RecommendationRestaurant;
     readonly selected: boolean;
     readonly onSelect: () => void;
+    readonly cardRef?: Ref<HTMLElement>;
 }
 
 export default function GuestRecommendationRestaurantCard({
     restaurant,
     selected,
     onSelect,
+    cardRef,
 }: GuestRecommendationRestaurantCardProps) {
     const handleSelect = (
         event: MouseEvent<HTMLElement>,
@@ -25,6 +30,7 @@ export default function GuestRecommendationRestaurantCard({
 
     return (
         <article
+            ref={cardRef}
             onClick={handleSelect}
             className={
                 selected
