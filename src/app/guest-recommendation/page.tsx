@@ -12,7 +12,7 @@ import { useLocationSearch } from "@/features/locationSetting/application/hooks/
 import GuestPreferenceSettingSection from "@/features/guestRecommendation/ui/components/GuestPreferenceSettingSection";
 import GuestPreferenceSettingSkeleton from "@/features/guestRecommendation/ui/components/GuestPreferenceSettingSkeleton";
 import GuestLocationSettingSection from "@/features/guestRecommendation/ui/components/GuestLocationSettingSection";
-import GuestRecommendationLoadingView from "@/features/guestRecommendation/ui/components/GuestRecommendationLoadingView";
+import RecommendationLoadingView from "@/ui/components/RecommendationLoadingView";
 
 import { guestRecommendationPageStyles } from "@/ui/styles/guestRecommendationPageStyles";
 
@@ -62,7 +62,7 @@ export default function GuestRecommendationPage() {
     };
 
     if (isCreating) {
-        return <GuestRecommendationLoadingView />;
+        return <RecommendationLoadingView />;
     }
 
     return (

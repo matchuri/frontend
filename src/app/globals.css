@@ -39,7 +39,7 @@ body {
     }
 }
 
-@keyframes guestLoadingBounce {
+@keyframes recommendationLoadingBounce {
     0%,
     100% {
         transform: translateY(0) scale(1);
@@ -50,7 +50,7 @@ body {
     }
 }
 
-@keyframes guestLoadingSparkle {
+@keyframes recommendationLoadingSparkle {
     0%,
     100% {
         opacity: 0;

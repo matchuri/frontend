@@ -27,7 +27,6 @@ interface PersonalRecommendationResultContentProps {
     ) => Promise<void>;
     readonly onRetryRecommendation: () => Promise<void>;
     readonly onClickRestaurant: (candidateId: number) => void;
-    readonly onClickChangeLocation: () => void;
 }
 
 export default function PersonalRecommendationResultContent({
@@ -41,7 +40,6 @@ export default function PersonalRecommendationResultContent({
     onCompleteSelection,
     onRetryRecommendation,
     onClickRestaurant,
-    onClickChangeLocation,
 }: PersonalRecommendationResultContentProps) {
     const [selectedCandidateId, setSelectedCandidateId] =
         useState<number | null>(
@@ -72,75 +70,94 @@ export default function PersonalRecommendationResultContent({
                 location={location}
                 isLocationLoading={isLocationLoading}
                 onBack={onBack}
-                onClickChangeLocation={onClickChangeLocation}
             />
         );
     }
 
     return (
-        <main className={personalRecommendationResultPageStyles.container}>
-            <button
-                type="button"
-                onClick={onBack}
-                className={personalRecommendationResultPageStyles.backButton}
-            >
-                <ArrowLeft size={24} />
-            </button>
+        <main className={personalRecommendationResultPageStyles.page}>
+            <header className={personalRecommendationResultPageStyles.header}>
+                <button
+                    type="button"
+                    onClick={onBack}
+                    className={personalRecommendationResultPageStyles.backButton}
+                    aria-label="홈으로 돌아가기"
+                >
+                    <ArrowLeft size={22} strokeWidth={2} aria-hidden="true" />
+                </button>
 
-            <h1 className={personalRecommendationResultPageStyles.title}>
-                메뉴 추천 결과
-            </h1>
+                <h1 className={personalRecommendationResultPageStyles.headerTitle}>
+                    메뉴 추천 결과
+                </h1>
 
-            {isClosed && (
-                <p className={personalRecommendationResultPageStyles.closedMessage}>
-                    선택된 메뉴 정보를 불러오지 못했습니다.
-                </p>
-            )}
+                <div className={personalRecommendationResultPageStyles.headerSpacer} />
+            </header>
 
-            <section className={personalRecommendationResultPageStyles.summaryCard}>
-                <h2 className={personalRecommendationResultPageStyles.summaryTitle}>
-                    취향 프로필 요약
-                </h2>
-
-                <div className={personalRecommendationResultPageStyles.keywordGroup}>
-                    {keywords.length > 0 ? (
-                        keywords.map((keyword) => (
-                            <span
-                                key={keyword}
-                                className={
-                                    personalRecommendationResultPageStyles.keywordChip
-                                }
-                            >
-                                #{keyword}
-                            </span>
-                        ))
-                    ) : (
-                        <span
-                            className={
-                                personalRecommendationResultPageStyles.emptyText
-                            }
-                        >
-                            표시할 취향 정보가 없습니다.
+            <div className={personalRecommendationResultPageStyles.content}>
+                <section className={personalRecommendationResultPageStyles.summaryCard}>
+                    <div className={personalRecommendationResultPageStyles.summaryHeader}>
+                        <span className={personalRecommendationResultPageStyles.summaryEyebrow}>
+                            MY TASTE
                         </span>
-                    )}
-                </div>
-            </section>
 
-            <section className={personalRecommendationResultPageStyles.cardGrid}>
-                {recommendation.candidates.map((candidate) => (
-                    <PersonalRecommendationResultCard
-                        key={candidate.id}
-                        candidateId={candidate.id}
-                        menuName={candidate.menuName}
-                        score={candidate.score}
-                        thumbnailUrl={candidate.thumbnailUrl}
-                        selected={selectedCandidateId === candidate.id}
-                        disabled={isClosed}
-                        onSelect={setSelectedCandidateId}
-                        onClickRestaurant={onClickRestaurant}
-                    />
-                ))}
-            </section>
+                        <h2 className={personalRecommendationResultPageStyles.summaryTitle}>
+                            취향 프로필 요약
+                        </h2>
+                    </div>
+
+                    <div className={personalRecommendationResultPageStyles.keywordGroup}>
+                        {keywords.length > 0 ? (
+                            keywords.map((keyword) => (
+                                <span
+                                    key={keyword}
+                                    className={personalRecommendationResultPageStyles.keywordChip}
+                                >
+                                    #{keyword}
+                                </span>
+                            ))
+                        ) : (
+                            <span className={personalRecommendationResultPageStyles.emptyText}>
+                                표시할 취향 정보가 없습니다.
+                            </span>
+                        )}
+                    </div>
+                </section>
+
+                <section className={personalRecommendationResultPageStyles.resultSection}>
+                    <div className={personalRecommendationResultPageStyles.resultHeader}>
+                        <div>
+                            <span className={personalRecommendationResultPageStyles.resultEyebrow}>
+                                MATCHURI PICK
+                            </span>
+
+                            <h2 className={personalRecommendationResultPageStyles.resultTitle}>
+                                추천 메뉴
+                            </h2>
+                        </div>
+
+                        <span className={personalRecommendationResultPageStyles.selectionGuide}>
+                            취향인 메뉴 하나를 선택해 주세요
+                        </span>
+                    </div>
+
+                    <div className={personalRecommendationResultPageStyles.cardList}>
+                        {recommendation.candidates.map((candidate) => (
+                            <PersonalRecommendationResultCard
+                                key={candidate.id}
+                                candidateId={candidate.id}
+                                menuName={candidate.menuName}
+                                rankNo={candidate.rankNo}
+                                score={candidate.score}
+                                thumbnailUrl={candidate.thumbnailUrl}
+                                selected={selectedCandidateId === candidate.id}
+                                disabled={isClosed}
+                                onSelect={setSelectedCandidateId}
+                                onClickRestaurant={onClickRestaurant}
+                            />
+                        ))}
+                    </div>
+                </section>
+            </div>
 
             <PersonalRecommendationResultActionButtons
                 onRetryRecommendation={onRetryRecommendation}

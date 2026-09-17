@@ -1,20 +1,37 @@
 export const personalRecommendationResultCardStyles = {
-    card: "overflow-hidden rounded-3xl cursor-pointer bg-white shadow-md transition hover:-translate-y-1 hover:shadow-lg",
+    card:
+        "cursor-pointer overflow-hidden rounded-[22px] border border-gray-100 bg-white " +
+        "shadow-[0_3px_12px_rgba(0,0,0,0.045)] transition-all duration-200 " +
+        "hover:border-orange-200 active:scale-[0.995]",
     selectedCard:
-        "overflow-hidden rounded-3xl bg-white shadow-md ring-4 ring-blue-400 transition hover:-translate-y-1 hover:shadow-lg",
-    imagePlaceholder:
-        "relative flex h-56 items-center justify-center overflow-hidden bg-zinc-100",
+        "cursor-pointer overflow-hidden rounded-[22px] border-2 border-[#FB6F00] bg-white " +
+        "shadow-[0_5px_18px_rgba(251,111,0,0.12)] transition-all duration-200 active:scale-[0.995]",
 
-    matchBadge:
-        "absolute left-4 top-4 rounded-full bg-white/90 px-4 py-2 text-sm font-bold text-blue-600",
-    selectedBadge:
-        "absolute right-4 top-4 rounded-full bg-blue-500 px-4 py-2 text-sm font-bold text-white",
-
+    imageWrapper: "relative h-[210px] w-full overflow-hidden bg-gray-100",
     menuImage: "object-cover",
-    imageFallbackText: "text-sm font-semibold text-zinc-400",
+    imageFallback:
+        "flex h-full w-full items-center justify-center " +
+        "text-[12px] font-medium text-gray-400",
 
-    content: "px-7 py-6",
-    menuName: "text-2xl font-bold text-zinc-950",
+    cardBadges: "absolute left-3 right-3 top-3 z-10 flex items-center justify-between",
+    rankBadge:
+        "inline-flex h-7 items-center rounded-full bg-white/90 px-3 " +
+        "text-[11px] font-bold text-gray-600 shadow-sm backdrop-blur-sm",
+    firstRankBadge:
+        "inline-flex h-7 items-center rounded-full bg-[#FB6F00] px-3 " +
+        "text-[11px] font-bold text-white shadow-sm",
+    matchBadge:
+        "rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold " +
+        "text-[#FB6F00] shadow-sm backdrop-blur-sm",
+    selectedBadge:
+        "absolute bottom-3 right-3 z-10 flex items-center gap-1 rounded-full " +
+        "bg-[#FB6F00] px-3 py-1.5 text-[11px] font-bold text-white shadow-sm",
+
+    cardContent: "p-5",
+    menuName: "text-[22px] font-bold tracking-[-0.03em] text-gray-900",
     restaurantButton:
-        "mt-6 h-14 rounded-full cursor-pointer bg-zinc-950 px-8 text-base font-bold text-white transition hover:bg-zinc-800",
+        "mt-5 flex h-12 w-full cursor-pointer items-center justify-center gap-1.5 " +
+        "rounded-xl bg-[#FB6F00] text-[13px] font-semibold text-white " +
+        "shadow-[0_4px_12px_rgba(251,111,0,0.16)] transition-all duration-200 " +
+        "hover:bg-[#E96500] active:scale-[0.99]",
 } as const;

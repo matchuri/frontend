@@ -6,21 +6,21 @@ import { ArrowUpRight, MapPin } from "lucide-react";
 
 import type { RecommendationRestaurant } from "@/features/recommendationRestaurant/domain/model/RecommendationRestaurant";
 
-import { guestRecommendationRestaurantPageStyles } from "@/ui/styles/guestRecommendationRestaurantPageStyles";
+import { recommendationRestaurantContentStyles } from "@/ui/styles/recommendationRestaurantContentStyles";
 
-interface GuestRecommendationRestaurantCardProps {
+interface RecommendationRestaurantResultCardProps {
     readonly restaurant: RecommendationRestaurant;
     readonly selected: boolean;
     readonly onSelect: () => void;
     readonly cardRef?: Ref<HTMLElement>;
 }
 
-export default function GuestRecommendationRestaurantCard({
+export default function RecommendationRestaurantResultCard({
     restaurant,
     selected,
     onSelect,
     cardRef,
-}: GuestRecommendationRestaurantCardProps) {
+}: RecommendationRestaurantResultCardProps) {
     const handleSelect = (
         event: MouseEvent<HTMLElement>,
     ) => {
@@ -34,17 +34,17 @@ export default function GuestRecommendationRestaurantCard({
             onClick={handleSelect}
             className={
                 selected
-                    ? guestRecommendationRestaurantPageStyles.selectedRestaurantCard
-                    : guestRecommendationRestaurantPageStyles.restaurantCard
+                    ? recommendationRestaurantContentStyles.selectedRestaurantCard
+                    : recommendationRestaurantContentStyles.restaurantCard
             }
         >
-            <div className={guestRecommendationRestaurantPageStyles.restaurantTop}>
-                <div className={guestRecommendationRestaurantPageStyles.restaurantInfo}>
-                    <h3 className={guestRecommendationRestaurantPageStyles.restaurantName}>
+            <div className={recommendationRestaurantContentStyles.restaurantTop}>
+                <div className={recommendationRestaurantContentStyles.restaurantInfo}>
+                    <h3 className={recommendationRestaurantContentStyles.restaurantName}>
                         {restaurant.name}
                     </h3>
 
-                    <span className={guestRecommendationRestaurantPageStyles.restaurantDistance}>
+                    <span className={recommendationRestaurantContentStyles.restaurantDistance}>
                         {restaurant.distanceText}
                     </span>
                 </div>
@@ -54,7 +54,7 @@ export default function GuestRecommendationRestaurantCard({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(event) => event.stopPropagation()}
-                    className={guestRecommendationRestaurantPageStyles.placeLink}
+                    className={recommendationRestaurantContentStyles.placeLink}
                 >
                     가게 정보
 
@@ -65,7 +65,7 @@ export default function GuestRecommendationRestaurantCard({
                 </a>
             </div>
 
-            <p className={guestRecommendationRestaurantPageStyles.restaurantAddress}>
+            <p className={recommendationRestaurantContentStyles.restaurantAddress}>
                 <MapPin
                     size={14}
                     strokeWidth={2}

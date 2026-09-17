@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 
 import { isLocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
@@ -17,7 +17,6 @@ interface PersonalRecommendationSelectedResultContentProps {
     readonly location: LocationSetting | null;
     readonly isLocationLoading: boolean;
     readonly onBack: () => void;
-    readonly onClickChangeLocation: () => void;
 }
 
 export default function PersonalRecommendationSelectedResultContent({
@@ -26,117 +25,101 @@ export default function PersonalRecommendationSelectedResultContent({
     location,
     isLocationLoading,
     onBack,
-    onClickChangeLocation,
 }: PersonalRecommendationSelectedResultContentProps) {
     return (
-        <main className={personalRecommendationResultPageStyles.container}>
-            <button
-                type="button"
-                onClick={onBack}
-                className={personalRecommendationResultPageStyles.backButton}
-            >
-                <ArrowLeft size={24} />
-            </button>
+        <main className={personalRecommendationResultPageStyles.page}>
+            <header className={personalRecommendationResultPageStyles.header}>
+                <button
+                    type="button"
+                    onClick={onBack}
+                    className={personalRecommendationResultPageStyles.backButton}
+                    aria-label="홈으로 돌아가기"
+                >
+                    <ArrowLeft size={22} strokeWidth={2} aria-hidden="true" />
+                </button>
 
-            <h1 className={personalRecommendationResultPageStyles.title}>
-                메뉴 추천 결과
-            </h1>
+                <h1 className={personalRecommendationResultPageStyles.headerTitle}>
+                    메뉴 추천 결과
+                </h1>
 
-            <section className={personalRecommendationResultPageStyles.summaryCard}>
-                <h2 className={personalRecommendationResultPageStyles.summaryTitle}>
-                    취향 프로필 요약
-                </h2>
+                <div className={personalRecommendationResultPageStyles.headerSpacer} />
+            </header>
 
-                <div className={personalRecommendationResultPageStyles.keywordGroup}>
-                    {keywords.length > 0 ? (
-                        keywords.map((keyword) => (
-                            <span
-                                key={keyword}
-                                className={
-                                    personalRecommendationResultPageStyles.keywordChip
-                                }
-                            >
-                                #{keyword}
-                            </span>
-                        ))
-                    ) : (
-                        <span
-                            className={
-                                personalRecommendationResultPageStyles.emptyText
-                            }
-                        >
-                            표시할 취향 정보가 없습니다.
+            <div className={personalRecommendationResultPageStyles.selectedContent}>
+                <section className={personalRecommendationResultPageStyles.completionIntro}>
+                    <div className={personalRecommendationResultPageStyles.completionIcon}>
+                        <Check size={22} strokeWidth={2.5} aria-hidden="true" />
+                    </div>
+
+                    <div>
+                        <h2 className={personalRecommendationResultPageStyles.completionTitle}>
+                            메뉴 선택이 완료됐어요
+                        </h2>
+
+                        <p className={personalRecommendationResultPageStyles.completionDescription}>
+                            선택한 메뉴와 주변 맛집을 확인해 보세요.
+                        </p>
+                    </div>
+                </section>
+
+                <section className={personalRecommendationResultPageStyles.summaryCard}>
+                    <div className={personalRecommendationResultPageStyles.summaryHeader}>
+                        <span className={personalRecommendationResultPageStyles.summaryEyebrow}>
+                            MY TASTE
                         </span>
-                    )}
-                </div>
-            </section>
 
-            <section
-                className={
-                    personalRecommendationResultPageStyles.selectedMenuSection
-                }
-            >
-                <span
-                    className={
-                        personalRecommendationResultPageStyles.selectedMenuLabel
-                    }
-                >
-                    선택한 메뉴
-                </span>
+                        <h2 className={personalRecommendationResultPageStyles.summaryTitle}>
+                            취향 프로필 요약
+                        </h2>
+                    </div>
 
-                <h2
-                    className={
-                        personalRecommendationResultPageStyles.selectedMenuName
-                    }
-                >
-                    {selectedCandidate.menuName}
-                </h2>
-            </section>
+                    <div className={personalRecommendationResultPageStyles.keywordGroup}>
+                        {keywords.length > 0 ? (
+                            keywords.map((keyword) => (
+                                <span
+                                    key={keyword}
+                                    className={personalRecommendationResultPageStyles.keywordChip}
+                                >
+                                    #{keyword}
+                                </span>
+                            ))
+                        ) : (
+                            <span className={personalRecommendationResultPageStyles.emptyText}>
+                                표시할 취향 정보가 없습니다.
+                            </span>
+                        )}
+                    </div>
+                </section>
 
-            {isLocationLoading && (
-                <div
-                    className={
-                        personalRecommendationResultPageStyles.messageBox
-                    }
-                >
-                    위치 정보를 불러오는 중입니다.
-                </div>
-            )}
-
-            {!isLocationLoading && location === null && (
-                <div
-                    className={
-                        personalRecommendationResultPageStyles.messageBox
-                    }
-                >
-                    설정된 위치가 없어 주변 맛집을 조회할 수 없습니다.
-                </div>
-            )}
-
-            {!isLocationLoading &&
-                location !== null &&
-                !isLocationRadiusMeters(location.radiusMeters) && (
-                    <div
-                        className={
-                            personalRecommendationResultPageStyles.errorBox
-                        }
-                    >
-                        저장된 맛집 검색 반경을 사용할 수 없습니다. 개인
-                        위치를 다시 설정해주세요.
+                {isLocationLoading && (
+                    <div className={personalRecommendationResultPageStyles.messageBox}>
+                        위치 정보를 불러오는 중입니다.
                     </div>
                 )}
 
-            {!isLocationLoading &&
-                location !== null &&
-                isLocationRadiusMeters(location.radiusMeters) && (
-                    <PersonalRecommendationSelectedRestaurantContent
-                        menuName={selectedCandidate.menuName}
-                        location={location}
-                        onClickChangeLocation={
-                            onClickChangeLocation
-                        }
-                    />
+                {!isLocationLoading && location === null && (
+                    <div className={personalRecommendationResultPageStyles.messageBox}>
+                        설정된 위치가 없어 주변 맛집을 조회할 수 없습니다.
+                    </div>
                 )}
+
+                {!isLocationLoading &&
+                    location !== null &&
+                    !isLocationRadiusMeters(location.radiusMeters) && (
+                        <div className={personalRecommendationResultPageStyles.errorBox}>
+                            저장된 맛집 검색 반경을 사용할 수 없습니다. 개인 위치를 다시 설정해주세요.
+                        </div>
+                    )}
+
+                {!isLocationLoading &&
+                    location !== null &&
+                    isLocationRadiusMeters(location.radiusMeters) && (
+                        <PersonalRecommendationSelectedRestaurantContent
+                            menuName={selectedCandidate.menuName}
+                            location={location}
+                        />
+                    )}
+            </div>
         </main>
     );
 }

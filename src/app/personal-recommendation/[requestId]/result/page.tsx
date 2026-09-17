@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 
@@ -28,7 +28,6 @@ import { personalRecommendationSearchRadiusStorage } from "@/features/personalRe
 import PersonalRecommendationResultContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationResultContent";
 import { personalRecommendationResultPageStyles } from "@/ui/styles/personalRecommendationResultPageStyles";
 
-import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
 
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
@@ -44,11 +43,6 @@ export default function PersonalRecommendationResultPage() {
 function PersonalRecommendationResultPageContent() {
     const router = useRouter();
     const params = useParams<{ requestId: string }>();
-
-    const [
-        isLocationModalOpen,
-        setIsLocationModalOpen,
-    ] = useState(false);
 
     const requestId =
         parsePersonalRecommendationRequestId(
@@ -84,8 +78,6 @@ function PersonalRecommendationResultPageContent() {
     const {
         location,
         isLoading: isLocationLoading,
-        isSaving: isLocationSaving,
-        saveLocation,
     } = useLocationSetting();
 
     const {
@@ -269,44 +261,21 @@ function PersonalRecommendationResultPageContent() {
             );
         };
 
-    const handleSaveLocation = async (
-        nextLocation: LocationSetting,
-    ) => {
-        const isSaved = await saveLocation(nextLocation);
-
-        if (isSaved) {
-            setIsLocationModalOpen(false);
-        }
-
-        return isSaved;
-    };
-
     return (
-        <>
-            <PersonalRecommendationResultContent
-                key={recommendation.requestId}
-                recommendation={recommendation}
-                keywords={keywords}
-                location={resultLocation}
-                isLocationLoading={isResultLocationLoading}
-                isCompleting={isCompleting}
-                isRerolling={isRerolling}
-                onBack={() =>
-                    router.push("/home")
-                }
-                onCompleteSelection={handleCompleteSelection}
-                onRetryRecommendation={handleRetryRecommendation}
-                onClickRestaurant={handleClickRestaurant}
-                onClickChangeLocation={() => setIsLocationModalOpen(true)}
-            />
-
-            <LocationModal
-                isOpen={isLocationModalOpen}
-                initialLocation={location}
-                isSaving={isLocationSaving}
-                onClose={() => setIsLocationModalOpen(false)}
-                onSave={handleSaveLocation}
-            />
-        </>
+        <PersonalRecommendationResultContent
+            key={recommendation.requestId}
+            recommendation={recommendation}
+            keywords={keywords}
+            location={resultLocation}
+            isLocationLoading={isResultLocationLoading}
+            isCompleting={isCompleting}
+            isRerolling={isRerolling}
+            onBack={() =>
+                router.push("/home")
+            }
+            onCompleteSelection={handleCompleteSelection}
+            onRetryRecommendation={handleRetryRecommendation}
+            onClickRestaurant={handleClickRestaurant}
+        />
     );
 }
