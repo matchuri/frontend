@@ -240,7 +240,7 @@ export default function HomePage() {
     };
 
     const handleClickGroupActivity = (groupId: number) => {
-        router.push(`/group?selectedGroupId=${groupId}`);
+        router.push(`/group/${groupId}`);
     };
 
     const handleClickGroupActivityViewAll = () => {

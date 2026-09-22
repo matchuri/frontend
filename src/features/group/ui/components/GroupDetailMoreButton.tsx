@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Ellipsis, LogOut, MapPin, Pencil, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Ellipsis, LogOut, MapPin, Trash2 } from "lucide-react";
 import { useAtomValue } from "jotai";
 
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
@@ -9,26 +9,42 @@ import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDe
 import { groupDetailMoreButtonStyles } from "@/ui/styles/groupDetailMoreButtonStyles";
 
 interface GroupDetailMoreButtonProps {
-    readonly onClickEditName: () => void;
     readonly onClickEditLocation: () => void;
     readonly onClickDeleteGroup: () => void;
     readonly onClickLeaveGroup: () => void;
 }
 
 export default function GroupDetailMoreButton({
-    onClickEditName,
     onClickEditLocation,
     onClickDeleteGroup,
     onClickLeaveGroup,
 }: GroupDetailMoreButtonProps) {
     const [isOpen, setIsOpen] = useState(false);
 
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
-    const handleClickEditName = () => {
-        setIsOpen(false);
-        onClickEditName();
-    };
+    useEffect(() => {
+        if (!isOpen) {
+            return;
+        }
+
+        const handlePointerDown = (event: PointerEvent) => {
+            if (
+                wrapperRef.current &&
+                !wrapperRef.current.contains(event.target as Node)
+            ) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("pointerdown", handlePointerDown);
+
+        return () => {
+            document.removeEventListener("pointerdown", handlePointerDown);
+        };
+    }, [isOpen]);
 
     const handleClickEditLocation = () => {
         setIsOpen(false);
@@ -46,11 +62,16 @@ export default function GroupDetailMoreButton({
     };
 
     return (
-        <div className={groupDetailMoreButtonStyles.wrapper}>
+        <div
+            ref={wrapperRef}
+            className={groupDetailMoreButtonStyles.wrapper}
+        >
             <button
                 type="button"
                 onClick={() => setIsOpen((prev) => !prev)}
                 className={groupDetailMoreButtonStyles.button}
+                aria-label="그룹 관리 메뉴"
+                aria-expanded={isOpen}
             >
                 <Ellipsis size={22} />
             </button>
@@ -61,30 +82,25 @@ export default function GroupDetailMoreButton({
                         <>
                             <button
                                 type="button"
-                                onClick={handleClickEditName}
-                                className={groupDetailMoreButtonStyles.menuItem}
-                            >
-                                <Pencil size={18} />
-                                그룹명 편집하기
-                            </button>
-
-                            <button
-                                type="button"
                                 onClick={handleClickEditLocation}
                                 className={groupDetailMoreButtonStyles.menuItem}
                             >
-                                <MapPin size={18} />
+                                <span className={groupDetailMoreButtonStyles.menuIcon}>
+                                    <MapPin size={17} />
+                                </span>
                                 위치 수정하기
                             </button>
+
+                            <div className={groupDetailMoreButtonStyles.divider} />
 
                             <button
                                 type="button"
                                 onClick={handleClickDeleteGroup}
-                                className={
-                                    groupDetailMoreButtonStyles.deleteMenuItem
-                                }
+                                className={groupDetailMoreButtonStyles.deleteMenuItem}
                             >
-                                <Trash2 size={18} />
+                                <span className={groupDetailMoreButtonStyles.deleteMenuIcon}>
+                                    <Trash2 size={17} />
+                                </span>
                                 그룹 삭제하기
                             </button>
                         </>
@@ -94,7 +110,9 @@ export default function GroupDetailMoreButton({
                             onClick={handleClickLeaveGroup}
                             className={groupDetailMoreButtonStyles.leaveMenuItem}
                         >
-                            <LogOut size={18} />
+                            <span className={groupDetailMoreButtonStyles.deleteMenuIcon}>
+                                <LogOut size={17} />
+                            </span>
                             그룹 나가기
                         </button>
                     )}

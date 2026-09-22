@@ -28,7 +28,7 @@ function shouldHideBottomNavigation(pathname: string) {
         return true;
     }
 
-    if (/^\/group\/\d+\/recommendations\/\d+/.test(pathname)) {
+    if (/^\/group\/\d+(?:\/|$)/.test(pathname)) {
         return true;
     }
 

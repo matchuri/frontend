@@ -1,14 +1,29 @@
 export const groupMemberListModalStyles = {
-    overlay: "fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-[2px]",
-    modal: "w-full max-w-[560px] rounded-[28px] bg-white px-8 py-8 shadow-xl",
-    backButton:
-        "flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-700 transition hover:bg-slate-200",
-    content: "mt-5 flex flex-col gap-7",
-    title: "text-2xl font-bold text-zinc-900",
-    memberList: "flex max-h-[420px] flex-col gap-4 overflow-y-auto pr-1",
-    memberCard: "flex items-center gap-4 rounded-[24px] bg-zinc-100 px-5 py-4",
-    avatar: "flex h-14 w-14 items-center justify-center rounded-full bg-slate-300 text-slate-500",
-    nickname: "flex-1 text-base font-semibold text-zinc-900",
-    ownerRoleBadge: "rounded-full bg-amber-200 px-5 py-2 text-sm font-semibold text-yellow-800",
-    memberRoleBadge: "rounded-full bg-zinc-200 px-5 py-2 text-sm font-semibold text-zinc-700",
+    overlay:
+        "absolute inset-0 z-[80] flex items-center justify-center bg-black/35 px-5 backdrop-blur-[1px]",
+    modal:
+        "flex max-h-[70vh] w-full flex-col overflow-hidden rounded-[22px] bg-white " +
+        "shadow-[0_16px_40px_rgba(0,0,0,0.18)]",
+
+    // Header
+    header:
+        "flex shrink-0 items-start justify-between border-b border-gray-100 px-5 py-5",
+    title: "text-[18px] font-bold tracking-[-0.03em] text-gray-900",
+    memberCount: "mt-1 text-[12px] text-gray-400",
+    closeButton:
+        "flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-gray-400 " +
+        "transition-colors hover:bg-gray-50 hover:text-gray-700",
+
+    // Members
+    memberList: "overflow-y-auto px-5 py-2",
+    memberItem: "flex min-h-[68px] items-center gap-3 border-b border-gray-100 py-3 last:border-b-0",
+    memberAvatar:
+        "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full " +
+        "bg-gray-100 text-gray-400",
+    memberInfo: "min-w-0 flex-1",
+    nickname: "flex items-center gap-1.5 truncate text-[13px] font-semibold text-gray-800",
+    meText: "rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-500",
+    ownerBadge:
+        "flex shrink-0 items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 " +
+        "text-[10px] font-semibold text-[#FB6F00]",
 } as const;

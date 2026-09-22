@@ -1,63 +1,55 @@
 export const groupManagementPageStyles = {
-    container: "h-screen overflow-hidden bg-white",
-    layout: "flex h-full",
-    mainContent: "min-w-0 flex-1 overflow-hidden",
-    content: "flex h-full flex-col px-14 py-20",
-    header: "shrink-0 flex items-start justify-between",
-    title: "text-4xl font-bold text-zinc-900",
-    description: "mt-3 text-lg text-slate-700",
+    container: "min-h-full bg-white",
+
+    // Header
+    header:
+        "sticky top-0 z-50 flex h-[64px] items-center justify-center border-b border-gray-100 bg-white px-5",
+    title: "text-[18px] font-bold text-gray-900",
+    notificationButtonWrapper: "absolute right-5 top-1/2 -translate-y-1/2",
+
+    // Content
+    content: "flex flex-col px-5 pb-8 pt-7",
+
+    // Create
     createButton:
-        "flex cursor-pointer items-center gap-2 rounded-full bg-blue-300 px-8 py-3 text-lg font-bold text-zinc-900 transition-colors hover:bg-blue-400 active:bg-blue-500",
+        "flex shrink-0 cursor-pointer items-center gap-1 rounded-full " +
+        "bg-[#FB6F00] px-2.5 py-1.5 text-[11px] font-semibold text-white " +
+        "transition-colors duration-200 hover:bg-[#E96500]",
 
-    section: "mt-10 shrink-0",
-    sectionHeader: "mb-6 flex items-center justify-between",
-    sectionTitleWrapper: "flex items-center gap-3",
-    sectionTitle: "text-2xl font-bold text-zinc-900",
+    // Group section
+    groupSection: "flex flex-col",
+    sectionHeader: "mb-4 flex items-center justify-between",
+    sectionTitle: "text-[16px] font-bold tracking-[-0.02em] text-gray-900",
+    groupList: "flex flex-col gap-3",
 
-    inviteCount:
-        "flex h-8 min-w-8 items-center justify-center rounded-full bg-blue-800 px-2 text-sm font-bold text-white",
-
-    viewAllButton:
-        "cursor-pointer text-base font-semibold text-slate-700 transition-colors hover:text-slate-900 active:text-slate-950",
-
-    inviteList: "grid grid-cols-2 gap-10",
-
-    emptyInviteBox:
-        "flex h-36 items-center justify-center rounded-[24px] border border-zinc-300 bg-white text-lg text-zinc-500",
-
-    groupSection: "mt-10 flex min-h-0 flex-1 flex-col",
-
-    groupList:
-        "flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pr-2",
-
+    // Group card
     groupCard:
-        "flex cursor-pointer items-center justify-between rounded-[32px] bg-[#F4F2F2] px-12 py-7 transition-colors hover:bg-zinc-200 active:bg-zinc-300",
+        "flex w-full cursor-pointer items-center gap-3 rounded-[20px] border border-gray-200 " +
+        "bg-white px-4 py-4 text-left shadow-[0_2px_10px_rgba(0,0,0,0.035)] " +
+        "transition-all duration-200 hover:border-orange-200 hover:shadow-[0_4px_14px_rgba(0,0,0,0.055)] " +
+        "active:scale-[0.99]",
+    groupInfo: "min-w-0 flex-1",
+    groupName: "truncate text-[14px] font-bold text-gray-900",
+    groupMeta: "mt-2 flex items-center gap-1.5 text-[12px] text-gray-400",
+    groupChevron: "shrink-0 text-gray-300",
 
-    selectedGroupCard:
-        "flex cursor-pointer items-center justify-between rounded-[32px] border-2 border-blue-400 bg-white px-12 py-7 shadow-md transition-colors hover:bg-blue-50 active:bg-blue-100",
+    // Status
+    statusBadge: "shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[10px] font-semibold",
+    preparingBadge: "bg-blue-50 text-blue-600",
+    openBadge: "bg-orange-50 text-[#FB6F00]",
+    finalizedBadge: "bg-green-50 text-green-600",
 
-    groupInfo: "flex flex-col gap-4",
-    groupTop: "flex items-center gap-6",
-    groupName: "text-2xl font-bold text-zinc-900",
-
-    ownerBadge:
-        "rounded-full bg-yellow-300 px-7 py-2 text-sm font-semibold text-yellow-800",
-
-    statusBadge: "rounded-full px-7 py-2 text-sm font-semibold",
-    openBadge: "bg-green-500 text-green-950",
-    closedBadge: "bg-zinc-300 text-zinc-500",
-    preparingBadge: "bg-blue-100 text-blue-700",
-
-    groupMeta: "flex items-center gap-8 text-lg text-zinc-700",
-
-    arrowButton:
-        "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-zinc-300 text-2xl font-bold text-zinc-900 transition-colors hover:bg-zinc-400 active:bg-zinc-500",
-
+    // Empty
     emptyGroupBox:
-        "flex min-h-0 flex-1 items-center justify-center rounded-[24px] border border-zinc-300 bg-white px-4 text-center text-lg leading-8 text-zinc-500",
+        "flex flex-col items-center justify-center rounded-[20px] bg-gray-50 px-5 py-10 text-center",
+    emptyIcon:
+        "flex h-14 w-14 items-center justify-center rounded-full bg-white text-gray-300 shadow-sm",
+    emptyTitle: "mt-4 text-[15px] font-semibold text-gray-700",
+    emptyDescription: "mt-2 text-[12px] leading-5 text-gray-400",
 
-    detailLoadingPanel: "h-full w-[540px] shrink-0 overflow-y-auto border-l border-zinc-200 bg-white",
-    detailMessageBox: "p-10 text-sm font-medium text-slate-500",
-    detailErrorBox: "p-10 text-sm font-medium text-red-500",
-    realtimeNotice: "mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-700",
+    // State
+    stateBox:
+        "flex min-h-[140px] items-center justify-center rounded-[20px] bg-gray-50 px-5 text-[13px] text-gray-400",
+    errorBox:
+        "flex min-h-[140px] items-center justify-center rounded-[20px] bg-red-50 px-5 text-center text-[13px] text-red-500",
 } as const;

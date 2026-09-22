@@ -1,7 +1,8 @@
 export const preferenceModalStyles = {
     overlay: "absolute inset-0 z-[80] flex items-end bg-black/20 backdrop-blur-[2px]",
     modal:
-        "flex h-[88%] min-h-0 w-full flex-col overflow-hidden rounded-t-[24px] bg-[#FAFAFA] shadow-[0_-4px_18px_rgba(0,0,0,0.08)]",
+        "flex h-[85dvh] max-h-[760px] w-full flex-col overflow-hidden rounded-t-[28px] bg-white " +
+        "shadow-[0_-8px_30px_rgba(0,0,0,0.12)]",
     header: "flex shrink-0 items-start justify-between border-b border-gray-100 bg-white px-6 pb-5 pt-6",
     title: "text-[20px] font-bold text-gray-900",
     headerDescription: "mt-1.5 max-w-[320px] text-[13px] leading-5 text-gray-500",
