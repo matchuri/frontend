@@ -1,53 +1,105 @@
 export const groupDetailPanelStyles = {
-    panel: "h-full w-[540px] shrink-0 overflow-y-auto border-l border-zinc-200 bg-white",
-    content: "flex min-h-full flex-col px-12 py-10",
+    // Page
+    container: "min-h-full bg-white",
+    detailMessageBox:
+        "flex min-h-dvh items-center justify-center px-5 text-[13px] font-medium text-gray-500",
+    detailErrorBox:
+        "flex min-h-dvh items-center justify-center px-5 text-center text-[13px] font-medium text-red-500",
 
-    header: "flex items-center justify-between",
-    backButton:
-        "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-zinc-100 text-zinc-700 transition-colors hover:bg-zinc-200 active:bg-zinc-300",
-    moreButton:
-        "flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 active:bg-zinc-200",
+    // Panel
+    panel: "min-h-full bg-white",
 
-    groupTitle: "mt-8 text-4xl font-bold text-zinc-900",
-    address: "mt-4 flex items-center gap-2 text-base text-slate-600",
+    // Header
+    header:
+        "sticky top-0 z-40 grid h-[64px] grid-cols-[40px_1fr_40px] items-center " +
+        "border-b border-gray-100 bg-white px-5",
+    headerButton:
+        "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-gray-700 " +
+        "transition-colors hover:bg-gray-50 active:bg-gray-100",
+    headerTitle: "text-center text-[16px] font-bold text-gray-900",
 
-    recommendationButton:
-        "mt-10 h-16 cursor-pointer rounded-full bg-zinc-950 text-lg font-bold text-white transition-colors hover:bg-zinc-800 active:bg-zinc-700",
+    // Content
+    content: "flex flex-col gap-8 px-5 pb-10 pt-7",
+
+    // Group
+    groupSection: "flex flex-col",
+    groupNameRow: "flex items-center gap-2",
+    groupTitle:
+        "min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[22px] font-bold " +
+        "tracking-[-0.03em] text-gray-900",
+    groupNameEditButton:
+        "flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full " +
+        "text-gray-400 transition-colors hover:bg-gray-50 hover:text-[#FB6F00]",
+    groupNameEditWrapper: "flex flex-col",
+    groupNameEditRow: "flex items-center gap-2",
+    groupNameInput:
+        "h-11 min-w-0 flex-1 rounded-xl border border-gray-200 bg-gray-50 px-3 " +
+        "text-[15px] font-semibold text-gray-900 outline-none transition-colors " +
+        "focus:border-[#FB6F00] focus:bg-white focus:ring-2 focus:ring-orange-100 " +
+        "disabled:bg-gray-100 disabled:text-gray-400",
+    groupNameSaveButton:
+        "flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full " +
+        "bg-[#FB6F00] text-white transition-colors hover:bg-[#E96500] " +
+        "disabled:cursor-not-allowed disabled:bg-orange-200",
+    groupNameCancelButton:
+        "flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full " +
+        "bg-gray-100 text-gray-500 transition-colors hover:bg-gray-200",
+    groupNameErrorMessage: "mt-2 text-[12px] text-red-500",
+
+    // Location
+    locationInfo: "mt-3 flex min-w-0 items-center gap-1.5 text-gray-400",
+    address:
+        "min-w-0 max-w-[calc(100%-72px)] overflow-hidden text-ellipsis whitespace-nowrap " +
+        "text-[12px] font-medium text-gray-500",
+    locationDivider: "shrink-0 text-[12px] text-gray-300",
+    locationRadius: "shrink-0 text-[12px] text-gray-400",
+
+    // Recommendation
+    recommendationSection: "flex flex-col",
     recommendationGuideText:
-        "mt-10 rounded-[24px] bg-zinc-100 px-6 py-5 text-center text-base font-semibold text-slate-500",
+        "rounded-[18px] bg-gray-50 px-4 py-4 text-center text-[12px] leading-5 text-gray-500",
+    recommendationButton:
+        "flex h-[50px] w-full cursor-pointer items-center justify-center rounded-[16px] " +
+        "bg-[#FB6F00] px-4 text-[13px] font-semibold text-white transition-colors hover:bg-[#E96500]",
     preparingRecommendationButton:
-        "mt-10 h-16 cursor-pointer rounded-full bg-orange-500 text-lg font-bold text-white transition-colors hover:bg-orange-600 active:bg-orange-700",
+        "flex h-[50px] w-full cursor-pointer items-center justify-center rounded-[16px] " +
+        "bg-blue-500 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-blue-600",
     openRecommendationButton:
-        "mt-10 h-16 cursor-pointer rounded-full bg-emerald-700 text-lg font-bold text-white transition-colors hover:bg-emerald-800 active:bg-emerald-900",
+        "flex h-[50px] w-full cursor-pointer items-center justify-center rounded-[16px] " +
+        "bg-emerald-500 px-4 text-[13px] font-semibold text-white transition-colors hover:bg-emerald-600",
 
-    memberSection: "mt-8 rounded-[28px] border border-zinc-200 p-8",
-    memberSectionHeader: "flex items-start justify-between",
-    memberSectionTitle: "text-xl font-bold text-zinc-900",
-    memberCountText: "mt-1 text-sm text-slate-500",
+    // Members
+    memberSection: "flex flex-col",
+    memberSectionHeader: "mb-4 flex items-center justify-between",
+    memberTitleRow: "flex items-center gap-2",
+    sectionTitle: "text-[16px] font-bold tracking-[-0.02em] text-gray-900",
+    memberCount:
+        "flex min-w-6 items-center justify-center rounded-full bg-gray-100 px-2 py-0.5 " +
+        "text-[10px] font-semibold text-gray-500",
+    memberViewAllButton:
+        "cursor-pointer text-[12px] font-medium text-gray-400 transition-colors hover:text-[#FB6F00]",
+    memberPreviewList: "flex items-start gap-7 overflow-hidden",
+    memberPreviewItem: "flex w-[64px] shrink-0 flex-col items-center",
+    memberPreviewAvatar:
+        "relative flex h-[56px] w-[56px] items-center justify-center overflow-visible " +
+        "rounded-full bg-gray-100 text-gray-400",
+    memberPreviewNickname:
+        "mt-2 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left " +
+        "text-[11px] font-medium text-gray-500",
+    memberOwnerIndicator:
+        "absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full " +
+        "border-2 border-white bg-[#FB6F00] text-white",
+    memberInviteItem:
+        "flex w-[56px] shrink-0 cursor-pointer flex-col items-center",
+    memberInviteCircle:
+        "flex h-[56px] w-[56px] items-center justify-center rounded-full " +
+        "border border-[#FB6F00] bg-white text-[#FB6F00] transition-colors " +
+        "hover:bg-orange-50",
+    memberInviteLabel:
+        "mt-2 text-center text-[11px] font-medium text-gray-400",
+
+    // Shared member button
     memberInviteButton:
-        "flex cursor-pointer items-center gap-1 rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-600 transition-colors hover:bg-blue-200 active:bg-blue-300",
-    memberList: "mt-8 flex items-start gap-6",
-    memberCard: "flex flex-col items-center gap-2",
-    memberAvatar: "flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-slate-500",
-    memberNickname: "text-sm font-semibold text-zinc-900",
-
-    ownerRoleBadge: "rounded-full bg-amber-200 px-3 py-1 text-xs font-semibold text-amber-900",
-    memberRoleBadge: "rounded-full bg-zinc-200 px-3 py-1 text-xs font-semibold text-zinc-700",
-
-    memberMoreButton:
-        "flex h-16 w-16 cursor-pointer flex-col items-center justify-center rounded-full border border-dashed border-zinc-300 text-xs text-slate-500 transition-colors hover:bg-zinc-100 hover:text-slate-700 active:bg-zinc-200",
-
-    inviteCodeSection:
-        "mt-8 flex items-center justify-between rounded-[28px] bg-blue-600 px-8 py-8 text-white",
-    inviteCodeLabel: "text-sm text-blue-100",
-    inviteCodeValue: "mt-2 block text-3xl font-bold",
-    copyInviteCodeButton:
-        "flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700 active:bg-blue-100",
-
-    activitySection: "mt-8 flex-1",
-    emptyActivityBox:
-        "flex h-full min-h-[180px] items-center justify-center rounded-[28px] border border-zinc-200 text-slate-400",
-
-    locationInfo: "flex flex-col gap-1",
-    locationRadius: "pl-6 text-sm font-medium text-emerald-700",
+        "flex cursor-pointer items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1.5 " +
+        "text-[11px] font-semibold text-[#FB6F00] transition-colors hover:bg-orange-100",
 } as const;

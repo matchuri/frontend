@@ -52,11 +52,4 @@ export const groupManagementPageStyles = {
         "flex min-h-[140px] items-center justify-center rounded-[20px] bg-gray-50 px-5 text-[13px] text-gray-400",
     errorBox:
         "flex min-h-[140px] items-center justify-center rounded-[20px] bg-red-50 px-5 text-center text-[13px] text-red-500",
-
-    // Group detail
-    // TODO: 그룹 상세 페이지 리디자인 할 때 삭제 필요
-    layout: "flex h-full",
-    detailLoadingPanel: "h-full w-[540px] shrink-0 overflow-y-auto border-l border-zinc-200 bg-white",
-    detailMessageBox: "p-10 text-sm font-medium text-slate-500",
-    detailErrorBox: "p-10 text-sm font-medium text-red-500",
 } as const;

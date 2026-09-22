@@ -31,14 +31,12 @@ import {
 
 import GroupDetailPanel from "@/features/group/ui/components/GroupDetailPanel";
 import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
-import GroupMemberListModal from "@/features/group/ui/components/GroupMemberListModal";
-import GroupNameEditModal from "@/features/group/ui/components/GroupNameEditModal";
-import GroupLocationEditModal from "@/features/group/ui/components/GroupLocationEditModal";
 import GroupDeleteModal from "@/features/group/ui/components/GroupDeleteModal";
 import GroupLeaveModal from "@/features/group/ui/components/GroupLeaveModal";
+import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
-import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
+import { groupDetailPanelStyles } from "@/ui/styles/groupDetailPanelStyles";
 
 export default function GroupDetailPage() {
     return (
@@ -55,14 +53,11 @@ function GroupDetailPageContent() {
     const groupId = Number(params.groupId);
 
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const [isMemberListModalOpen, setIsMemberListModalOpen] = useState(false);
-    const [isGroupNameEditModalOpen, setIsGroupNameEditModalOpen] = useState(false);
     const [isLocationEditModalOpen, setIsLocationEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
 
     const [inviteNickname, setInviteNickname] = useState("");
-    const [editingGroupName, setEditingGroupName] = useState("");
     const [editingLocation, setEditingLocation] = useState<LocationSetting | null>(null);
 
     const handledRecommendationStartedEventIds = useRef<Set<string>>(new Set());
@@ -177,8 +172,6 @@ function GroupDetailPageContent() {
         onSuccess: () => {
             refetchGroups();
             refetchGroupDetail();
-            setIsGroupNameEditModalOpen(false);
-            setEditingGroupName("");
         },
     });
 
@@ -208,16 +201,12 @@ function GroupDetailPageContent() {
         await invite(groupId, inviteNickname);
     };
 
-    const openGroupNameEditModal = () => {
-        if (!groupDetail) return;
-
-        setEditingGroupName(groupDetail.name);
+    const handleUpdateGroupName = async (
+        groupName: string,
+    ) => {
         clearUpdateMessage();
-        setIsGroupNameEditModalOpen(true);
-    };
 
-    const handleUpdateGroupName = async () => {
-        await update(groupId, editingGroupName);
+        await update(groupId, groupName);
     };
 
     const openLocationEditModal = () => {
@@ -245,12 +234,12 @@ function GroupDetailPageContent() {
             location,
         );
 
-        // 위치 수정 후 최신 상세 정보를 다시 조회
         await refetchGroupDetail();
 
-        // 상세 재조회 이후 모달 상태 초기화
         setIsLocationEditModalOpen(false);
         setEditingLocation(null);
+
+        return true;
     };
 
     const handleMoveActiveRecommendation = () => {
@@ -295,26 +284,6 @@ function GroupDetailPageContent() {
         });
     };
 
-    const handleOpenRestaurantMap = () => {
-        if (!groupDetail?.recentlyRecommendation?.finalCandidate) {
-            alert("최종 추천 메뉴 정보를 불러오는 중입니다.");
-            return;
-        }
-
-        const searchParams = new URLSearchParams({
-            menuName: groupDetail.recentlyRecommendation.finalCandidate.menuName,
-            latitude: String(groupDetail.location.latitude),
-            longitude: String(groupDetail.location.longitude),
-            address: groupDetail.location.address,
-            radiusMeters: String(groupDetail.location.radiusMeters),
-            level: String(DEFAULT_MAP_LEVEL),
-            source: "group",
-            groupId: String(groupDetail.id),
-        });
-
-        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
-    };
-
     const openDeleteModal = () => {
         setIsDeleteModalOpen(true);
     };
@@ -337,12 +306,6 @@ function GroupDetailPageContent() {
         clearInviteMessage();
     };
 
-    const closeGroupNameEditModal = () => {
-        setIsGroupNameEditModalOpen(false);
-        setEditingGroupName("");
-        clearUpdateMessage();
-    };
-
     const closeLocationEditModal = () => {
         setIsLocationEditModalOpen(false);
         setEditingLocation(null);
@@ -355,11 +318,9 @@ function GroupDetailPageContent() {
 
     if (isGroupDetailLoading) {
         return (
-            <main className={groupManagementPageStyles.container}>
-                <div className={groupManagementPageStyles.detailLoadingPanel}>
-                    <div className={groupManagementPageStyles.detailMessageBox}>
-                        그룹 정보를 불러오는 중...
-                    </div>
+            <main className={groupDetailPanelStyles.container}>
+                <div className={groupDetailPanelStyles.detailMessageBox}>
+                    그룹 정보를 불러오는 중...
                 </div>
             </main>
         );
@@ -367,11 +328,9 @@ function GroupDetailPageContent() {
 
     if (groupDetailErrorMessage) {
         return (
-            <main className={groupManagementPageStyles.container}>
-                <div className={groupManagementPageStyles.detailLoadingPanel}>
-                    <div className={groupManagementPageStyles.detailErrorBox}>
-                        {groupDetailErrorMessage}
-                    </div>
+            <main className={groupDetailPanelStyles.container}>
+                <div className={groupDetailPanelStyles.detailErrorBox}>
+                    {groupDetailErrorMessage}
                 </div>
             </main>
         );
@@ -383,22 +342,20 @@ function GroupDetailPageContent() {
 
     return (
         <>
-            <main className={groupManagementPageStyles.container}>
-                <div className={groupManagementPageStyles.layout}>
-                    <GroupDetailPanel
-                        group={groupDetail}
-                        onClose={handleClickBack}
-                        onClickInvite={() => setIsInviteModalOpen(true)}
-                        onClickMemberMore={() => setIsMemberListModalOpen(true)}
-                        onClickEditName={openGroupNameEditModal}
-                        onClickEditLocation={openLocationEditModal}
-                        onClickDeleteGroup={openDeleteModal}
-                        onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
-                        onClickStartRecommendation={handleStartRecommendation}
-                        onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
-                        onClickOpenRestaurantMap={handleOpenRestaurantMap}
-                    />
-                </div>
+            <main className={groupDetailPanelStyles.container}>
+                <GroupDetailPanel
+                    group={groupDetail}
+                    isUpdatingGroupName={isUpdating}
+                    groupNameUpdateMessage={updateMessage}
+                    onClose={handleClickBack}
+                    onClickInvite={() => setIsInviteModalOpen(true)}
+                    onUpdateGroupName={handleUpdateGroupName}
+                    onClickEditLocation={openLocationEditModal}
+                    onClickDeleteGroup={openDeleteModal}
+                    onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
+                    onClickStartRecommendation={handleStartRecommendation}
+                    onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
+                />
             </main>
 
             <GroupInviteModal
@@ -408,33 +365,17 @@ function GroupDetailPageContent() {
                 message={inviteMessage}
                 onClose={closeInviteModal}
                 onChangeNickname={setInviteNickname}
+                onClearMessage={clearInviteMessage}
                 onInvite={handleInviteFriend}
             />
 
-            <GroupMemberListModal
-                isOpen={isMemberListModalOpen}
-                members={groupDetail.members}
-                onClose={() => setIsMemberListModalOpen(false)}
+            <LocationModal
+                isOpen={isLocationEditModalOpen}
+                initialLocation={editingLocation}
+                isSaving={isUpdatingLocation}
+                onClose={closeLocationEditModal}
+                onSave={handleUpdateLocation}
             />
-
-            <GroupNameEditModal
-                isOpen={isGroupNameEditModalOpen}
-                groupName={editingGroupName}
-                isUpdating={isUpdating}
-                message={updateMessage}
-                onClose={closeGroupNameEditModal}
-                onChangeGroupName={setEditingGroupName}
-                onSubmit={handleUpdateGroupName}
-            />
-
-            {isLocationEditModalOpen && editingLocation && (
-                <GroupLocationEditModal
-                    location={editingLocation}
-                    isUpdating={isUpdatingLocation}
-                    onClose={closeLocationEditModal}
-                    onSubmit={handleUpdateLocation}
-                />
-            )}
 
             <GroupDeleteModal
                 isOpen={isDeleteModalOpen}
