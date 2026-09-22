@@ -1,31 +1,33 @@
-import { Calendar, ChevronRight, Users } from "lucide-react";
+import { ChevronRight, Users } from "lucide-react";
+
 import type { Group } from "@/features/group/domain/model/Group";
+
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 interface GroupCardProps {
     readonly group: Group;
-    readonly isSelected?: boolean;
-    readonly onClick?: () => void;
+    readonly onClick: () => void;
 }
 
 function getStatusLabel(status: Group["recommendationStatus"]) {
-    if (status === "OPEN") return "투표 진행 중";
-    if (status === "CLOSED") return "투표 종료";
     if (status === "PREPARING") return "메뉴 추천 준비중";
+    if (status === "OPEN") return "투표 진행중";
+    if (status === "FINALIZED") return "투표 종료";
+
     return null;
 }
 
 function getStatusClassName(status: Group["recommendationStatus"]) {
+    if (status === "PREPARING") {
+        return `${groupManagementPageStyles.statusBadge} ${groupManagementPageStyles.preparingBadge}`;
+    }
+
     if (status === "OPEN") {
         return `${groupManagementPageStyles.statusBadge} ${groupManagementPageStyles.openBadge}`;
     }
 
-    if (status === "CLOSED") {
-        return `${groupManagementPageStyles.statusBadge} ${groupManagementPageStyles.closedBadge}`;
-    }
-
-    if (status === "PREPARING") {
-        return `${groupManagementPageStyles.statusBadge} ${groupManagementPageStyles.preparingBadge}`;
+    if (status === "FINALIZED") {
+        return `${groupManagementPageStyles.statusBadge} ${groupManagementPageStyles.finalizedBadge}`;
     }
 
     return groupManagementPageStyles.statusBadge;
@@ -33,55 +35,40 @@ function getStatusClassName(status: Group["recommendationStatus"]) {
 
 export default function GroupCard({
     group,
-    isSelected = false,
     onClick,
 }: GroupCardProps) {
     const statusLabel = getStatusLabel(group.recommendationStatus);
 
     return (
-        <article
+        <button
+            type="button"
             onClick={onClick}
-            className={
-                isSelected
-                    ? groupManagementPageStyles.selectedGroupCard
-                    : groupManagementPageStyles.groupCard
-            }
+            className={groupManagementPageStyles.groupCard}
         >
             <div className={groupManagementPageStyles.groupInfo}>
-                <div className={groupManagementPageStyles.groupTop}>
-                    <h3 className={groupManagementPageStyles.groupName}>
-                        {group.name}
-                    </h3>
-
-                    {group.isOwner && (
-                        <span className={groupManagementPageStyles.ownerBadge}>
-                            방장
-                        </span>
-                    )}
-
-                    {statusLabel && (
-                        <span className={getStatusClassName(group.recommendationStatus)}>
-                            {statusLabel}
-                        </span>
-                    )}
-                </div>
+                <h3 className={groupManagementPageStyles.groupName}>
+                    {group.name}
+                </h3>
 
                 <div className={groupManagementPageStyles.groupMeta}>
-                    <span className="flex items-center gap-2">
-                        <Users size={20} />
-                        {group.memberCount}명
-                    </span>
-
-                    <span className="flex items-center gap-2">
-                        <Calendar size={20} />
-                        {group.createdAt}
+                    <Users size={15} strokeWidth={2} aria-hidden="true" />
+                    <span>
+                        {group.memberCount}명 참여
                     </span>
                 </div>
             </div>
 
-            <button type="button" className={groupManagementPageStyles.arrowButton}>
-                <ChevronRight size={28} />
-            </button>
-        </article>
+            {statusLabel && (
+                <span className={getStatusClassName(group.recommendationStatus)}>
+                    {statusLabel}
+                </span>
+            )}
+
+            <ChevronRight
+                size={20}
+                className={groupManagementPageStyles.groupChevron}
+                aria-hidden="true"
+            />
+        </button>
     );
 }

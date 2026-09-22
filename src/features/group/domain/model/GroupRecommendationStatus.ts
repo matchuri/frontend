@@ -1,1 +1,1 @@
-export type GroupRecommendationStatus = "PREPARING" | "OPEN" | "CLOSED" | null;
+export type GroupRecommendationStatus = "PREPARING" | "OPEN" | "FINALIZED" | null;

@@ -8,12 +8,14 @@ interface GroupInviteNotificationButtonProps {
     readonly hasInvites: boolean;
     readonly isOpen: boolean;
     readonly onClick: () => void;
+    readonly placement?: "fixed" | "inline";
 }
 
 export default function GroupInviteNotificationButton({
     hasInvites,
     isOpen,
     onClick,
+    placement = "fixed",
 }: GroupInviteNotificationButtonProps) {
     return (
         <button
@@ -21,7 +23,11 @@ export default function GroupInviteNotificationButton({
             onClick={onClick}
             aria-label="그룹 초대 알림 확인"
             aria-expanded={isOpen}
-            className={groupInviteNotificationStyles.button}
+            className={
+                placement === "inline"
+                    ? groupInviteNotificationStyles.inlineButton
+                    : groupInviteNotificationStyles.button
+            }
         >
             <Bell
                 size={22}
