@@ -223,7 +223,7 @@ function GroupRecommendationResultPageContent() {
     });
 
     const handleClickBack = () => {
-        router.push(`/group?selectedGroupId=${groupId}`);
+        router.push(`/group/${groupId}`);
     };
 
     const handleClickVote = async (candidateId: number) => {

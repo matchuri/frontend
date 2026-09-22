@@ -238,7 +238,7 @@ function GroupRecommendationPreparationPageContent() {
     };
 
     const handleClickBack = () => {
-        router.push(`/group?selectedGroupId=${groupId}`);
+        router.push(`/group/${groupId}`);
     };
 
     const handleClickCompletePreparation = async () => {

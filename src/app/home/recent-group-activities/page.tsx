@@ -68,7 +68,7 @@ export default function RecentGroupActivitiesPage() {
     };
 
     const handleClickGroup = (groupId: number) => {
-        router.push(`/group?selectedGroupId=${groupId}`);
+        router.push(`/group/${groupId}`);
     };
 
     return (
