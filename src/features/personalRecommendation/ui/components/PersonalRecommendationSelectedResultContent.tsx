@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { isLocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
@@ -39,29 +39,13 @@ export default function PersonalRecommendationSelectedResultContent({
                 </button>
 
                 <h1 className={personalRecommendationResultPageStyles.headerTitle}>
-                    메뉴 추천 결과
+                    메뉴 선택 완료
                 </h1>
 
                 <div className={personalRecommendationResultPageStyles.headerSpacer} />
             </header>
 
             <div className={personalRecommendationResultPageStyles.selectedContent}>
-                <section className={personalRecommendationResultPageStyles.completionIntro}>
-                    <div className={personalRecommendationResultPageStyles.completionIcon}>
-                        <Check size={22} strokeWidth={2.5} aria-hidden="true" />
-                    </div>
-
-                    <div>
-                        <h2 className={personalRecommendationResultPageStyles.completionTitle}>
-                            메뉴 선택이 완료됐어요
-                        </h2>
-
-                        <p className={personalRecommendationResultPageStyles.completionDescription}>
-                            선택한 메뉴와 주변 맛집을 확인해 보세요.
-                        </p>
-                    </div>
-                </section>
-
                 <section className={personalRecommendationResultPageStyles.summaryCard}>
                     <div className={personalRecommendationResultPageStyles.summaryHeader}>
                         <span className={personalRecommendationResultPageStyles.summaryEyebrow}>
