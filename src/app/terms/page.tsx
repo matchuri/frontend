@@ -18,6 +18,7 @@ import { clearSignupData } from "@/features/signup/application/usecase/clearSign
 import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
 
 import SignupProgress from "@/features/signup/ui/components/SignupProgress";
+import SignupExitConfirmModal from "@/features/signup/ui/components/SignupExitConfirmModal";
 import AuthPageHeader from "@/ui/components/AuthPageHeader";
 import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
 
@@ -28,7 +29,12 @@ export default function TermsPage() {
     const router = useRouter();
     const terms = getTerms();
 
-    const { isAuthLoading, canAccess } = useTermsGuard();
+    const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
+
+    const { isAuthLoading, canAccess } = useTermsGuard({
+        skipRedirect: isExiting,
+    });
 
     const onboarding = useAtomValue(onboardingAtom);
     const { submit, isSubmitting } = useSubmitRequiredAgreements();
@@ -60,15 +66,32 @@ export default function TermsPage() {
         setCheckedMap(Object.fromEntries(terms.map((t) => [t.name, next])));
     };
 
-    const handleBack = async () => {
-        if (!isSocialSignup) {
-            router.push("/signup");
-            return;
-        }
+    const handleBack = () => {
+        setIsExitConfirmOpen(true);
+    };
 
-        clearSignupData();
-        await logout();
-        router.replace("/");
+    const handleCloseExitConfirm = () => {
+        if (isExiting) return;
+
+        setIsExitConfirmOpen(false);
+    };
+
+    const handleConfirmExit = async () => {
+        if (isExiting) return;
+
+        setIsExiting(true);
+
+        try {
+            if (isSocialSignup) {
+                await logout();
+            }
+
+            clearSignupData();
+            router.replace("/");
+        } catch {
+            clearSignupData();
+            router.replace("/");
+        }
     };
 
     const handleSubmit = async () => {
@@ -110,13 +133,9 @@ export default function TermsPage() {
     return (
         <main className={authPageStyles.page}>
             <AuthPageHeader
-                backHref={isSocialSignup ? "/" : "/signup"}
-                backLabel={
-                    isSocialSignup
-                        ? "회원가입을 종료하고 돌아가기"
-                        : "회원가입 화면으로 돌아가기"
-                }
-                onBack={() => void handleBack()}
+                backHref="/"
+                backLabel="회원가입 중단하기"
+                onBack={handleBack}
             />
 
             <div className={signupOnboardingStyles.content}>
@@ -192,6 +211,13 @@ export default function TermsPage() {
                     </button>
                 </form>
             </div>
+
+            <SignupExitConfirmModal
+                isOpen={isExitConfirmOpen}
+                isExiting={isExiting}
+                onClose={handleCloseExitConfirm}
+                onConfirm={() => void handleConfirmExit()}
+            />
         </main>
     );
 }
