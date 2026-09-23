@@ -3,14 +3,22 @@ export const homeMemberPageStyles = {
     content: "flex flex-col gap-7 px-5 pb-8",
 
     // Header
-    header: "flex items-center justify-between px-5 pb-5 pt-6",
-    userSection: "flex min-w-0 items-center gap-3",
+    header:
+        "sticky top-0 z-50 flex items-center justify-between gap-3 bg-white " +
+        "px-5 pb-5 pt-6",
+    userSection: "flex min-w-0 flex-1 items-center gap-3",
     profileIcon:
-        "flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-orange-50 text-[#FB6F00]",
+        "flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden " +
+        "rounded-full bg-orange-50 text-[#FB6F00]",
     profileImage: "h-full w-full object-cover",
-    userTextBox: "min-w-0",
-    welcomeText: "text-[15px] text-gray-800",
-    locationButton: "mt-1 flex max-w-[230px] cursor-pointer items-center gap-1 rounded-md text-xs text-gray-500 transition-colors hover:text-[#FB6F00]",
+    userTextBox: "min-w-0 flex-1",
+    nickname:
+        "truncate text-[15px] font-semibold text-gray-800",
+    locationButton:
+        "mt-1 flex min-w-0 max-w-full cursor-pointer items-center gap-1 rounded-md " +
+        "text-xs text-gray-500 transition-colors hover:text-[#FB6F00]",
+    locationIcon: "shrink-0",
+    address: "min-w-0 truncate",
 
     // Hero
     hero:

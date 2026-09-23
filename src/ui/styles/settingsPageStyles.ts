@@ -11,10 +11,11 @@ export const settingsPageStyles = {
     profileImageEditButton:
         "absolute bottom-0 right-0 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-[#FB6F00] text-white shadow-sm transition-opacity hover:opacity-80",
 
-    nicknameRow: "mt-5 flex items-center gap-1.5",
-    nickname: "text-[18px] font-semibold text-gray-900",
+    nicknameRow: "mt-5 flex w-full min-w-0 items-center justify-center gap-1.5 px-5",
+    nickname: "min-w-0 truncate text-[18px] font-semibold text-gray-900",
     nicknameEditButton:
-        "flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600",
+        "flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full " +
+        "text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600",
     nicknameEditWrapper: "mt-5 flex flex-col items-center gap-1.5",
     nicknameEditRow: "flex items-center gap-1.5",
     nicknameInput:

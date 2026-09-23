@@ -5,20 +5,28 @@ import {
     UserRound,
 } from "lucide-react";
 
+import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
+
 import { homeMemberPageStyles } from "@/ui/styles/homeMemberPageStyles";
 
 interface HomeHeaderProps {
     readonly nickname: string;
     readonly profileImageUrl: string | null;
     readonly address: string;
+    readonly hasInvites: boolean;
+    readonly isInviteNotificationOpen: boolean;
     readonly onClickLocation: () => void;
+    readonly onClickNotification: () => void;
 }
 
 export default function HomeHeader({
     nickname,
     profileImageUrl,
     address,
+    hasInvites,
+    isInviteNotificationOpen,
     onClickLocation,
+    onClickNotification,
 }: HomeHeaderProps) {
     return (
         <header className={homeMemberPageStyles.header}>
@@ -42,9 +50,8 @@ export default function HomeHeader({
                 </div>
 
                 <div className={homeMemberPageStyles.userTextBox}>
-                    <p className={homeMemberPageStyles.welcomeText}>
-                        환영합니다,{" "}
-                        <strong>{nickname}님</strong>
+                    <p className={homeMemberPageStyles.nickname}>
+                        {nickname}
                     </p>
 
                     <button
@@ -54,18 +61,29 @@ export default function HomeHeader({
                     >
                         <MapPin
                             size={14}
+                            className={homeMemberPageStyles.locationIcon}
                             aria-hidden="true"
                         />
 
-                        <span>{address}</span>
+                        <span className={homeMemberPageStyles.address}>
+                            {address}
+                        </span>
 
                         <ChevronDown
                             size={14}
+                            className={homeMemberPageStyles.locationIcon}
                             aria-hidden="true"
                         />
                     </button>
                 </div>
             </div>
+
+            <GroupInviteNotificationButton
+                hasInvites={hasInvites}
+                isOpen={isInviteNotificationOpen}
+                onClick={onClickNotification}
+                placement="inline"
+            />
         </header>
     );
 }

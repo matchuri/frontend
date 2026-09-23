@@ -38,8 +38,6 @@ import HomeRecentGroupActivity from "@/features/home/ui/components/HomeRecentGro
 import HomePageSkeleton from "@/features/home/ui/components/HomePageSkeleton";
 
 import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
-import GroupInviteNotificationButton from "@/features/groupInviteNotification/ui/components/GroupInviteNotificationButton";
-
 import PersonalRecommendationStartAlertModal from "@/features/personalRecommendation/ui/components/PersonalRecommendationStartAlertModal";
 import RecommendationLoadingView from "@/ui/components/RecommendationLoadingView";
 import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
@@ -261,13 +259,10 @@ export default function HomePage() {
                         homeData.location?.address ??
                         "설정된 위치가 없습니다."
                     }
-                    onClickLocation={handleClickLocation}
-                />
-
-                <GroupInviteNotificationButton
                     hasInvites={hasInvite}
-                    isOpen={isInviteNotificationOpen}
-                    onClick={handleClickNotification}
+                    isInviteNotificationOpen={isInviteNotificationOpen}
+                    onClickLocation={handleClickLocation}
+                    onClickNotification={handleClickNotification}
                 />
 
                 {isInviteNotificationOpen && (
