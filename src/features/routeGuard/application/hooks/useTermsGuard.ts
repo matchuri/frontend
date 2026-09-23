@@ -13,7 +13,13 @@ import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOn
 import { accountStorage } from "@/features/signup/infrastructure/storage/accountStorage";
 import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
 
-export function useTermsGuard() {
+interface UseTermsGuardOptions {
+    readonly skipRedirect?: boolean;
+}
+
+export function useTermsGuard({
+    skipRedirect = false,
+}: UseTermsGuardOptions = {}) {
     const router = useRouter();
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
@@ -48,6 +54,7 @@ export function useTermsGuard() {
     useEffect(() => {
         if (isAuthLoading) return;
         if (canAccess) return;
+        if (skipRedirect) return;
 
         if (onboarding?.nextStep) {
             router.replace(getOnboardingRoute(onboarding.nextStep));
@@ -60,6 +67,7 @@ export function useTermsGuard() {
         isAuthLoading,
         onboarding,
         router,
+        skipRedirect,
     ]);
 
     return {
