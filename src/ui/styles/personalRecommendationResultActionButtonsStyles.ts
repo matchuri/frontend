@@ -1,6 +1,7 @@
 export const personalRecommendationResultActionButtonsStyles = {
     container:
-        "absolute bottom-6 left-5 right-5 z-40 flex items-center gap-3",
+        "absolute bottom-0 left-0 right-0 z-40 flex items-center gap-3 " +
+        "bg-white/80 px-5 pb-6 pt-4 backdrop-blur-md",
     retryRecommendationButton:
         "flex h-[52px] w-[116px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-[16px] bg-white " +
         "text-[14px] font-semibold text-gray-600 " +

@@ -53,6 +53,14 @@ export default function PersonalRecommendationResultContent({
             candidate.id === recommendation.selectedCandidateId,
     );
 
+    const handleSelectCandidate = (candidateId: number) => {
+        setSelectedCandidateId((currentCandidateId) =>
+            currentCandidateId === candidateId
+                ? null
+                : candidateId,
+        );
+    };
+
     const handleCompleteSelection = async () => {
         if (selectedCandidateId === null) {
             alert("추천 메뉴를 먼저 선택해 주세요.");
@@ -151,7 +159,7 @@ export default function PersonalRecommendationResultContent({
                                 thumbnailUrl={candidate.thumbnailUrl}
                                 selected={selectedCandidateId === candidate.id}
                                 disabled={isClosed}
-                                onSelect={setSelectedCandidateId}
+                                onSelect={handleSelectCandidate}
                                 onClickRestaurant={onClickRestaurant}
                             />
                         ))}

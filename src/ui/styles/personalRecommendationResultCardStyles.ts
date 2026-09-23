@@ -1,11 +1,11 @@
 export const personalRecommendationResultCardStyles = {
     card:
-        "cursor-pointer overflow-hidden rounded-[22px] border border-gray-100 bg-white " +
-        "shadow-[0_3px_12px_rgba(0,0,0,0.045)] transition-all duration-200 " +
-        "hover:border-orange-200 active:scale-[0.995]",
+        "cursor-pointer overflow-hidden rounded-[22px] border-2 border-gray-100 bg-white " +
+        "shadow-[0_3px_12px_rgba(0,0,0,0.045)] transition-[border-color,box-shadow] duration-200 " +
+        "hover:border-orange-200",
     selectedCard:
         "cursor-pointer overflow-hidden rounded-[22px] border-2 border-[#FB6F00] bg-white " +
-        "shadow-[0_5px_18px_rgba(251,111,0,0.12)] transition-all duration-200 active:scale-[0.995]",
+        "shadow-[0_5px_18px_rgba(251,111,0,0.12)] transition-[border-color,box-shadow] duration-200",
 
     imageWrapper: "relative h-[210px] w-full overflow-hidden bg-gray-100",
     menuImage: "object-cover",
