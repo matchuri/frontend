@@ -63,7 +63,7 @@ export function useChangePassword() {
         !isSaving;
 
     const submit = async () => {
-        if (!canChangePassword) return;
+        if (!canChangePassword) return false;
 
         setIsSaving(true);
 
@@ -78,8 +78,12 @@ export function useChangePassword() {
             setCurrentPassword("");
             setNewPassword("");
             setNewPasswordConfirm("");
+
+            return true;
         } catch (error) {
             alert(getChangePasswordErrorMessage(error));
+
+            return false;
         } finally {
             setIsSaving(false);
         }
