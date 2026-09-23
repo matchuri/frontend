@@ -91,8 +91,14 @@ export default function PasswordChangePage() {
         router.push("/settings");
     };
 
-    const handleSubmit = () => {
-        void submit();
+    const handleSubmit = async () => {
+        const isChanged = await submit();
+
+        if (!isChanged) {
+            return;
+        }
+
+        router.push("/settings");
     };
 
     return (
@@ -176,12 +182,12 @@ export default function PasswordChangePage() {
                                 aria-label={showCurrentPassword ? "현재 비밀번호 숨기기" : "현재 비밀번호 보기"}
                             >
                                 {showCurrentPassword ? (
-                                    <Eye
+                                    <EyeOff
                                         size={20}
                                         aria-hidden="true"
                                     />
                                 ) : (
-                                    <EyeOff
+                                    <Eye
                                         size={20}
                                         aria-hidden="true"
                                     />
@@ -218,12 +224,12 @@ export default function PasswordChangePage() {
                                 aria-label={showNewPassword ? "새 비밀번호 숨기기" : "새 비밀번호 보기"}
                             >
                                 {showNewPassword ? (
-                                    <Eye
+                                    <EyeOff
                                         size={20}
                                         aria-hidden="true"
                                     />
                                 ) : (
-                                    <EyeOff
+                                    <Eye
                                         size={20}
                                         aria-hidden="true"
                                     />
@@ -270,12 +276,12 @@ export default function PasswordChangePage() {
                                 aria-label={showConfirmPassword ? "새 비밀번호 확인 숨기기" : "새 비밀번호 확인 보기"}
                             >
                                 {showConfirmPassword ? (
-                                    <Eye
+                                    <EyeOff
                                         size={20}
                                         aria-hidden="true"
                                     />
                                 ) : (
-                                    <EyeOff
+                                    <Eye
                                         size={20}
                                         aria-hidden="true"
                                     />
