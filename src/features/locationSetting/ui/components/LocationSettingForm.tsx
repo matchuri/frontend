@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
     Crosshair,
     Info,
@@ -42,9 +42,12 @@ export default function LocationSettingForm({
     const [selectedLocation, setSelectedLocation] =
         useState<LocationSetting>(initialLocation);
 
+    const selectedLocationRef = useRef<LocationSetting>(initialLocation);
+
     const handleLocationChange = (
         location: LocationSetting,
     ) => {
+        selectedLocationRef.current = location;
         setSelectedLocation(location);
         onChange(location);
     };
@@ -57,7 +60,7 @@ export default function LocationSettingForm({
         }
 
         handleLocationChange({
-            ...selectedLocation,
+            ...selectedLocationRef.current,
             radiusMeters,
         });
     };
@@ -124,7 +127,7 @@ export default function LocationSettingForm({
                         searchKeyword={searchKeyword}
                         onCenterChanged={(center) => {
                             handleLocationChange({
-                                ...selectedLocation,
+                                ...selectedLocationRef.current,
                                 latitude: center.latitude,
                                 longitude: center.longitude,
                                 level: center.level,
@@ -132,7 +135,7 @@ export default function LocationSettingForm({
                         }}
                         onAddressChanged={(address) => {
                             handleLocationChange({
-                                ...selectedLocation,
+                                ...selectedLocationRef.current,
                                 address,
                             });
                         }}
@@ -179,24 +182,23 @@ export default function LocationSettingForm({
                 </div>
 
                 <div className={locationModalStyles.radiusOptions}>
-                    {LOCATION_RADIUS_OPTIONS.map((radiusMeters) => {
+                    {LOCATION_RADIUS_OPTIONS.map((option) => {
                         const isSelected =
-                            selectedLocation.radiusMeters === radiusMeters;
+                            selectedLocation.radiusMeters === option;
 
                         return (
                             <button
-                                key={radiusMeters}
+                                key={option}
                                 type="button"
-                                onClick={() => handleChangeRadius(radiusMeters)}
+                                onClick={() => handleChangeRadius(option)}
                                 disabled={disabled}
-                                aria-pressed={isSelected}
                                 className={
                                     isSelected
                                         ? locationModalStyles.selectedRadiusButton
                                         : locationModalStyles.radiusButton
                                 }
                             >
-                                {formatLocationRadius(radiusMeters)}
+                                {formatLocationRadius(option)}
                             </button>
                         );
                     })}
@@ -205,14 +207,14 @@ export default function LocationSettingForm({
 
             <div className={locationModalStyles.guideBox}>
                 <Info
-                    size={18}
+                    size={17}
                     className={locationModalStyles.guideIcon}
                     aria-hidden="true"
                 />
 
-                <span>
+                <p>
                     지도를 드래그하거나 주소를 검색해 원하는 위치를 설정할 수 있어요.
-                </span>
+                </p>
             </div>
         </>
     );

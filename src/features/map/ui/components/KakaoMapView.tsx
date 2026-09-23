@@ -186,7 +186,6 @@ export default function KakaoMapView({
 
                 map.relayout();
                 map.setCenter(center);
-                notifyMapChanged();
                 setIsMapReady(true);
             }, 0);
         }
