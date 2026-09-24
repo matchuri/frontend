@@ -9,9 +9,13 @@ import type { GroupRecommendationVoteRequest } from "@/features/groupRecommendat
 import type { GroupRecommendationVoteResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationVoteResponse";
 import type { FinalizeGroupRecommendationRequest } from "@/features/groupRecommendation/infrastructure/api/dto/FinalizeGroupRecommendationRequest";
 import type { FinalizeGroupRecommendationResponse } from "@/features/groupRecommendation/infrastructure/api/dto/FinalizeGroupRecommendationResponse";
+import type { GroupRecommendationHistoryResponse } from "@/features/groupRecommendation/infrastructure/api/dto/GroupRecommendationHistoryResponse";
 
 import type { GroupRecommendationReadiness } from "@/features/groupRecommendation/domain/model/GroupRecommendationReadiness";
 import type { GroupRecommendationSessionDetail } from "@/features/groupRecommendation/domain/model/GroupRecommendationSessionDetail";
+import type { GroupRecommendationHistory } from "@/features/groupRecommendation/domain/model/GroupRecommendationHistory";
+
+import { mapGroupRecommendationHistories } from "@/features/groupRecommendation/infrastructure/api/mapper/groupRecommendationHistoryMapper";
 
 export const groupRecommendationApi = {
     async startRecommendation(
@@ -131,5 +135,25 @@ export const groupRecommendationApi = {
         }
 
         return response.data;
+    },
+
+    async fetchRecommendationHistories(
+        groupId: number,
+    ): Promise<readonly GroupRecommendationHistory[]> {
+        const response =
+            await httpClient.get<GroupRecommendationHistoryResponse>(
+                `/api/v2/groups/${groupId}/recommendations`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 추천 결과 기록 조회에 실패했습니다.",
+            );
+        }
+
+        return mapGroupRecommendationHistories(
+            response.data,
+        );
     },
 };
