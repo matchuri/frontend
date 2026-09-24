@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Crown, UserRound, X } from "lucide-react";
 
 import type { GroupDetailMember } from "@/features/group/domain/model/GroupDetailMember";
@@ -81,23 +82,35 @@ export default function GroupMemberListModal({
                             className={groupMemberListModalStyles.memberItem}
                         >
                             <div className={groupMemberListModalStyles.memberAvatar}>
-                                <UserRound
-                                    size={22}
-                                    strokeWidth={1.8}
-                                    aria-hidden="true"
-                                />
+                                {member.memberProfileImageUrl ? (
+                                    <Image
+                                        src={member.memberProfileImageUrl}
+                                        alt={`${member.nickname} 프로필`}
+                                        fill
+                                        sizes="40px"
+                                        className={groupMemberListModalStyles.memberImage}
+                                    />
+                                ) : (
+                                    <UserRound
+                                        size={22}
+                                        strokeWidth={1.8}
+                                        aria-hidden="true"
+                                    />
+                                )}
                             </div>
 
                             <div className={groupMemberListModalStyles.memberInfo}>
-                                <span className={groupMemberListModalStyles.nickname}>
-                                    {member.nickname}
+                                <div className={groupMemberListModalStyles.memberNicknameRow}>
+                                    <span className={groupMemberListModalStyles.memberNickname}>
+                                        {member.nickname}
+                                    </span>
 
                                     {member.isMe && (
-                                        <span className={groupMemberListModalStyles.meText}>
+                                        <span className={groupMemberListModalStyles.meBadge}>
                                             나
                                         </span>
                                     )}
-                                </span>
+                                </div>
                             </div>
 
                             {member.role === "OWNER" && (

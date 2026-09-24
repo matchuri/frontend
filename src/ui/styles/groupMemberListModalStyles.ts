@@ -18,11 +18,13 @@ export const groupMemberListModalStyles = {
     memberList: "overflow-y-auto px-5 py-2",
     memberItem: "flex min-h-[68px] items-center gap-3 border-b border-gray-100 py-3 last:border-b-0",
     memberAvatar:
-        "flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full " +
-        "bg-gray-100 text-gray-400",
+        "relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full " +
+        "bg-orange-100 text-gray-400",
+    memberImage: "object-cover",
     memberInfo: "min-w-0 flex-1",
-    nickname: "flex items-center gap-1.5 truncate text-[13px] font-semibold text-gray-800",
-    meText: "rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-500",
+    memberNicknameRow: "flex min-w-0 items-center gap-1.5",
+    memberNickname: "min-w-0 truncate text-[14px] font-semibold text-gray-900",
+    meBadge: "rounded-full bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-500",
     ownerBadge:
         "flex shrink-0 items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 " +
         "text-[10px] font-semibold text-[#FB6F00]",
