@@ -17,6 +17,7 @@ export function mapGroupDetail(
         members: response.members.map((member) => ({
             memberId: member.memberId,
             nickname: member.nickname,
+            memberProfileImageUrl: member.memberProfileImageUrl,
             role: member.role,
             status: member.status,
             joinedAt: member.joinedAt,

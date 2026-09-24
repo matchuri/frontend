@@ -82,7 +82,8 @@ export const groupDetailPanelStyles = {
     memberPreviewItem: "flex w-[64px] shrink-0 flex-col items-center",
     memberPreviewAvatar:
         "relative flex h-[56px] w-[56px] items-center justify-center overflow-visible " +
-        "rounded-full bg-gray-100 text-gray-400",
+        "rounded-full bg-orange-100 text-gray-400",
+    memberPreviewImage: "rounded-full object-cover",
     memberPreviewNickname:
         "mt-2 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left " +
         "text-[11px] font-medium text-gray-500",

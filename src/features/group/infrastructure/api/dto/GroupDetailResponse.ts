@@ -14,6 +14,7 @@ export interface GroupDetailResponse {
         readonly members: readonly {
             readonly memberId: number;
             readonly nickname: string;
+            readonly memberProfileImageUrl: string | null;
             readonly role: "OWNER" | "MEMBER";
             readonly status: "ACTIVE";
             readonly joinedAt: string;

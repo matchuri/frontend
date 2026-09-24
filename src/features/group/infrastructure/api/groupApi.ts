@@ -61,7 +61,7 @@ export const groupApi = {
     ): Promise<GroupDetail> {
         const response =
             await httpClient.get<GroupDetailResponse>(
-                `/api/v1/groups/${groupId}`,
+                `/api/v2/groups/${groupId}`,
             );
 
         if (!response.success) {

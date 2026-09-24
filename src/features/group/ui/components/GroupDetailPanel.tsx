@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { useAtomValue } from "jotai";
 import {
@@ -322,11 +323,21 @@ export default function GroupDetailPanel({
                                     className={groupDetailPanelStyles.memberPreviewItem}
                                 >
                                     <div className={groupDetailPanelStyles.memberPreviewAvatar}>
-                                        <UserRound
-                                            size={24}
-                                            strokeWidth={1.8}
-                                            aria-hidden="true"
-                                        />
+                                        {member.memberProfileImageUrl ? (
+                                            <Image
+                                                src={member.memberProfileImageUrl}
+                                                alt={`${member.nickname} 프로필`}
+                                                fill
+                                                sizes="56px"
+                                                className={groupDetailPanelStyles.memberPreviewImage}
+                                            />
+                                        ) : (
+                                            <UserRound
+                                                size={24}
+                                                strokeWidth={1.8}
+                                                aria-hidden="true"
+                                            />
+                                        )}
 
                                         {member.role === "OWNER" && (
                                             <span className={groupDetailPanelStyles.memberOwnerIndicator}>
