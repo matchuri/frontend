@@ -16,9 +16,11 @@ import {
 
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
 import { formatLocationRadius } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+import type { GroupRecommendationHistory as GroupRecommendationHistoryItem } from "@/features/groupRecommendation/domain/model/GroupRecommendationHistory";
 
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 
+import GroupRecommendationHistory from "@/features/group/ui/components/GroupRecommendationHistory";
 import GroupDetailMoreButton from "@/features/group/ui/components/GroupDetailMoreButton";
 import GroupRecommendationStartButton from "@/features/group/ui/components/GroupRecommendationStartButton";
 import GroupMemberListModal from "@/features/group/ui/components/GroupMemberListModal";
@@ -27,6 +29,9 @@ import { groupDetailPanelStyles } from "@/ui/styles/groupDetailPanelStyles";
 
 interface GroupDetailPanelProps {
     readonly group: GroupDetail;
+    readonly recommendationHistories: readonly GroupRecommendationHistoryItem[];
+    readonly isRecommendationHistoriesLoading: boolean;
+    readonly recommendationHistoriesErrorMessage: string | null;
     readonly isUpdatingGroupName: boolean;
     readonly groupNameUpdateMessage: string | null;
     readonly onClose: () => void;
@@ -37,10 +42,15 @@ interface GroupDetailPanelProps {
     readonly onClickLeaveGroup: () => void;
     readonly onClickStartRecommendation: () => void;
     readonly onClickMoveActiveRecommendation: () => void;
+    readonly onClickRecommendationHistory: (history: GroupRecommendationHistoryItem) => void;
+    readonly onClickRecommendationHistoryViewAll: () => void;
 }
 
 export default function GroupDetailPanel({
     group,
+    recommendationHistories,
+    isRecommendationHistoriesLoading,
+    recommendationHistoriesErrorMessage,
     isUpdatingGroupName,
     groupNameUpdateMessage,
     onClose,
@@ -51,6 +61,8 @@ export default function GroupDetailPanel({
     onClickLeaveGroup,
     onClickStartRecommendation,
     onClickMoveActiveRecommendation,
+    onClickRecommendationHistory,
+    onClickRecommendationHistoryViewAll,
 }: GroupDetailPanelProps) {
     const isOwner = useAtomValue(isGroupOwnerAtom);
 
@@ -379,6 +391,15 @@ export default function GroupDetailPanel({
                             )}
                         </div>
                     </section>
+
+                    <GroupRecommendationHistory
+                        histories={recommendationHistories}
+                        isLoading={isRecommendationHistoriesLoading}
+                        errorMessage={recommendationHistoriesErrorMessage}
+                        maxItems={4}
+                        onClickHistory={onClickRecommendationHistory}
+                        onClickViewAll={onClickRecommendationHistoryViewAll}
+                    />
                 </div>
             </div>
 

@@ -15,9 +15,11 @@ import { useUpdateGroupLocation } from "@/features/group/application/hooks/useUp
 import { useDeleteGroup } from "@/features/group/application/hooks/useDeleteGroup";
 import { useLeaveGroup } from "@/features/group/application/hooks/useLeaveGroup";
 import { useStartGroupRecommendation } from "@/features/groupRecommendation/application/hooks/useStartGroupRecommendation";
+import { useGroupRecommendationHistories } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationHistories";
 import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 import type { GroupDeletedEvent } from "@/features/group/infrastructure/sse/dto/GroupDeletedEvent";
 import type { GroupRecommendationStartedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationStartedEvent";
+import type { GroupRecommendationHistory } from "@/features/groupRecommendation/domain/model/GroupRecommendationHistory";
 
 import {
     groupDetailAtomValue,
@@ -79,6 +81,12 @@ function GroupDetailPageContent() {
     const { refetchGroupDetail } = useGroupDetail(groupId, {
         onGroupNotFound: handleGroupNotFound,
     });
+
+    const {
+        histories: recommendationHistories,
+        isLoading: isRecommendationHistoriesLoading,
+        errorMessage: recommendationHistoriesErrorMessage,
+    } = useGroupRecommendationHistories(groupId);
 
     const handleMemberJoined = useCallback(() => {
         refetchGroups();
@@ -284,6 +292,34 @@ function GroupDetailPageContent() {
         });
     };
 
+    const handleClickRecommendationHistory = (
+        history: GroupRecommendationHistory,
+    ) => {
+        if (!groupDetail?.location.address) {
+            alert("그룹 위치 정보를 확인할 수 없습니다.");
+            return;
+        }
+
+        const searchParams = new URLSearchParams({
+            menuName: history.menuName,
+            latitude: String(groupDetail.location.latitude),
+            longitude: String(groupDetail.location.longitude),
+            address: groupDetail.location.address,
+            radiusMeters: String(groupDetail.location.radiusMeters),
+            level: String(DEFAULT_MAP_LEVEL),
+            source: "group",
+            groupId: String(groupId),
+        });
+
+        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+    };
+
+    const handleClickRecommendationHistoryViewAll = () => {
+        router.push(
+            `/group/${groupId}/recommendations/history`,
+        );
+    };
+
     const openDeleteModal = () => {
         setIsDeleteModalOpen(true);
     };
@@ -345,6 +381,9 @@ function GroupDetailPageContent() {
             <main className={groupDetailPanelStyles.container}>
                 <GroupDetailPanel
                     group={groupDetail}
+                    recommendationHistories={recommendationHistories}
+                    isRecommendationHistoriesLoading={isRecommendationHistoriesLoading}
+                    recommendationHistoriesErrorMessage={recommendationHistoriesErrorMessage}
                     isUpdatingGroupName={isUpdating}
                     groupNameUpdateMessage={updateMessage}
                     onClose={handleClickBack}
@@ -355,6 +394,8 @@ function GroupDetailPageContent() {
                     onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
                     onClickStartRecommendation={handleStartRecommendation}
                     onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
+                    onClickRecommendationHistory={handleClickRecommendationHistory}
+                    onClickRecommendationHistoryViewAll={handleClickRecommendationHistoryViewAll}
                 />
             </main>
 
