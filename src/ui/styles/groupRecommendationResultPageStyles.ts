@@ -1,50 +1,120 @@
 export const groupRecommendationResultPageStyles = {
-    container: "min-h-screen bg-slate-50",
-    content: "mx-auto max-w-[1360px] px-16 py-10",
+    container: "flex min-h-full flex-col bg-white",
 
-    backButton: "flex h-14 w-14 cursor-pointer items-center justify-center rounded-full text-zinc-900 transition-colors hover:bg-slate-200",
+    // Header
+    header:
+        "sticky top-0 z-30 grid h-[64px] shrink-0 grid-cols-[40px_1fr_40px] items-center " +
+        "border-b border-gray-100 bg-white px-5",
+    backButton:
+        "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-gray-700 " +
+        "transition-colors hover:bg-gray-50 active:bg-gray-100",
+    headerTitle: "text-center text-[16px] font-bold text-gray-900",
+    headerSpacer: "h-10 w-10",
 
-    titleSection: "mt-8",
-    title: "text-5xl font-bold text-zinc-900",
-    description: "mt-3 text-xl text-slate-700",
+    // Content
+    content: "flex flex-1 flex-col gap-7 px-5 pb-10 pt-6",
+    contentWithVoteAction: "pb-[calc(118px+env(safe-area-inset-bottom))]",
+    stateContainer: "flex min-h-full flex-col items-center justify-center gap-4 px-5",
+    stateText: "text-center text-[13px] text-gray-500",
+    errorText: "text-center text-[13px] text-red-500",
+    retryButton:
+        "flex h-11 cursor-pointer items-center justify-center rounded-[14px] border border-gray-200 " +
+        "bg-white px-5 text-[13px] font-semibold text-gray-600 hover:bg-gray-50",
 
-    topSection: "mt-14 grid grid-cols-[1fr_1.45fr] gap-16",
+    // Vote status
+    voteStatusCard:
+        "rounded-[20px] border border-gray-100 bg-white px-5 py-5 " +
+        "shadow-[0_2px_10px_rgba(0,0,0,0.035)]",
+    voteStatusHeader: "flex items-center justify-between gap-3",
+    voteStatusTitle: "text-[15px] font-bold text-gray-900",
+    voteStatusCount: "shrink-0 text-[15px] font-bold text-gray-900",
+    progressTrack: "mt-4 h-2.5 overflow-hidden rounded-full bg-gray-100",
+    progressFill: "h-full rounded-full bg-[#FB6F00] transition-[width] duration-300 ease-out",
+    voteStatusDescription: "mt-3 text-[12px] leading-5 text-gray-500",
+    voteActionButton:
+        "mt-4 flex h-11 w-full cursor-pointer items-center justify-center rounded-[14px] " +
+        "bg-[#FB6F00] text-[13px] font-semibold text-white hover:bg-[#E96500] " +
+        "disabled:cursor-not-allowed disabled:bg-orange-200",
+    resultActionButton:
+        "mt-4 flex h-11 w-full cursor-pointer items-center justify-center rounded-[14px] " +
+        "bg-[#FB6F00] text-[13px] font-semibold text-white " +
+        "transition-colors hover:bg-[#E96500] active:bg-[#D95E00]",
 
-    voteStatusCard: "rounded-[36px] bg-white px-10 py-10 shadow-[0_2px_8px_rgba(15,23,42,0.12)]",
-    voteStatusHeader: "flex items-center justify-between",
-    voteStatusTitle: "text-2xl font-bold text-zinc-900",
-    voteStatusCount: "text-2xl font-bold text-blue-500",
-    progressTrack: "mt-8 h-4 rounded-full bg-zinc-200",
-    progressFill: "h-full rounded-full bg-blue-500",
-    voteActionButton: "mt-8 h-16 w-full cursor-pointer rounded-[20px] bg-indigo-950 text-2xl font-bold text-white",
-    resultActionButton: "mt-8 h-16 w-full cursor-pointer rounded-[20px] bg-indigo-950 text-2xl font-bold text-white",
+    // Members
+    memberSection: "flex min-w-0 flex-col gap-4",
+    memberSectionHeader: "flex items-center justify-between",
+    memberStatusTitle: "text-[16px] font-bold text-gray-900",
+    memberSectionCount: "text-[12px] font-medium text-gray-400",
 
-    memberStatusCard: "min-w-0 rounded-[36px] bg-white px-12 py-8 shadow-[0_2px_8px_rgba(15,23,42,0.12)]",
-    memberStatusTitle: "text-center text-2xl font-bold text-zinc-900",
-    memberList: "mt-8 flex justify-center gap-10", // 멤버 5명 이하일 때 가운데 정렬
-    memberListScrollable: "mt-8 flex max-w-full min-w-0 flex-nowrap gap-10 overflow-x-auto pb-3", // 멤버 6명 이상일 때 가로 스크롤 적용
-    memberItem: "flex w-[88px] min-w-[88px] shrink-0 flex-col items-center",
-    memberAvatarWrapper: "relative",
+    memberList:
+        "flex w-full min-w-0 gap-3 overflow-x-auto overscroll-x-contain pb-2 pt-1 " +
+        "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+    memberItem: "flex w-[88px] shrink-0 flex-col items-center gap-3 text-center",
+
+    memberAvatarWrapper:
+        "relative h-[clamp(52px,15vw,64px)] w-[clamp(52px,15vw,64px)] shrink-0",
     memberAvatar:
-        "flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-slate-500",
-    memberCheckIcon:
-        "absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-600 text-white",
-    memberNickname: "mt-3 text-sm font-bold text-zinc-900",
-    memberStatusReady: "mt-1 text-sm font-semibold text-green-700",
-    memberStatusWaiting: "mt-1 text-sm text-zinc-400",
+        "relative flex h-full w-full items-center justify-center overflow-hidden " +
+        "rounded-full bg-orange-50 text-gray-400",
+    memberAvatarImage: "rounded-full object-cover",
 
-    candidateGrid: "mt-20 grid grid-cols-3 gap-8",
-    candidateCard: "overflow-hidden rounded-[24px] bg-white shadow-[0_4px_10px_rgba(15,23,42,0.14)]",
+    memberVoteCheck:
+        "absolute -bottom-0.5 -right-0.5 z-10 flex h-6 w-6 items-center " +
+        "justify-center rounded-full border-[3px] border-white bg-[#169B53] text-white",
+
+    memberInfo: "flex w-full min-w-0 flex-col items-center gap-1",
+    memberNameRow: "flex w-full min-w-0 items-center justify-center gap-1",
+    memberNickname: "min-w-0 truncate text-[12px] font-semibold text-gray-900",
+    myLabel: "shrink-0 text-[12px] font-medium text-gray-700",
+
+    memberStatusReady: "text-[11px] font-medium text-[#169B53]",
+    memberStatusWaiting: "text-[11px] font-medium text-gray-400",
+
+    // Candidates
+    resultSection: "flex flex-col gap-4",
+    resultHeader: "flex items-end justify-between px-1",
+    resultEyebrow: "text-[10px] font-bold tracking-[0.14em] text-[#FB6F00]",
+    resultTitle: "mt-1 text-[20px] font-bold tracking-[-0.03em] text-gray-900",
+    selectionGuide: "pb-0.5 text-[11px] font-medium text-gray-400",
+    candidateGrid: "flex flex-col gap-4",
+    candidateCard:
+        "overflow-hidden rounded-[22px] border-2 border-gray-100 bg-white " +
+        "shadow-[0_3px_12px_rgba(0,0,0,0.045)] transition-[border-color,box-shadow] duration-200 " +
+        "hover:border-orange-200",
     selectedCandidateCard:
-        "overflow-hidden rounded-[24px] border-2 border-blue-500 bg-white shadow-[0_4px_10px_rgba(15,23,42,0.14)]",
-    candidateImagePlaceholder: "relative flex h-[260px] items-center justify-center bg-zinc-200",
-    matchBadge: "absolute left-5 top-5 rounded-full bg-amber-800 px-5 py-2 text-base text-white",
-    candidateBody: "px-8 py-7",
-    candidateName: "text-xl font-semibold text-zinc-900",
+        "overflow-hidden rounded-[22px] border-2 border-[#FB6F00] bg-white " +
+        "shadow-[0_5px_18px_rgba(251,111,0,0.12)] transition-[border-color,box-shadow] duration-200",
+    candidateSelectButton:
+        "block w-full cursor-pointer text-left outline-none focus-visible:ring-2 focus-visible:ring-inset " +
+        "focus-visible:ring-[#FB6F00] disabled:cursor-default",
+    candidateImageWrapper: "relative h-[210px] w-full overflow-hidden bg-gray-100",
+    candidateImage: "object-cover",
+    candidateImageFallback:
+        "flex h-full w-full items-center justify-center text-[12px] font-medium text-gray-400",
+    candidateBadges: "absolute left-3 top-3 z-10",
+    matchBadge:
+        "rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold " +
+        "text-[#FB6F00] shadow-sm backdrop-blur-sm",
+    selectedBadge:
+        "absolute bottom-3 right-3 z-10 flex items-center gap-1 rounded-full " +
+        "bg-[#FB6F00] px-3 py-1.5 text-[11px] font-bold text-white shadow-sm",
+    candidateBody: "flex items-center justify-between gap-3 p-5",
+    candidateName: "min-w-0 text-[22px] font-bold tracking-[-0.03em] text-gray-900",
+
+    // Floating vote button
+    bottomAction:
+        "pointer-events-none fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[480px] " +
+        "px-5 pb-[calc(20px+env(safe-area-inset-bottom))] " +
+        "before:pointer-events-none before:absolute before:inset-x-0 before:-top-20 before:bottom-0 " +
+        "before:z-0 before:bg-white/20 before:backdrop-blur-[3px] " +
+        "before:[mask-image:linear-gradient(to_bottom,transparent_0%,black_60%)] " +
+        "before:[-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_60%)] " +
+        "before:content-['']",
     voteButton:
-        "mt-5 h-14 w-full rounded-full bg-slate-100 text-lg font-semibold text-zinc-900 transition-colors hover:bg-blue-200 hover:text-blue-700 active:bg-blue-200",
-    disabledVoteButton:
-        "mt-5 h-14 w-full cursor-not-allowed rounded-full bg-zinc-300 text-lg font-semibold text-zinc-500",
-    candidateImage: "h-full w-full object-cover",
-    candidateImageFallbackText: "text-sm font-semibold text-zinc-400",
+        "pointer-events-auto relative z-10 flex h-[52px] w-full cursor-pointer items-center justify-center " +
+        "rounded-[16px] bg-[#FB6F00] text-[14px] font-semibold text-white " +
+        "shadow-[0_8px_24px_rgba(251,111,0,0.24)] transition-colors hover:bg-[#E96500] " +
+        "animate-[guestCtaFloat_2.4s_ease-in-out_infinite] motion-reduce:animate-none " +
+        "disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none " +
+        "disabled:animate-none",
 } as const;
