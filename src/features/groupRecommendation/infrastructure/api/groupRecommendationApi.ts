@@ -120,7 +120,7 @@ export const groupRecommendationApi = {
     async finalizeRecommendation(
         groupId: number,
         sessionId: number,
-        request: FinalizeGroupRecommendationRequest,
+        request?: FinalizeGroupRecommendationRequest,
     ) {
         const response =
             await httpClient.patch<FinalizeGroupRecommendationResponse>(

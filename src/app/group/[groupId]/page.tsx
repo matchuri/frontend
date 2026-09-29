@@ -295,23 +295,9 @@ function GroupDetailPageContent() {
     const handleClickRecommendationHistory = (
         history: GroupRecommendationHistory,
     ) => {
-        if (!groupDetail?.location.address) {
-            alert("그룹 위치 정보를 확인할 수 없습니다.");
-            return;
-        }
-
-        const searchParams = new URLSearchParams({
-            menuName: history.menuName,
-            latitude: String(groupDetail.location.latitude),
-            longitude: String(groupDetail.location.longitude),
-            address: groupDetail.location.address,
-            radiusMeters: String(groupDetail.location.radiusMeters),
-            level: String(DEFAULT_MAP_LEVEL),
-            source: "group",
-            groupId: String(groupId),
-        });
-
-        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+        router.push(
+            `/group/${groupId}/recommendations/${history.sessionId}/vote-result`,
+        );
     };
 
     const handleClickRecommendationHistoryViewAll = () => {

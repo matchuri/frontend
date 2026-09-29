@@ -1,4 +1,4 @@
-import { Clock3, MapPinned } from "lucide-react";
+import { Clock3, ChevronRight } from "lucide-react";
 
 import type { GroupRecommendationHistory as GroupRecommendationHistoryItem } from "@/features/groupRecommendation/domain/model/GroupRecommendationHistory";
 
@@ -106,12 +106,12 @@ export default function GroupRecommendationHistory({
                             </div>
 
                             <span className={groupRecommendationHistoryStyles.mapButton}>
-                                <MapPinned
+                                투표 결과 보기
+                                <ChevronRight
                                     size={16}
                                     strokeWidth={2}
                                     aria-hidden="true"
                                 />
-                                맛집 보기
                             </span>
                         </button>
                     ))}

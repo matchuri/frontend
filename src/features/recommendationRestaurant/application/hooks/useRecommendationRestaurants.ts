@@ -35,6 +35,7 @@ export function useRecommendationRestaurants({
         useState<string | null>(null);
 
     const [isLoading, setIsLoading] = useState(false);
+    const [hasCompletedSearch, setHasCompletedSearch] = useState(false);
     const [errorMessage, setErrorMessage] =
         useState<string | null>(null);
 
@@ -50,6 +51,7 @@ export function useRecommendationRestaurants({
         setSelectedRestaurantId(null);
         setErrorMessage(null);
         setEffectiveRadiusMeters(baseRadiusMeters);
+        setHasCompletedSearch(false);
     }, [baseRadiusMeters]);
 
     const loadRestaurants = useCallback(async () => {
@@ -111,6 +113,7 @@ export function useRecommendationRestaurants({
 
             setRestaurants([]);
             setSelectedRestaurantId(null);
+            setHasCompletedSearch(true);
         } catch (error) {
             if (
                 requestSequenceRef.current !==
@@ -170,6 +173,7 @@ export function useRecommendationRestaurants({
         effectiveRadiusMeters > baseRadiusMeters;
 
     const hasNoRestaurants =
+        hasCompletedSearch &&
         !isLoading &&
         errorMessage === null &&
         restaurants.length === 0;

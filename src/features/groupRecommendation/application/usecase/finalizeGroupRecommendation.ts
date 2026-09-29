@@ -5,7 +5,7 @@ import type { FinalizeGroupRecommendationRequest } from "@/features/groupRecomme
 export async function finalizeGroupRecommendation(
     groupId: number,
     sessionId: number,
-    request: FinalizeGroupRecommendationRequest,
+    request?: FinalizeGroupRecommendationRequest,
 ) {
     return groupRecommendationApi.finalizeRecommendation(
         groupId,
