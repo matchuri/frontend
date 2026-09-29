@@ -3,13 +3,14 @@
 import { useCallback, useRef, useState } from "react";
 import { useSetAtom, useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 
 import type { GroupRecommendationReadinessUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationReadinessUpdatedEvent";
 import type { GroupRecommendationOpenedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationOpenedEvent";
 
 import { usePreferenceList } from "@/features/preference/application/hooks/usePreferenceList";
 import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
+import { DEFAULT_LOCATION_RADIUS_METERS } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import {
     accessTokenAtom,
     memberAtom,
@@ -31,6 +32,7 @@ import PreferenceModal from "@/features/preference/ui/components/PreferenceModal
 import GroupRecommendationPreparationStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationStatusCard";
 import GroupRecommendationPreparationInfoCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationInfoCard";
 import GroupRecommendationPreparationMemberCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationMemberCard";
+import GroupRecommendationPreparationActions from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationActions";
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { mockGroupRecommendationPreparation } from "@/features/groupRecommendation/ui/mock/mockGroupRecommendationPreparation";
@@ -58,6 +60,7 @@ function GroupRecommendationPreparationPageContent() {
 
     const [isPreferenceModalOpen, setIsPreferenceModalOpen] =
         useState(false);
+    const [isMemberListExpanded, setIsMemberListExpanded] = useState(false);
 
     const handledReadinessUpdatedEventIds = useRef<Set<string>>(new Set());
     const handledRecommendationOpenedEventIds = useRef<Set<string>>(new Set());
@@ -284,20 +287,20 @@ function GroupRecommendationPreparationPageContent() {
 
     if (isReadinessLoading) {
         return (
-            <main className={groupRecommendationPreparationPageStyles.container}>
-                <div className={groupRecommendationPreparationPageStyles.content}>
+            <main className={groupRecommendationPreparationPageStyles.stateContainer}>
+                <p className={groupRecommendationPreparationPageStyles.stateText}>
                     준비 상태를 불러오는 중...
-                </div>
+                </p>
             </main>
         );
     }
 
     if (readinessErrorMessage) {
         return (
-            <main className={groupRecommendationPreparationPageStyles.container}>
-                <div className={groupRecommendationPreparationPageStyles.content}>
+            <main className={groupRecommendationPreparationPageStyles.stateContainer}>
+                <p className={groupRecommendationPreparationPageStyles.errorText}>
                     {readinessErrorMessage}
-                </div>
+                </p>
             </main>
         );
     }
@@ -307,99 +310,126 @@ function GroupRecommendationPreparationPageContent() {
     }
 
     const sortedMembers = [...readiness.members].sort((a, b) => {
-        if (member?.id === a.memberId) {
-            return -1;
+        const aIsMe = member?.id === a.memberId;
+        const bIsMe = member?.id === b.memberId;
+
+        if (aIsMe !== bIsMe) {
+            return aIsMe ? -1 : 1;
         }
 
-        if (member?.id === b.memberId) {
-            return 1;
+        if (a.ready !== b.ready) {
+            return a.ready ? 1 : -1;
         }
 
         return 0;
     });
 
-    const visibleMembers = sortedMembers.slice(0, 4);
+    const visibleMembers = isMemberListExpanded
+        ? sortedMembers
+        : sortedMembers.slice(0, 4);
+
+    const hasMoreMembers = sortedMembers.length > 4;
+
+    const isMeReady = sortedMembers.some(
+        (readinessMember) =>
+            readinessMember.memberId === member?.id && readinessMember.ready,
+    );
+
+    const isPreparationComplete = isMeReady || readiness.status === "OPEN";
 
     return (
         <>
             <main className={groupRecommendationPreparationPageStyles.container}>
-                <div className={groupRecommendationPreparationPageStyles.content}>
+                <header className={groupRecommendationPreparationPageStyles.header}>
                     <button
                         type="button"
                         onClick={handleClickBack}
                         className={groupRecommendationPreparationPageStyles.backButton}
+                        aria-label="그룹 상세 페이지로 돌아가기"
                     >
-                        <ArrowLeft size={30} strokeWidth={2.5} />
+                        <ArrowLeft size={22} aria-hidden="true" />
                     </button>
 
                     <h1 className={groupRecommendationPreparationPageStyles.title}>
                         그룹 메뉴 추천
                     </h1>
+                    <div className={groupRecommendationPreparationPageStyles.headerSpacer} aria-hidden="true" />
+                </header>
 
-                    <div className={groupRecommendationPreparationPageStyles.layout}>
-                        <section className={groupRecommendationPreparationPageStyles.mainSection}>
-                            <GroupRecommendationPreparationStatusCard
-                                status={readiness.status}
-                                totalMemberCount={
-                                    readiness.progress.totalMemberCount
-                                }
-                                readyMemberCount={
-                                    readiness.progress.readyMemberCount
-                                }
-                            />
+                <div className={groupRecommendationPreparationPageStyles.content}>
+                    <GroupRecommendationPreparationInfoCard
+                        name={groupRecommendation.group.name}
+                        address={groupRecommendation.group.address}
+                        radiusMeters={DEFAULT_LOCATION_RADIUS_METERS}
+                    />
 
-                            <div className={groupRecommendationPreparationPageStyles.memberGrid}>
-                                {visibleMembers.map((readinessMember) => {
-                                    const isMe =
-                                        member?.id ===
-                                        readinessMember.memberId;
+                    <GroupRecommendationPreparationStatusCard
+                        status={readiness.status}
+                        totalMemberCount={readiness.progress.totalMemberCount}
+                        readyMemberCount={readiness.progress.readyMemberCount}
+                    />
 
-                                    return (
-                                        <GroupRecommendationPreparationMemberCard
-                                            key={readinessMember.memberId}
-                                            nickname={
-                                                readinessMember.nickname
-                                            }
-                                            isMe={isMe}
-                                            isReady={readinessMember.ready}
-                                            hasPreference={
-                                                isMe
-                                                    ? hasPreference
-                                                    : false
-                                            }
-                                            isCompletingPreparation={
-                                                isMe
-                                                    ? isCompletingPreparation
-                                                    : false
-                                            }
-                                            onClickEditPreference={
-                                                isMe
-                                                    ? handleClickEditPreference
-                                                    : undefined
-                                            }
-                                            onClickCompletePreparation={
-                                                isMe
-                                                    ? handleClickCompletePreparation
-                                                    : undefined
-                                            }
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </section>
+                    <section className={groupRecommendationPreparationPageStyles.memberSection}>
+                        <div className={groupRecommendationPreparationPageStyles.memberSectionHeader}>
+                            <h2 className={groupRecommendationPreparationPageStyles.memberSectionTitle}>
+                                그룹원
+                            </h2>
+                            <span className={groupRecommendationPreparationPageStyles.memberSectionCount}>
+                                총 {readiness.progress.totalMemberCount}명
+                            </span>
+                        </div>
 
-                        <GroupRecommendationPreparationInfoCard
-                            name={groupRecommendation.group.name}
-                            createdAt={
-                                groupRecommendation.group.createdAt
-                            }
-                            address={groupRecommendation.group.address}
-                            memberCount={
-                                readiness.progress.totalMemberCount
-                            }
-                        />
-                    </div>
+                        <div
+                            id="group-recommendation-member-list"
+                            className={groupRecommendationPreparationPageStyles.memberList}
+                        >
+                            {visibleMembers.map((readinessMember) => (
+                                <GroupRecommendationPreparationMemberCard
+                                    key={readinessMember.memberId}
+                                    nickname={readinessMember.nickname}
+                                    profileImageUrl={null}
+                                    isMe={member?.id === readinessMember.memberId}
+                                    isReady={readinessMember.ready}
+                                />
+                            ))}
+                        </div>
+
+                        {hasMoreMembers && (
+                            <button
+                                type="button"
+                                onClick={() => setIsMemberListExpanded((prev) => !prev)}
+                                className={groupRecommendationPreparationPageStyles.memberToggleButton}
+                                aria-expanded={isMemberListExpanded}
+                                aria-controls="group-recommendation-member-list"
+                            >
+                                {isMemberListExpanded
+                                    ? "접기"
+                                    : `전체 보기 (${sortedMembers.length}명)`}
+
+                                {isMemberListExpanded ? (
+                                    <ChevronUp
+                                        size={16}
+                                        className={groupRecommendationPreparationPageStyles.memberToggleIcon}
+                                        aria-hidden="true"
+                                    />
+                                ) : (
+                                    <ChevronDown
+                                        size={16}
+                                        className={groupRecommendationPreparationPageStyles.memberToggleIcon}
+                                        aria-hidden="true"
+                                    />
+                                )}
+                            </button>
+                        )}
+                    </section>
                 </div>
+
+                <GroupRecommendationPreparationActions
+                    isReady={isPreparationComplete}
+                    isCompletingPreparation={isCompletingPreparation}
+                    onClickEditPreference={handleClickEditPreference}
+                    onClickCompletePreparation={handleClickCompletePreparation}
+                />
             </main>
 
             <PreferenceModal
