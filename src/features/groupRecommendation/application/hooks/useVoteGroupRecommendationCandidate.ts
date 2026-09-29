@@ -5,7 +5,7 @@ import { useState } from "react";
 import { voteGroupRecommendationCandidate } from "@/features/groupRecommendation/application/usecase/voteGroupRecommendationCandidate";
 
 interface UseVoteGroupRecommendationCandidateProps {
-    readonly onSuccess?: () => void;
+    readonly onSuccess?: () => void | Promise<void>;
 }
 
 export function useVoteGroupRecommendationCandidate({
@@ -27,7 +27,7 @@ export function useVoteGroupRecommendationCandidate({
                 candidateId,
             );
 
-            onSuccess?.();
+            await onSuccess?.();
         } finally {
             setIsVoting(false);
         }
