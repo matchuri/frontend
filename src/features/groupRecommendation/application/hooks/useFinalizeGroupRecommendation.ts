@@ -1,43 +1,48 @@
 "use client";
 
-import { useState } from "react";
-
+import { useRef, useState } from "react";
 import { finalizeGroupRecommendation } from "@/features/groupRecommendation/application/usecase/finalizeGroupRecommendation";
-
-import type { GroupDetailLocation } from "@/features/group/domain/model/GroupDetail";
+import type { GroupRecommendationSessionLocation } from "@/features/groupRecommendation/domain/model/GroupRecommendationSessionDetail";
 
 interface UseFinalizeGroupRecommendationProps {
-    readonly onSuccess?: () => void;
+    readonly onSuccess?: () => void | Promise<void>;
 }
 
 export function useFinalizeGroupRecommendation({
     onSuccess,
 }: UseFinalizeGroupRecommendationProps = {}) {
     const [isFinalizing, setIsFinalizing] = useState(false);
+    const isFinalizingRef = useRef(false);
 
     const finalize = async (
         groupId: number,
         sessionId: number,
-        location: GroupDetailLocation,
+        location: GroupRecommendationSessionLocation | null,
     ) => {
-        try {
-            setIsFinalizing(true);
+        if (isFinalizingRef.current) return;
 
+        isFinalizingRef.current = true;
+        setIsFinalizing(true);
+
+        try {
             const result = await finalizeGroupRecommendation(
                 groupId,
                 sessionId,
-                {
-                    latitude: location.latitude,
-                    longitude: location.longitude,
-                    radiusMeters: location.radiusMeters,
-                    address: location.address,
-                },
+                location === null
+                    ? undefined
+                    : {
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        radiusMeters: location.radiusMeters,
+                        address: location.address,
+                    },
             );
 
-            onSuccess?.();
+            await onSuccess?.();
 
             return result;
         } finally {
+            isFinalizingRef.current = false;
             setIsFinalizing(false);
         }
     };

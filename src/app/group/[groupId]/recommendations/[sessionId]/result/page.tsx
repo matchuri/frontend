@@ -239,8 +239,21 @@ function GroupRecommendationResultPageContent() {
     };
 
     const handleClickCloseVote = async () => {
-        if (!groupDetail) {
-            alert("그룹 위치 정보를 불러오는 중입니다.");
+        if (
+            !sessionDetail ||
+            sessionDetail.sessionId !== sessionId ||
+            sessionDetail.status !== "OPEN" ||
+            isFinalizing
+        ) {
+            return;
+        }
+
+        const locationSnapshot =
+            sessionDetail.locationSnapshot ??
+            (groupDetail?.id === groupId ? groupDetail.location : null);
+
+        if (!locationSnapshot || !locationSnapshot.address) {
+            alert("그룹 위치 정보를 확인할 수 없습니다.");
             return;
         }
 
@@ -248,7 +261,7 @@ function GroupRecommendationResultPageContent() {
             await finalize(
                 groupId,
                 sessionId,
-                groupDetail.location,
+                locationSnapshot,
             );
         } catch {
             alert("투표 종료에 실패했습니다.");
@@ -389,7 +402,13 @@ function GroupRecommendationResultPageContent() {
                 <div className={groupRecommendationResultPageStyles.headerSpacer} aria-hidden="true" />
             </header>
 
-            <div className={`${groupRecommendationResultPageStyles.content} ${!isFinalized ? groupRecommendationResultPageStyles.contentWithVoteAction : ""}`}>
+            <div
+                className={`${groupRecommendationResultPageStyles.content} ${
+                    !isFinalized
+                        ? groupRecommendationResultPageStyles.contentWithVoteAction
+                        : ""
+                }`}
+            >
                 <GroupRecommendationResultVoteStatusCard
                     totalMemberCount={totalMemberCount}
                     votedMemberCount={votedMemberCount}
