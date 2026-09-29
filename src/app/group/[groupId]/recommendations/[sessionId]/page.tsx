@@ -175,6 +175,7 @@ function GroupRecommendationPreparationPageContent() {
                 data: {
                     sessionId: event.payload.sessionId,
                     status: event.payload.status,
+                    locationSnapshot: null,
                     readiness: null,
                     candidates: event.payload.candidates.map(
                         (candidate, index) => ({
@@ -195,6 +196,7 @@ function GroupRecommendationPreparationPageContent() {
                         allReady: undefined,
                     },
                     memberVotes: [],
+                    recommendationCategories: null,
                     finalCandidate: null,
                     createdAt: event.occurredAt,
                 },

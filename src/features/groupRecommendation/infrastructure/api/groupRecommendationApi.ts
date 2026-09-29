@@ -16,6 +16,7 @@ import type { GroupRecommendationSessionDetail } from "@/features/groupRecommend
 import type { GroupRecommendationHistory } from "@/features/groupRecommendation/domain/model/GroupRecommendationHistory";
 
 import { mapGroupRecommendationHistories } from "@/features/groupRecommendation/infrastructure/api/mapper/groupRecommendationHistoryMapper";
+import { mapGroupRecommendationSessionDetail } from "@/features/groupRecommendation/infrastructure/api/mapper/groupRecommendationSessionDetailMapper";
 
 export const groupRecommendationApi = {
     async startRecommendation(
@@ -92,7 +93,7 @@ export const groupRecommendationApi = {
             );
         }
 
-        return response.data;
+        return mapGroupRecommendationSessionDetail(response.data);
     },
 
     async voteCandidate(

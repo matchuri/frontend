@@ -4,6 +4,7 @@ export interface GroupRecommendationSessionDetailResponse {
     readonly data: {
         readonly sessionId: number;
         readonly status: "PREPARING" | "OPEN" | "FINALIZED";
+        readonly contextJson?: string | null;
         readonly readiness: {
             readonly totalMemberCount: number;
             readonly readyMemberCount: number;
@@ -16,8 +17,16 @@ export interface GroupRecommendationSessionDetailResponse {
             readonly rankNo: number;
             readonly score: number;
             readonly voteCount: number;
-            readonly thumbnailUrl: string | null;
+            readonly thumbnailUrl?: string | null;
         }[];
+        readonly recommendationCategories?: readonly {
+            readonly id: number;
+            readonly categoryType: string;
+            readonly code: string;
+            readonly name: string;
+            readonly rankNo: number;
+            readonly source: "COMMON" | "MENU";
+        }[] | null;
         readonly voteProgress: {
             readonly totalMemberCount: number;
             readonly votedMemberCount: number;
@@ -29,7 +38,7 @@ export interface GroupRecommendationSessionDetailResponse {
             readonly rankNo: number;
             readonly score: number;
             readonly voteCount: number;
-            readonly thumbnailUrl: string | null;
+            readonly thumbnailUrl?: string | null;
         } | null;
         readonly memberVotes: readonly {
             readonly memberId: number;
