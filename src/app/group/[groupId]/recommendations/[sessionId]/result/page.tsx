@@ -250,29 +250,14 @@ function GroupRecommendationResultPageContent() {
                 sessionId,
                 groupDetail.location,
             );
+            router.push(`/group/${groupId}/recommendations/${sessionId}/vote-result`);
         } catch {
             alert("투표 종료에 실패했습니다.");
         }
     };
 
     const handleClickMoveVoteResult = () => {
-        const finalCandidate = sessionDetail?.finalCandidate;
-
-        if (!finalCandidate || !groupDetail) {
-            alert("최종 추천 메뉴 정보를 불러오는 중입니다.");
-            return;
-        }
-
-        const searchParams = new URLSearchParams({
-            menuName: finalCandidate.menuName,
-            latitude: String(groupDetail.location.latitude),
-            longitude: String(groupDetail.location.longitude),
-            radiusMeters: String(groupDetail.location.radiusMeters),
-            level: "4",
-            source: "group",
-        });
-
-        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+        router.push(`/group/${groupId}/recommendations/${sessionId}/vote-result`);
     };
 
     if (sessionDetailErrorMessage || groupDetailErrorMessage) {
