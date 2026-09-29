@@ -75,11 +75,11 @@ export const recommendationRestaurantContentStyles = {
         "transition-opacity hover:opacity-90 active:scale-[0.98]",
 
     emptyResultBox:
-        "flex flex-col items-center justify-center rounded-[20px] bg-gray-50 px-5 py-10 text-center",
+        "flex flex-col items-center gap-4 rounded-[18px] bg-gray-50 px-5 py-6 text-center",
     emptyResultText:
-        "text-[14px] leading-6 text-gray-500",
+        "text-[13px] leading-6 text-gray-500",
     changeLocationButton:
-        "mt-5 inline-flex h-[44px] items-center justify-center rounded-[14px] " +
-        "bg-[#FB6F00] px-5 text-[14px] font-semibold text-white " +
+        "inline-flex h-10 items-center justify-center rounded-xl " +
+        "bg-[#FB6F00] px-5 text-[13px] font-semibold text-white " +
         "transition-all duration-200 hover:bg-[#E96500] active:scale-[0.98]",
 } as const;

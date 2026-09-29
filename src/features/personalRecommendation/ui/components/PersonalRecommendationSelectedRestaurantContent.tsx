@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { ReactNode } from "react";
 
 import type { LocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 import { formatLocationRadius } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
@@ -17,11 +18,13 @@ import { personalRecommendationResultPageStyles } from "@/ui/styles/personalReco
 interface PersonalRecommendationSelectedRestaurantContentProps {
     readonly menuName: string;
     readonly location: LocationSetting;
+    readonly emptyStateAction?: ReactNode;
 }
 
 export default function PersonalRecommendationSelectedRestaurantContent({
     menuName,
     location,
+    emptyStateAction,
 }: PersonalRecommendationSelectedRestaurantContentProps) {
     const restaurantCardRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -113,6 +116,7 @@ export default function PersonalRecommendationSelectedRestaurantContent({
                         <p>
                             설정한 최대 반경 내에서 맛집을 찾지 못했어요.
                         </p>
+                        {emptyStateAction}
                     </div>
                 )
             }

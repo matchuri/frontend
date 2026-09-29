@@ -21,23 +21,10 @@ export const groupRecommendationVoteResultPageStyles = {
         "bg-white px-5 text-[13px] font-semibold text-gray-600 hover:bg-gray-50",
 
     // Restaurant
-    restaurantSection: "flex flex-col gap-4",
-    restaurantHeader: "flex flex-col gap-2",
-    restaurantTitle: "text-[20px] font-bold tracking-[-0.03em] text-gray-900",
-    restaurantLocationRow: "flex items-center justify-between gap-3",
-    restaurantDescription: "flex min-w-0 flex-1 items-center gap-1 text-[12px] leading-5 text-gray-500",
-    restaurantRadius:
-        "shrink-0 rounded-full bg-orange-50 px-2.5 py-1.5 text-[11px] font-semibold text-[#FB6F00]",
-    restaurantLayout: "flex flex-col gap-4",
-    restaurantMapPlaceholder:
-        "flex h-[300px] flex-col items-center justify-center rounded-[20px] border border-dashed " +
-        "border-gray-200 bg-gray-50 px-5 text-center",
-    placeholderIcon:
-        "mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#FB6F00] shadow-sm",
-    placeholderTitle: "text-[14px] font-semibold text-gray-700",
-    placeholderDescription: "mt-2 text-[12px] leading-5 text-gray-400",
-    restaurantList: "flex flex-col gap-3",
-    restaurantEmpty:
-        "flex min-h-[140px] flex-col items-center justify-center rounded-[18px] border border-gray-100 " +
-        "bg-white px-5 py-6 text-center text-gray-400 shadow-[0_2px_8px_rgba(0,0,0,0.04)]",
+    locationChangeButton:
+        "inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl " +
+        "bg-[#FB6F00] px-4 text-[12px] font-semibold text-white " +
+        "transition-all duration-200 hover:bg-[#E96500] active:scale-[0.98]",
+    messageBox: "rounded-[18px] bg-gray-50 px-5 py-5 text-center text-[13px] leading-6 text-gray-500",
+    errorBox: "rounded-[18px] bg-red-50 px-5 py-5 text-center text-[13px] leading-6 text-red-500",
 } as const;

@@ -250,7 +250,6 @@ function GroupRecommendationResultPageContent() {
                 sessionId,
                 groupDetail.location,
             );
-            router.push(`/group/${groupId}/recommendations/${sessionId}/vote-result`);
         } catch {
             alert("투표 종료에 실패했습니다.");
         }

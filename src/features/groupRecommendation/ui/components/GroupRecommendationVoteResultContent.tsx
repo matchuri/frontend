@@ -1,8 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, MapPin, Store } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+
+import { isLocationRadiusMeters } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
+import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
+import LocationModal from "@/features/locationSetting/ui/components/LocationModal";
+import { DEFAULT_MAP_LEVEL } from "@/features/map/domain/config/mapPolicy";
 
 import { useGroupRecommendationSessionDetail } from "@/features/groupRecommendation/application/hooks/useGroupRecommendationSessionDetail";
 import {
@@ -12,6 +18,7 @@ import {
 } from "@/features/groupRecommendation/application/selectors/groupRecommendationSessionDetailSelectors";
 
 import GroupRecommendationResultTasteSummary from "@/features/groupRecommendation/ui/components/GroupRecommendationResultTasteSummary";
+import PersonalRecommendationSelectedRestaurantContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationSelectedRestaurantContent";
 
 import { groupRecommendationVoteResultPageStyles } from "@/ui/styles/groupRecommendationVoteResultPageStyles";
 
@@ -21,6 +28,10 @@ export default function GroupRecommendationVoteResultContent() {
 
     const groupId = Number(params.groupId);
     const sessionId = Number(params.sessionId);
+
+    const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+    const [searchLocationOverride, setSearchLocationOverride] =
+        useState<{ groupId: number; sessionId: number; location: LocationSetting } | null>(null);
 
     const { refetchSessionDetail } = useGroupRecommendationSessionDetail(groupId, sessionId);
 
@@ -108,6 +119,19 @@ export default function GroupRecommendationVoteResultContent() {
 
     const finalCandidate = sessionDetail.finalCandidate;
     const location = sessionDetail.locationSnapshot;
+    const searchLocation = searchLocationOverride?.groupId === groupId && searchLocationOverride.sessionId === sessionId
+        ? searchLocationOverride.location
+        : location !== null
+            ? { ...location, level: DEFAULT_MAP_LEVEL }
+            : null;
+
+    const handleSaveSearchLocation = async (nextLocation: LocationSetting): Promise<boolean> => {
+        if (!isLocationRadiusMeters(nextLocation.radiusMeters)) return false;
+
+        setSearchLocationOverride({ groupId, sessionId, location: nextLocation });
+        setIsLocationModalOpen(false);
+        return true;
+    };
 
     if (!finalCandidate) {
         return (
@@ -129,69 +153,64 @@ export default function GroupRecommendationVoteResultContent() {
         );
     }
 
-    const radiusLabel = location
-        ? location.radiusMeters >= 1000
-            ? `${location.radiusMeters / 1000}km`
-            : `${location.radiusMeters}m`
-        : null;
+    const restaurantSearchKey = searchLocation !== null
+        ? [
+            sessionId,
+            finalCandidate.candidateId,
+            searchLocation.latitude,
+            searchLocation.longitude,
+            searchLocation.radiusMeters,
+            searchLocation.address,
+        ].join("-")
+        : undefined;
 
     return (
-        <main className={groupRecommendationVoteResultPageStyles.container}>
-            {header}
+        <>
+            <main className={groupRecommendationVoteResultPageStyles.container}>
+                {header}
 
-            <div className={groupRecommendationVoteResultPageStyles.content}>
-                <GroupRecommendationResultTasteSummary
-                    categories={sessionDetail.recommendationCategories}
-                />
+                <div className={groupRecommendationVoteResultPageStyles.content}>
+                    <GroupRecommendationResultTasteSummary
+                        categories={sessionDetail.recommendationCategories}
+                    />
 
-                <section className={groupRecommendationVoteResultPageStyles.restaurantSection}>
-                    <div className={groupRecommendationVoteResultPageStyles.restaurantHeader}>
-                        <h2 className={groupRecommendationVoteResultPageStyles.restaurantTitle}>
-                            {finalCandidate.menuName} 주변 맛집
-                        </h2>
-                        <div className={groupRecommendationVoteResultPageStyles.restaurantLocationRow}>
-                            <p className={groupRecommendationVoteResultPageStyles.restaurantDescription}>
-                                <MapPin size={14} className="shrink-0" aria-hidden="true" />
-                                <span className="truncate">
-                                    {location?.address ?? "추천 당시 위치 정보가 없습니다."}
-                                </span>
-                            </p>
-                            <span className={groupRecommendationVoteResultPageStyles.restaurantRadius}>
-                                {radiusLabel ? `검색 반경 ${radiusLabel}` : "반경 정보 없음"}
-                            </span>
+                    {searchLocation === null && (
+                        <div className={groupRecommendationVoteResultPageStyles.messageBox}>
+                            추천 당시 위치 정보가 없어 주변 맛집을 조회할 수 없습니다.
                         </div>
-                    </div>
+                    )}
 
-                    <div className={groupRecommendationVoteResultPageStyles.restaurantLayout}>
-                        <div
-                            className={groupRecommendationVoteResultPageStyles.restaurantMapPlaceholder}
-                            aria-label="주변 맛집 지도 표시 영역"
-                        >
-                            <div className={groupRecommendationVoteResultPageStyles.placeholderIcon}>
-                                <MapPin size={25} strokeWidth={1.8} aria-hidden="true" />
-                            </div>
-                            <p className={groupRecommendationVoteResultPageStyles.placeholderTitle}>
-                                지도 연동 예정
-                            </p>
-                            <p className={groupRecommendationVoteResultPageStyles.placeholderDescription}>
-                                추천 당시 위치를 기준으로 지도가 표시될 영역입니다.
-                            </p>
+                    {searchLocation !== null && !isLocationRadiusMeters(searchLocation.radiusMeters) && (
+                        <div className={groupRecommendationVoteResultPageStyles.errorBox}>
+                            추천 당시 검색 반경을 지원하지 않아 주변 맛집을 조회할 수 없습니다.
                         </div>
+                    )}
 
-                        <div className={groupRecommendationVoteResultPageStyles.restaurantList}>
-                            <div className={groupRecommendationVoteResultPageStyles.restaurantEmpty}>
-                                <Store size={24} strokeWidth={1.8} aria-hidden="true" />
-                                <p className={groupRecommendationVoteResultPageStyles.placeholderTitle}>
-                                    주변 맛집 목록
-                                </p>
-                                <p className={groupRecommendationVoteResultPageStyles.placeholderDescription}>
-                                    맛집 검색 기능 연동 후 결과가 표시될 영역입니다.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
+                    {searchLocation !== null && isLocationRadiusMeters(searchLocation.radiusMeters) && (
+                        <PersonalRecommendationSelectedRestaurantContent
+                            key={restaurantSearchKey}
+                            menuName={finalCandidate.menuName}
+                            location={searchLocation}
+                            emptyStateAction={
+                                <button
+                                    type="button"
+                                    onClick={() => setIsLocationModalOpen(true)}
+                                    className={groupRecommendationVoteResultPageStyles.locationChangeButton}
+                                >
+                                    위치 변경하기
+                                </button>
+                            }
+                        />
+                    )}
+                </div>
+            </main>
+
+            <LocationModal
+                isOpen={isLocationModalOpen}
+                initialLocation={searchLocation}
+                onSave={handleSaveSearchLocation}
+                onClose={() => setIsLocationModalOpen(false)}
+            />
+        </>
     );
 }
