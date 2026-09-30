@@ -49,7 +49,4 @@ export const groupInviteModalStyles = {
         "hover:bg-orange-50 active:bg-orange-100",
     copySuccessMessage: "mt-2 flex items-center gap-1 text-[12px] leading-5 text-green-600",
     copyErrorMessage: "mt-2 text-[12px] leading-5 text-red-500",
-    emptyLink: "mt-4 rounded-xl bg-gray-50 px-4 py-3.5",
-    emptyLinkTitle: "text-[13px] font-semibold text-gray-600",
-    emptyLinkDescription: "mt-1 text-[12px] leading-5 text-gray-400",
 } as const;

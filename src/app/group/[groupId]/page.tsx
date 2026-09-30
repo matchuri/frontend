@@ -10,6 +10,7 @@ import { DEFAULT_MAP_LEVEL } from "@/features/map/domain/config/mapPolicy";
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
 import { useGroupDetail } from "@/features/group/application/hooks/useGroupDetail";
 import { useCreateGroupInvite } from "@/features/group/application/hooks/useCreateGroupInvite";
+import { useGroupInviteLink } from "@/features/group/application/hooks/useGroupInviteLink";
 import { useUpdateGroupName } from "@/features/group/application/hooks/useUpdateGroupName";
 import { useUpdateGroupLocation } from "@/features/group/application/hooks/useUpdateGroupLocation";
 import { useDeleteGroup } from "@/features/group/application/hooks/useDeleteGroup";
@@ -172,6 +173,14 @@ function GroupDetailPageContent() {
     });
 
     const {
+        inviteLink,
+        isPreparingInviteLink,
+        inviteLinkMessage,
+        prepareInviteLink,
+        clearInviteLink,
+    } = useGroupInviteLink();
+
+    const {
         isUpdating,
         updateMessage,
         update,
@@ -322,10 +331,30 @@ function GroupDetailPageContent() {
         router.push("/group");
     };
 
+    const openInviteModal = async () => {
+        if (isPreparingInviteLink) {
+            return;
+        }
+
+        const isPrepared =
+            await prepareInviteLink(groupId);
+
+        if (!isPrepared) {
+            alert(
+                inviteLinkMessage ??
+                    "초대 링크를 준비하지 못했습니다. 잠시 후 다시 시도해주세요.",
+            );
+            return;
+        }
+
+        setIsInviteModalOpen(true);
+    };
+
     const closeInviteModal = () => {
         setIsInviteModalOpen(false);
         setInviteNickname("");
         clearInviteMessage();
+        clearInviteLink();
     };
 
     const closeLocationEditModal = () => {
@@ -372,8 +401,9 @@ function GroupDetailPageContent() {
                     recommendationHistoriesErrorMessage={recommendationHistoriesErrorMessage}
                     isUpdatingGroupName={isUpdating}
                     groupNameUpdateMessage={updateMessage}
+                    isPreparingInviteLink={isPreparingInviteLink}
                     onClose={handleClickBack}
-                    onClickInvite={() => setIsInviteModalOpen(true)}
+                    onClickInvite={() => void openInviteModal()}
                     onUpdateGroupName={handleUpdateGroupName}
                     onClickEditLocation={openLocationEditModal}
                     onClickDeleteGroup={openDeleteModal}
@@ -390,6 +420,7 @@ function GroupDetailPageContent() {
                 nickname={inviteNickname}
                 isInviting={isInviting}
                 message={inviteMessage}
+                inviteLink={inviteLink}
                 onClose={closeInviteModal}
                 onChangeNickname={setInviteNickname}
                 onClearMessage={clearInviteMessage}

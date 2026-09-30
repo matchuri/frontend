@@ -16,7 +16,7 @@ interface GroupInviteModalProps {
     readonly nickname: string;
     readonly isInviting: boolean;
     readonly message: string | null;
-    readonly inviteLink?: string | null;
+    readonly inviteLink: string | null;
     readonly onClose: () => void;
     readonly onChangeNickname: (value: string) => void;
     readonly onClearMessage: () => void;
@@ -28,7 +28,7 @@ export default function GroupInviteModal({
     nickname,
     isInviting,
     message,
-    inviteLink = null,
+    inviteLink,
     onClose,
     onChangeNickname,
     onClearMessage,
@@ -120,12 +120,12 @@ export default function GroupInviteModal({
                                     type="text"
                                     value={nickname}
                                     disabled={isInviting}
-                                    onChange={(event) => onChangeNickname(event.target.value)}
+                                    onChange={(event) =>
+                                        onChangeNickname(event.target.value)
+                                    }
                                     onFocus={onClearMessage}
                                     onKeyDown={(event) => {
-                                        if (event.key === "Enter" &&
-                                            !isDisabled
-                                        ) {
+                                        if (event.key === "Enter" && !isDisabled) {
                                             onInvite();
                                         }
                                     }}
@@ -173,58 +173,44 @@ export default function GroupInviteModal({
                             </div>
                         </div>
 
-                        {inviteLink ? (
-                            <>
-                                <div className={groupInviteModalStyles.linkWrapper}>
-                                    <p className={groupInviteModalStyles.linkText}>
-                                        {inviteLink}
-                                    </p>
-
-                                    <button
-                                        type="button"
-                                        onClick={() => void handleCopyInviteLink()}
-                                        className={groupInviteModalStyles.copyButton}
-                                    >
-                                        <Copy
-                                            size={16}
-                                            strokeWidth={2}
-                                            aria-hidden="true"
-                                        />
-                                        복사하기
-                                    </button>
-                                </div>
-
-                                {copyMessage && (
-                                    <p
-                                        className={
-                                            copyMessage ===
-                                            "초대 링크를 복사했어요."
-                                                ? groupInviteModalStyles.copySuccessMessage
-                                                : groupInviteModalStyles.copyErrorMessage
-                                        }
-                                    >
-                                        {copyMessage ===
-                                            "초대 링크를 복사했어요." && (
-                                            <Check
-                                                size={14}
-                                                strokeWidth={2.5}
-                                                aria-hidden="true"
-                                            />
-                                        )}
-                                        {copyMessage}
-                                    </p>
-                                )}
-                            </>
-                        ) : (
-                            <div className={groupInviteModalStyles.emptyLink}>
-                                <p className={groupInviteModalStyles.emptyLinkTitle}>
-                                    아직 생성된 초대 링크가 없어요.
+                        {inviteLink && (
+                            <div className={groupInviteModalStyles.linkWrapper}>
+                                <p className={groupInviteModalStyles.linkText}>
+                                    {inviteLink}
                                 </p>
 
-                                <p className={groupInviteModalStyles.emptyLinkDescription}>
-                                    초대 링크가 생성되면 이곳에서 복사할 수 있어요.
-                                </p>
+                                <button
+                                    type="button"
+                                    onClick={() => void handleCopyInviteLink()}
+                                    className={groupInviteModalStyles.copyButton}
+                                >
+                                    <Copy
+                                        size={16}
+                                        strokeWidth={2}
+                                        aria-hidden="true"
+                                    />
+                                    복사하기
+                                </button>
                             </div>
+                        )}
+
+                        {copyMessage && (
+                            <p
+                                className={
+                                    copyMessage === "초대 링크를 복사했어요."
+                                        ? groupInviteModalStyles.copySuccessMessage
+                                        : groupInviteModalStyles.copyErrorMessage
+                                }
+                            >
+                                {copyMessage === "초대 링크를 복사했어요." && (
+                                    <Check
+                                        size={14}
+                                        strokeWidth={2.5}
+                                        aria-hidden="true"
+                                    />
+                                )}
+                                {copyMessage}
+                            </p>
                         )}
                     </div>
                 </div>
