@@ -10,7 +10,7 @@ import {
     updateMemberNickname,
     updateOnboarding,
 } from "@/features/auth/application/store/authStore";
-import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
 
 interface UseSubmitMyNicknameParams {
     readonly nextRoute?: string;
@@ -47,11 +47,15 @@ export function useSubmitMyNickname({
 
                 logger.log(
                     "이동 경로:",
-                    getOnboardingRoute(response.data.onboarding.nextStep),
+                    getPostAuthenticationRoute(
+                        response.data.onboarding.nextStep,
+                    ),
                 );
 
                 router.replace(
-                    getOnboardingRoute(response.data.onboarding.nextStep),
+                    getPostAuthenticationRoute(
+                        response.data.onboarding.nextStep,
+                    ),
                 );
             } finally {
                 setIsSubmitting(false);

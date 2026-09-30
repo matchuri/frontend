@@ -34,6 +34,7 @@ interface GroupDetailPanelProps {
     readonly recommendationHistoriesErrorMessage: string | null;
     readonly isUpdatingGroupName: boolean;
     readonly groupNameUpdateMessage: string | null;
+    readonly isPreparingInviteLink: boolean;
     readonly onClose: () => void;
     readonly onClickInvite: () => void;
     readonly onUpdateGroupName: (groupName: string) => Promise<void>;
@@ -53,6 +54,7 @@ export default function GroupDetailPanel({
     recommendationHistoriesErrorMessage,
     isUpdatingGroupName,
     groupNameUpdateMessage,
+    isPreparingInviteLink,
     onClose,
     onClickInvite,
     onUpdateGroupName,
@@ -373,6 +375,7 @@ export default function GroupDetailPanel({
                                 <button
                                     type="button"
                                     onClick={onClickInvite}
+                                    disabled={isPreparingInviteLink}
                                     className={groupDetailPanelStyles.memberInviteItem}
                                     aria-label="그룹원 초대"
                                 >
@@ -385,7 +388,7 @@ export default function GroupDetailPanel({
                                     </span>
 
                                     <span className={groupDetailPanelStyles.memberInviteLabel}>
-                                        초대
+                                        {isPreparingInviteLink ? "준비 중" : "초대"}
                                     </span>
                                 </button>
                             )}

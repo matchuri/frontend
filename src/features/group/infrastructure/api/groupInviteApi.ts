@@ -1,6 +1,9 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
 
 import type { GroupInvite } from "@/features/group/domain/model/GroupInvite";
+import type { GroupInviteLink } from "@/features/group/domain/model/GroupInviteLink";
+import type { GroupInvitePreview } from "@/features/group/domain/model/GroupInvitePreview";
+import type { GroupInviteJoinResult } from "@/features/group/domain/model/GroupInviteJoinResult";
 import type { GroupInviteResponseType } from "@/features/group/domain/model/GroupInviteResponseType";
 
 import type { GroupInviteListResponse } from "@/features/group/infrastructure/api/dto/GroupInviteListResponse";
@@ -8,6 +11,14 @@ import type { GroupInviteCreateRequest } from "@/features/group/infrastructure/a
 import type { GroupInviteCreateResponse } from "@/features/group/infrastructure/api/dto/GroupInviteCreateResponse";
 import type { GroupInviteRespondRequest } from "@/features/group/infrastructure/api/dto/GroupInviteRespondRequest";
 import type { GroupInviteRespondResponse } from "@/features/group/infrastructure/api/dto/GroupInviteRespondResponse";
+import type {
+    GroupInviteLinkFetchResponse,
+    GroupInviteLinkMutationResponse,
+} from "@/features/group/infrastructure/api/dto/GroupInviteLinkResponse";
+import type { GroupInvitePreviewRequest } from "@/features/group/infrastructure/api/dto/GroupInvitePreviewRequest";
+import type { GroupInvitePreviewResponse } from "@/features/group/infrastructure/api/dto/GroupInvitePreviewResponse";
+import type { GroupInviteJoinRequest } from "@/features/group/infrastructure/api/dto/GroupInviteJoinRequest";
+import type { GroupInviteJoinResponse } from "@/features/group/infrastructure/api/dto/GroupInviteJoinResponse";
 
 import { mapGroupInviteListToModel } from "@/features/group/infrastructure/api/mapper/groupInviteMapper";
 
@@ -51,6 +62,98 @@ export const groupInviteApi = {
                     responseType,
                 } satisfies GroupInviteRespondRequest,
             );
+
+        return response.data;
+    },
+
+    async fetchInviteLink(
+        groupId: number,
+    ): Promise<GroupInviteLink | null> {
+        const response =
+            await httpClient.get<GroupInviteLinkFetchResponse>(
+                `/api/v1/groups/${groupId}/invite-link`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 초대 링크 조회에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async issueInviteLink(
+        groupId: number,
+    ): Promise<GroupInviteLink> {
+        const response =
+            await httpClient.post<GroupInviteLinkMutationResponse>(
+                `/api/v1/groups/${groupId}/invite-link`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 초대 링크 발급에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async reissueInviteLink(
+        groupId: number,
+    ): Promise<GroupInviteLink> {
+        const response =
+            await httpClient.post<GroupInviteLinkMutationResponse>(
+                `/api/v1/groups/${groupId}/invite-link/reissue`,
+            );
+
+        if (!response.success) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 초대 링크 재발급에 실패했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async fetchInvitePreview(
+        request: GroupInvitePreviewRequest,
+    ): Promise<GroupInvitePreview> {
+        const response =
+            await httpClient.post<GroupInvitePreviewResponse>(
+                "/api/v1/groups/invite-links/preview",
+                request,
+            );
+
+        if (!response.success || !response.data) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 초대 정보를 불러오지 못했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async joinByInviteLink(
+        request: GroupInviteJoinRequest,
+    ): Promise<GroupInviteJoinResult> {
+        const response =
+            await httpClient.post<GroupInviteJoinResponse>(
+                "/api/v1/groups/invite-links/join",
+                request,
+            );
+
+        if (!response.success || !response.data) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 참여에 실패했습니다.",
+            );
+        }
 
         return response.data;
     },

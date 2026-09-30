@@ -85,7 +85,7 @@ export const groupDetailPanelStyles = {
         "rounded-full bg-orange-100 text-gray-400",
     memberPreviewImage: "rounded-full object-cover",
     memberPreviewNickname:
-        "mt-2 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-left " +
+        "mt-2 block w-full overflow-hidden text-ellipsis whitespace-nowrap text-center " +
         "text-[11px] font-medium text-gray-500",
     memberOwnerIndicator:
         "absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full " +
