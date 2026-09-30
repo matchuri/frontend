@@ -12,6 +12,8 @@ import {
 import { useGroupInvitePreview } from "@/features/group/application/hooks/useGroupInvitePreview";
 import { useGroupInviteJoin } from "@/features/group/application/hooks/useGroupInviteJoin";
 
+import { groupInviteSessionStorage } from "@/features/group/infrastructure/storage/groupInviteSessionStorage";
+
 import GroupInvitePreviewView from "@/features/group/ui/components/GroupInvitePreviewView";
 
 import { groupInvitePreviewStyles } from "@/ui/styles/groupInvitePreviewStyles";
@@ -49,6 +51,11 @@ export default function GroupInvitePreviewContent() {
     };
 
     const handleLogin = () => {
+        if (!token) {
+            return;
+        }
+
+        groupInviteSessionStorage.saveCode(token);
         router.push("/login");
     };
 
