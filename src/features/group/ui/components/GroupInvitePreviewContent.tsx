@@ -2,7 +2,7 @@
 
 import { useAtomValue } from "jotai";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Link2Off } from "lucide-react";
+import { Check, Link2Off } from "lucide-react";
 
 import {
     isAuthenticatedAtom,
@@ -10,6 +10,7 @@ import {
 } from "@/features/auth/application/selectors/authSelectors";
 
 import { useGroupInvitePreview } from "@/features/group/application/hooks/useGroupInvitePreview";
+import { useGroupInviteJoin } from "@/features/group/application/hooks/useGroupInviteJoin";
 
 import GroupInvitePreviewView from "@/features/group/ui/components/GroupInvitePreviewView";
 
@@ -31,6 +32,13 @@ export default function GroupInvitePreviewContent() {
         refetchPreview,
     } = useGroupInvitePreview(token);
 
+    const {
+        joinResult,
+        isJoining,
+        errorMessage: joinErrorMessage,
+        join,
+    } = useGroupInviteJoin();
+
     const handleCancel = () => {
         if (isAuthenticated) {
             router.push("/home");
@@ -45,7 +53,19 @@ export default function GroupInvitePreviewContent() {
     };
 
     const handleJoin = () => {
-        alert("그룹 참여 기능은 준비 중입니다.");
+        if (!token || !isAuthenticated) {
+            return;
+        }
+
+        void join(token);
+    };
+
+    const handleMoveToGroup = () => {
+        if (!joinResult) {
+            return;
+        }
+
+        router.push(`/group/${joinResult.groupId}`);
     };
 
     if (isAuthLoading || isLoading) {
@@ -111,10 +131,44 @@ export default function GroupInvitePreviewContent() {
         );
     }
 
+    if (joinResult) {
+        return (
+            <main className={groupInvitePreviewStyles.statePage}>
+                <section className={groupInvitePreviewStyles.joinCompleteContent}>
+                    <div className={groupInvitePreviewStyles.joinCompleteIcon}>
+                        <Check
+                            size={34}
+                            strokeWidth={2.2}
+                            aria-hidden="true"
+                        />
+                    </div>
+
+                    <h1 className={groupInvitePreviewStyles.joinCompleteTitle}>
+                        그룹에 성공적으로 참여했어요!
+                    </h1>
+
+                    <p className={groupInvitePreviewStyles.joinCompleteDescription}>
+                        이제 그룹원들과 함께 메뉴를 골라보세요.
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={handleMoveToGroup}
+                        className={groupInvitePreviewStyles.joinCompleteButton}
+                    >
+                        그룹으로 바로가기
+                    </button>
+                </section>
+            </main>
+        );
+    }
+
     return (
         <GroupInvitePreviewView
             preview={preview}
             isAuthenticated={isAuthenticated}
+            isJoining={isJoining}
+            joinErrorMessage={joinErrorMessage}
             onCancel={handleCancel}
             onLogin={handleLogin}
             onJoin={handleJoin}

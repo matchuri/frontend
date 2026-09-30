@@ -3,6 +3,7 @@ import { httpClient } from "@/infrastructure/http/httpClient";
 import type { GroupInvite } from "@/features/group/domain/model/GroupInvite";
 import type { GroupInviteLink } from "@/features/group/domain/model/GroupInviteLink";
 import type { GroupInvitePreview } from "@/features/group/domain/model/GroupInvitePreview";
+import type { GroupInviteJoinResult } from "@/features/group/domain/model/GroupInviteJoinResult";
 import type { GroupInviteResponseType } from "@/features/group/domain/model/GroupInviteResponseType";
 
 import type { GroupInviteListResponse } from "@/features/group/infrastructure/api/dto/GroupInviteListResponse";
@@ -16,6 +17,8 @@ import type {
 } from "@/features/group/infrastructure/api/dto/GroupInviteLinkResponse";
 import type { GroupInvitePreviewRequest } from "@/features/group/infrastructure/api/dto/GroupInvitePreviewRequest";
 import type { GroupInvitePreviewResponse } from "@/features/group/infrastructure/api/dto/GroupInvitePreviewResponse";
+import type { GroupInviteJoinRequest } from "@/features/group/infrastructure/api/dto/GroupInviteJoinRequest";
+import type { GroupInviteJoinResponse } from "@/features/group/infrastructure/api/dto/GroupInviteJoinResponse";
 
 import { mapGroupInviteListToModel } from "@/features/group/infrastructure/api/mapper/groupInviteMapper";
 
@@ -130,6 +133,25 @@ export const groupInviteApi = {
             throw new Error(
                 response.error?.message ??
                     "그룹 초대 정보를 불러오지 못했습니다.",
+            );
+        }
+
+        return response.data;
+    },
+
+    async joinByInviteLink(
+        request: GroupInviteJoinRequest,
+    ): Promise<GroupInviteJoinResult> {
+        const response =
+            await httpClient.post<GroupInviteJoinResponse>(
+                "/api/v1/groups/invite-links/join",
+                request,
+            );
+
+        if (!response.success || !response.data) {
+            throw new Error(
+                response.error?.message ??
+                    "그룹 참여에 실패했습니다.",
             );
         }
 

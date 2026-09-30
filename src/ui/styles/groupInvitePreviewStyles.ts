@@ -19,16 +19,19 @@ export const groupInvitePreviewStyles = {
     actionTextArea: "text-center",
     actionTitle: "text-[17px] font-bold tracking-[-0.02em] text-gray-900",
     actionDescription: "mt-2 text-[13px] leading-5 text-gray-500",
+    joinErrorMessage: "mt-4 text-center text-[12px] leading-5 text-red-500",
 
     buttonGroup: "mt-6 grid w-full grid-cols-2 gap-2.5",
     secondaryButton:
         "flex h-[50px] cursor-pointer items-center justify-center rounded-[14px] " +
         "border border-gray-200 bg-white text-[14px] font-semibold text-gray-600 " +
-        "transition-colors hover:bg-gray-50 active:bg-gray-100",
+        "transition-colors hover:bg-gray-50 active:bg-gray-100 " +
+        "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     primaryButton:
         "flex h-[50px] cursor-pointer items-center justify-center rounded-[14px] " +
         "bg-[#FB6F00] text-[14px] font-semibold text-white transition-all " +
-        "hover:bg-[#E96500] active:scale-[0.99]",
+        "hover:bg-[#E96500] active:scale-[0.99] disabled:cursor-not-allowed " +
+        "disabled:bg-[#FFD7B5] disabled:active:scale-100",
 
     statePage: "flex min-h-full items-center justify-center bg-white px-5",
     stateContent: "flex w-full max-w-[360px] flex-col items-center text-center",
@@ -43,6 +46,17 @@ export const groupInvitePreviewStyles = {
         "mt-3 flex h-[48px] w-full items-center justify-center rounded-[14px] " +
         "border border-gray-200 bg-white text-[14px] font-semibold text-gray-600 " +
         "transition-colors hover:bg-gray-50",
+
+    joinCompleteContent: "flex w-full max-w-[360px] flex-col items-center text-center",
+    joinCompleteIcon:
+        "flex h-[76px] w-[76px] items-center justify-center rounded-full " +
+        "bg-orange-50 text-[#FB6F00]",
+    joinCompleteTitle: "mt-7 text-[20px] font-bold tracking-[-0.03em] text-gray-900",
+    joinCompleteDescription: "mt-3 text-[13px] leading-6 text-gray-500",
+    joinCompleteButton:
+        "mt-8 flex h-[50px] w-full cursor-pointer items-center justify-center rounded-[14px] " +
+        "bg-[#FB6F00] text-[14px] font-semibold text-white transition-all " +
+        "hover:bg-[#E96500] active:scale-[0.99]",
 
     skeletonIcon: "h-[76px] w-[76px] animate-pulse rounded-full bg-gray-100",
     skeletonTitle: "mt-6 h-7 w-44 animate-pulse rounded-lg bg-gray-100",

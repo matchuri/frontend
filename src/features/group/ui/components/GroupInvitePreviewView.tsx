@@ -9,6 +9,8 @@ import { groupInvitePreviewStyles } from "@/ui/styles/groupInvitePreviewStyles";
 interface GroupInvitePreviewViewProps {
     readonly preview: GroupInvitePreview;
     readonly isAuthenticated: boolean;
+    readonly isJoining: boolean;
+    readonly joinErrorMessage: string | null;
     readonly onCancel: () => void;
     readonly onLogin: () => void;
     readonly onJoin: () => void;
@@ -17,6 +19,8 @@ interface GroupInvitePreviewViewProps {
 export default function GroupInvitePreviewView({
     preview,
     isAuthenticated,
+    isJoining,
+    joinErrorMessage,
     onCancel,
     onLogin,
     onJoin,
@@ -64,10 +68,17 @@ export default function GroupInvitePreviewView({
                             </p>
                         </div>
 
+                        {joinErrorMessage && (
+                            <p className={groupInvitePreviewStyles.joinErrorMessage}>
+                                {joinErrorMessage}
+                            </p>
+                        )}
+
                         <div className={groupInvitePreviewStyles.buttonGroup}>
                             <button
                                 type="button"
                                 onClick={onCancel}
+                                disabled={isJoining}
                                 className={groupInvitePreviewStyles.secondaryButton}
                             >
                                 아니요
@@ -76,9 +87,10 @@ export default function GroupInvitePreviewView({
                             <button
                                 type="button"
                                 onClick={onJoin}
+                                disabled={isJoining}
                                 className={groupInvitePreviewStyles.primaryButton}
                             >
-                                참여할게요
+                                {isJoining ? "참여 중..." : "참여할게요"}
                             </button>
                         </div>
                     </section>
