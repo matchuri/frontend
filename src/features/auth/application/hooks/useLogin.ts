@@ -6,7 +6,7 @@ import { useReCaptcha } from "next-recaptcha-v3";
 
 import { HttpError } from "@/infrastructure/http/httpClient";
 import { login } from "@/features/auth/application/usecase/login";
-import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
 import { executeLoginCaptcha } from "@/features/auth/infrastructure/recaptcha/executeLoginCaptcha";
 
 const CAPTCHA_LOAD_ERROR_MESSAGE = "자동입력 방지 확인을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.";
@@ -108,7 +108,11 @@ export function useLogin() {
                 captchaToken,
             });
 
-            router.replace(getOnboardingRoute(response.data.onboarding.nextStep));
+            router.replace(
+                getPostAuthenticationRoute(
+                    response.data.onboarding.nextStep,
+                ),
+            );
         } catch (error) {
             setLoginErrorMessage(getLoginErrorMessage(error));
         } finally {

@@ -5,9 +5,11 @@ import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
 import { useLogin } from "@/features/auth/application/hooks/useLogin";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
 import {
     isAuthenticatedAtom,
     isAuthLoadingAtom,
+    onboardingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 
 import LoginView from "@/features/auth/ui/components/LoginView";
@@ -17,6 +19,7 @@ export default function LoginPage() {
     const router = useRouter();
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
+    const onboarding = useAtomValue(onboardingAtom);
 
     const {
         loginId,
@@ -31,10 +34,22 @@ export default function LoginPage() {
     } = useLogin();
 
     useEffect(() => {
-        if (!isAuthLoading && isAuthenticated) {
-            router.replace("/home");
+        if (!isAuthLoading &&
+            isAuthenticated &&
+            onboarding
+        ) {
+            router.replace(
+                getPostAuthenticationRoute(
+                    onboarding.nextStep,
+                ),
+            );
         }
-    }, [isAuthLoading, isAuthenticated, router]);
+    }, [
+        isAuthLoading,
+        isAuthenticated,
+        onboarding,
+        router,
+    ]);
 
     if (isAuthLoading) {
         return <AuthPageSkeleton variant="LOGIN" />;

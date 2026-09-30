@@ -10,6 +10,7 @@ import {
     onboardingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
 import { setAuthenticated } from "@/features/auth/application/store/authStore";
 import { authApi } from "@/features/auth/infrastructure/api/authApi";
 import { preferenceAtom } from "@/features/preference/application/atoms/preferenceAtom";
@@ -243,7 +244,11 @@ export function useSignupPreference() {
             isLeavingSignupRef.current = true;
 
             clearSignupData();
-            router.replace("/home");
+            router.replace(
+                getPostAuthenticationRoute(
+                    response.data.onboarding.nextStep,
+                ),
+            );
         } catch {
             alert("취향 정보 저장에 실패했습니다.");
         } finally {

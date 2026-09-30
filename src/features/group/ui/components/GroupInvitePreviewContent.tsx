@@ -42,6 +42,8 @@ export default function GroupInvitePreviewContent() {
     } = useGroupInviteJoin();
 
     const handleCancel = () => {
+        groupInviteSessionStorage.clearCode();
+
         if (isAuthenticated) {
             router.push("/home");
             return;
@@ -72,6 +74,7 @@ export default function GroupInvitePreviewContent() {
             return;
         }
 
+        groupInviteSessionStorage.clearCode();
         router.push(`/group/${joinResult.groupId}`);
     };
 

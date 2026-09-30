@@ -7,7 +7,7 @@ import {
     setAuthenticated,
     updateOnboarding,
 } from "@/features/auth/application/store/authStore";
-import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
 
 interface AgreementItem {
     agreementType: string;
@@ -37,7 +37,11 @@ export function useSubmitRequiredAgreements() {
                     updateOnboarding(response.data.onboarding);
                 }
 
-                router.replace(getOnboardingRoute(response.data.onboarding.nextStep));
+                router.replace(
+                    getPostAuthenticationRoute(
+                        response.data.onboarding.nextStep,
+                    ),
+                );
             } finally {
                 setIsSubmitting(false);
             }
