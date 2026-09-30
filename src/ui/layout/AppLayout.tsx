@@ -32,6 +32,10 @@ function shouldHideBottomNavigation(pathname: string) {
         return true;
     }
 
+    if (pathname.startsWith("/group/invite-links/preview")) {
+        return true;
+    }
+
     return false;
 }
 

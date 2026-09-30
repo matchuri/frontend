@@ -9,13 +9,10 @@ import type { GroupInviteLink } from "@/features/group/domain/model/GroupInviteL
 import { fetchGroupInviteLink } from "@/features/group/application/usecase/fetchGroupInviteLink";
 import { issueGroupInviteLink } from "@/features/group/application/usecase/issueGroupInviteLink";
 
-const GROUP_INVITE_PREVIEW_URL =
-    "https://matchuri.com/groups/invite-links/preview";
-
 function createGroupInviteShareUrl(
     token: string,
 ) {
-    return `${GROUP_INVITE_PREVIEW_URL}?code=${encodeURIComponent(token)}`;
+    return `${window.location.origin}/group/invite-links/preview?code=${encodeURIComponent(token)}`;
 }
 
 function getGroupInviteLinkErrorMessage(
