@@ -1,15 +1,15 @@
 "use client";
 
-import {
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
+import { useCallback } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+
+import { groupInviteExistsAtom } from "@/features/groupInviteNotification/application/atoms/groupInviteNotificationAtom";
 
 import { groupInviteNotificationApi } from "@/features/groupInviteNotification/infrastructure/api/groupInviteNotificationApi";
 
 export function useGroupInviteExists() {
-    const [hasInvite, setHasInvite] = useState(false);
+    const hasInvite = useAtomValue(groupInviteExistsAtom);
+    const setHasInvite = useSetAtom(groupInviteExistsAtom);
 
     const refetchInviteExists =
         useCallback(async () => {
@@ -20,28 +20,7 @@ export function useGroupInviteExists() {
             } catch {
                 setHasInvite(false);
             }
-        }, []);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        groupInviteNotificationApi
-            .fetchInviteExists()
-            .then((exists) => {
-                if (!cancelled) {
-                    setHasInvite(exists);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setHasInvite(false);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+        }, [setHasInvite]);
 
     return {
         hasInvite,

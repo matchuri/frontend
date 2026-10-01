@@ -16,7 +16,7 @@ export interface RealtimeEventEnvelope<TPayload = unknown> {
     occurredAt: string;
     groupId: number | null;
     sessionId: number | null;
-    actorMemberId: number | null;
+    actorMemberId: number | null
     payload: TPayload;
 }
 

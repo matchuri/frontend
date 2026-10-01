@@ -1,9 +1,6 @@
 "use client";
 
-import {
-    useCallback,
-    useState,
-} from "react";
+import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
@@ -22,11 +19,8 @@ import { usePersonalRecommendationStart } from "@/features/personalRecommendatio
 import { usePersonalRecommendationResultNavigation } from "@/features/personalRecommendation/application/hooks/usePersonalRecommendationResultNavigation";
 
 import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
-import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useGroupInviteExists } from "@/features/groupInviteNotification/application/hooks/useGroupInviteExists";
 import { useGroupInviteNotifications } from "@/features/groupInviteNotification/application/hooks/useGroupInviteNotifications";
-
-import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import { hasRequiredPreference } from "@/features/preference/domain/validator/hasRequiredPreference";
 
@@ -61,8 +55,6 @@ export default function HomePage() {
     const isHomeLoading = useAtomValue(isHomeLoadingAtom);
     const homeErrorMessage = useAtomValue(homeErrorMessageAtom);
 
-    const accessToken = useAtomValue(accessTokenAtom);
-
     const {
         hasInvite,
         refetchInviteExists,
@@ -72,20 +64,6 @@ export default function HomePage() {
         invites,
         refetchInvites,
     } = useGroupInviteNotifications();
-
-    const handleGroupInviteCreated =
-        useCallback(() => {
-            void refetchInvites();
-            void refetchInviteExists();
-        }, [
-            refetchInvites,
-            refetchInviteExists,
-        ]);
-
-    useMyRealtimeEvents({
-        accessToken,
-        onGroupInviteCreated: handleGroupInviteCreated,
-    });
 
     const { processingInviteId, respond } = useRespondGroupInvite({
         onSuccess: () => {

@@ -1,16 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSetAtom } from "jotai";
 
 import { logger } from "@/shared/lib/logger";
 
-import { inviteAtom } from "@/features/group/application/atoms/inviteAtom";
-import { MY_REALTIME_EVENT_TYPE } from "@/features/group/domain/model/MyRealtimeEventType";
-import { createMyRealtimeConnection } from "@/infrastructure/sse/myRealtimeClient";
-import { mapInviteCreatedEventToModel } from "@/features/group/infrastructure/sse/mapper/myRealtimeEventMapper";
+import { MY_REALTIME_EVENT_TYPE } from "@/features/realtime/domain/model/MyRealtimeEventType";
+
 import type { GroupInviteCreatedEvent } from "@/features/group/infrastructure/sse/dto/GroupInviteCreatedEvent";
 import type { GroupRecommendationVoteCompletedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteCompletedEvent";
+
+import { createMyRealtimeConnection } from "@/infrastructure/sse/myRealtimeClient";
 
 type MyRealtimeEventSource = {
     addEventListener: (
@@ -23,7 +22,8 @@ type MyRealtimeEventSource = {
 
 interface UseMyRealtimeEventsProps {
     readonly accessToken: string | null;
-    readonly onGroupInviteCreated?: () => void;
+    readonly onConnected?: () => void;
+    readonly onGroupInviteCreated?: (event: GroupInviteCreatedEvent) => void;
     readonly onRecommendationVoteCompleted?: (
         event: GroupRecommendationVoteCompletedEvent,
     ) => void;
@@ -31,11 +31,10 @@ interface UseMyRealtimeEventsProps {
 
 export function useMyRealtimeEvents({
     accessToken,
+    onConnected,
     onGroupInviteCreated,
     onRecommendationVoteCompleted,
 }: UseMyRealtimeEventsProps) {
-    const setInviteState = useSetAtom(inviteAtom);
-
     useEffect(() => {
         if (!accessToken) return;
 
@@ -49,6 +48,8 @@ export function useMyRealtimeEvents({
                 logger.log(
                     "나의 실시간 이벤트 스트림 연결 완료",
                 );
+
+                onConnected?.();
             },
         );
 
@@ -60,40 +61,7 @@ export function useMyRealtimeEvents({
                         event.data,
                     ) as GroupInviteCreatedEvent;
 
-                const newInvite =
-                    mapInviteCreatedEventToModel(
-                        inviteCreatedEvent,
-                    );
-
-                setInviteState((prev) => {
-                    if (prev.status !== "SUCCESS") {
-                        return {
-                            status: "SUCCESS",
-                            data: [newInvite],
-                        };
-                    }
-
-                    const alreadyExists =
-                        prev.data.some(
-                            (invite) =>
-                                invite.inviteId ===
-                                newInvite.inviteId,
-                        );
-
-                    if (alreadyExists) {
-                        return prev;
-                    }
-
-                    return {
-                        status: "SUCCESS",
-                        data: [
-                            newInvite,
-                            ...prev.data,
-                        ],
-                    };
-                });
-
-                onGroupInviteCreated?.();
+                onGroupInviteCreated?.(inviteCreatedEvent);
             },
         );
 
@@ -128,7 +96,7 @@ export function useMyRealtimeEvents({
         };
     }, [
         accessToken,
-        setInviteState,
+        onConnected,
         onGroupInviteCreated,
         onRecommendationVoteCompleted,
     ]);
