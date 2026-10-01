@@ -29,6 +29,10 @@ function shouldHideBottomNavigation(pathname: string) {
         return true;
     }
 
+    if (pathname.startsWith("/preference")) {
+        return true;
+    }
+
     if (/^\/group\/\d+(?:\/|$)/.test(pathname)) {
         return true;
     }
