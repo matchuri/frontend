@@ -5,7 +5,8 @@ export const recommendationRestaurantPageStyles = {
         "flex w-[520px] shrink-0 flex-col overflow-y-auto bg-[#FAF9F9] px-14 py-10",
 
     backButton:
-        "mb-10 flex aspect-square h-14 w-14 min-w-14 max-w-14 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-zinc-800 transition-colors hover:bg-zinc-200 active:bg-zinc-300",
+        "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full " +
+        "text-gray-700 transition-colors hover:bg-gray-100",
 
     titleSection: "mb-12",
     title: "text-4xl font-bold text-zinc-900",

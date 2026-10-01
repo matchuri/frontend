@@ -6,7 +6,7 @@ export const preferencePageStyles = {
     title: "absolute left-1/2 -translate-x-1/2 text-[18px] font-bold text-gray-900",
     headerSpacer: "h-10 w-10",
 
-    content: "flex flex-col gap-5 px-5 pb-10 pt-6",
+    content: "flex flex-col gap-5 px-5 pb-[calc(118px+env(safe-area-inset-bottom))] pt-6",
 
     introSection: "flex items-center gap-4 rounded-[20px] bg-orange-100 px-5 py-5",
     introIcon: "flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-[#FB6F00] shadow-sm",
@@ -24,8 +24,20 @@ export const preferencePageStyles = {
 
     sectionGroup: "flex flex-col gap-7",
 
+    bottomAction:
+        "pointer-events-none fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[480px] " +
+        "px-5 pb-[calc(20px+env(safe-area-inset-bottom))] " +
+        "before:pointer-events-none before:absolute before:inset-x-0 before:-top-20 before:bottom-0 " +
+        "before:z-0 before:bg-white/20 before:backdrop-blur-[3px] " +
+        "before:[mask-image:linear-gradient(to_bottom,transparent_0%,black_60%)] " +
+        "before:[-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_60%)] " +
+        "before:content-['']",
     saveButton:
-        "mt-1 h-14 w-full cursor-pointer rounded-2xl bg-[#FB6F00] text-[16px] font-semibold text-white shadow-[0_6px_16px_rgba(251,111,0,0.18)] transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none disabled:hover:opacity-100",
+        "pointer-events-auto relative z-10 h-14 w-full cursor-pointer rounded-2xl " +
+        "bg-[#FB6F00] text-[16px] font-semibold text-white " +
+        "shadow-[0_6px_16px_rgba(251,111,0,0.18)] transition-all duration-200 " +
+        "hover:opacity-90 active:scale-[0.99] " +
+        "disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none disabled:hover:opacity-100",
 
     stateContainer: "flex min-h-full items-center justify-center bg-white px-5",
     stateText: "text-[14px] text-gray-500",

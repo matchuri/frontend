@@ -2,12 +2,13 @@ export const groupInviteNotificationStyles = {
     button:
         "fixed right-5 top-6 z-[70] flex h-10 w-10 cursor-pointer " +
         "items-center justify-center rounded-full border border-gray-100 " +
-        "bg-white text-gray-700 shadow-sm transition-all duration-200 " +
-        "hover:shadow-md min-[480px]:right-[calc((100vw-480px)/2+20px)]",
+        "bg-white text-gray-700 transition-all duration-200 " +
+        "hover:text-[#FB6F00] " +
+        "min-[480px]:right-[calc((100vw-480px)/2+20px)]",
     inlineButton:
         "relative flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center " +
-        "rounded-full border border-gray-100 bg-white text-gray-700 shadow-sm " +
-        "transition-all duration-200 hover:shadow-md",
+        "rounded-full border border-gray-100 bg-white text-gray-700 " +
+        "transition-all duration-200 hover:text-[#FB6F00]",
     notificationDot:
         "absolute right-[9px] top-[8px] h-2 w-2 rounded-full " +
         "bg-[#FB6F00] ring-2 ring-white",

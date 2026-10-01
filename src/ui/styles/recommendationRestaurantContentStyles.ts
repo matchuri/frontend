@@ -7,8 +7,7 @@ export const recommendationRestaurantContentStyles = {
         "border-b border-gray-100 bg-white px-5",
     backButton:
         "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full " +
-        "text-gray-700 transition-all duration-200 " +
-        "hover:bg-[#FFF1E6] hover:text-[#FB6F00] active:scale-95",
+        "text-gray-700 transition-colors hover:bg-gray-100",
     headerTitle: "absolute left-1/2 -translate-x-1/2 text-[18px] font-bold text-gray-900",
     headerSpacer: "h-10 w-10",
 

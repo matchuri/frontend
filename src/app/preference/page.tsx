@@ -232,7 +232,9 @@ export default function PreferencePage() {
                         />
                     </div>
                 </section>
+            </div>
 
+            <div className={preferencePageStyles.bottomAction}>
                 <button
                     type="button"
                     onClick={() => {void savePreference();}}
