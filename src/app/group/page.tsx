@@ -106,10 +106,6 @@ function GroupPageContent() {
         router.push(`/group/${groupId}`);
     };
 
-    if (isGroupListLoading) {
-        return <GroupManagementPageSkeleton />;
-    }
-
     return (
         <>
             <main className={groupManagementPageStyles.container}>
@@ -129,40 +125,44 @@ function GroupPageContent() {
                     />
                 )}
 
-                <div className={groupManagementPageStyles.content}>
-                    <section className={groupManagementPageStyles.groupSection}>
-                        <div className={groupManagementPageStyles.sectionHeader}>
-                            <h2 className={groupManagementPageStyles.sectionTitle}>
-                                내 그룹
-                            </h2>
+                {isGroupListLoading ? (
+                    <GroupManagementPageSkeleton />
+                ) : (
+                    <div className={groupManagementPageStyles.content}>
+                        <section className={groupManagementPageStyles.groupSection}>
+                            <div className={groupManagementPageStyles.sectionHeader}>
+                                <h2 className={groupManagementPageStyles.sectionTitle}>
+                                    내 그룹
+                                </h2>
 
-                            <GroupCreateButton
-                                onClick={() => setIsCreateModalOpen(true)}
-                            />
-                        </div>
-
-                        {groupListErrorMessage && (
-                            <div className={groupManagementPageStyles.errorBox}>
-                                {groupListErrorMessage}
+                                <GroupCreateButton
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                />
                             </div>
-                        )}
 
-                        {!groupListErrorMessage &&
-                            (hasGroups ? (
-                                <div className={groupManagementPageStyles.groupList}>
-                                    {groups.map((group) => (
-                                        <GroupCard
-                                            key={group.id}
-                                            group={group}
-                                            onClick={() => handleClickGroup(group.id)}
-                                        />
-                                    ))}
+                            {groupListErrorMessage && (
+                                <div className={groupManagementPageStyles.errorBox}>
+                                    {groupListErrorMessage}
                                 </div>
-                            ) : (
-                                <GroupListEmpty />
-                            ))}
-                    </section>
-                </div>
+                            )}
+
+                            {!groupListErrorMessage &&
+                                (hasGroups ? (
+                                    <div className={groupManagementPageStyles.groupList}>
+                                        {groups.map((group) => (
+                                            <GroupCard
+                                                key={group.id}
+                                                group={group}
+                                                onClick={() => handleClickGroup(group.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <GroupListEmpty />
+                                ))}
+                        </section>
+                    </div>
+                )}
             </main>
 
             <GroupCreateModal

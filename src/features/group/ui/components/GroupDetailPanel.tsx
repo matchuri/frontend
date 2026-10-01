@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { useAtomValue } from "jotai";
 import {
-    ArrowLeft,
     Check,
     Crown,
     MapPin,
@@ -21,7 +20,6 @@ import type { GroupRecommendationHistory as GroupRecommendationHistoryItem } fro
 import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 
 import GroupRecommendationHistory from "@/features/group/ui/components/GroupRecommendationHistory";
-import GroupDetailMoreButton from "@/features/group/ui/components/GroupDetailMoreButton";
 import GroupRecommendationStartButton from "@/features/group/ui/components/GroupRecommendationStartButton";
 import GroupMemberListModal from "@/features/group/ui/components/GroupMemberListModal";
 
@@ -35,12 +33,8 @@ interface GroupDetailPanelProps {
     readonly isUpdatingGroupName: boolean;
     readonly groupNameUpdateMessage: string | null;
     readonly isPreparingInviteLink: boolean;
-    readonly onClose: () => void;
     readonly onClickInvite: () => void;
     readonly onUpdateGroupName: (groupName: string) => Promise<void>;
-    readonly onClickEditLocation: () => void;
-    readonly onClickDeleteGroup: () => void;
-    readonly onClickLeaveGroup: () => void;
     readonly onClickStartRecommendation: () => void;
     readonly onClickMoveActiveRecommendation: () => void;
     readonly onClickRecommendationHistory: (history: GroupRecommendationHistoryItem) => void;
@@ -55,12 +49,8 @@ export default function GroupDetailPanel({
     isUpdatingGroupName,
     groupNameUpdateMessage,
     isPreparingInviteLink,
-    onClose,
     onClickInvite,
     onUpdateGroupName,
-    onClickEditLocation,
-    onClickDeleteGroup,
-    onClickLeaveGroup,
     onClickStartRecommendation,
     onClickMoveActiveRecommendation,
     onClickRecommendationHistory,
@@ -170,30 +160,6 @@ export default function GroupDetailPanel({
     return (
         <>
             <div className={groupDetailPanelStyles.panel}>
-                <header className={groupDetailPanelStyles.header}>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        className={groupDetailPanelStyles.headerButton}
-                        aria-label="그룹 목록으로 돌아가기"
-                    >
-                        <ArrowLeft
-                            size={22}
-                            aria-hidden="true"
-                        />
-                    </button>
-
-                    <h1 className={groupDetailPanelStyles.headerTitle}>
-                        그룹 상세
-                    </h1>
-
-                    <GroupDetailMoreButton
-                        onClickEditLocation={onClickEditLocation}
-                        onClickDeleteGroup={onClickDeleteGroup}
-                        onClickLeaveGroup={onClickLeaveGroup}
-                    />
-                </header>
-
                 <div className={groupDetailPanelStyles.content}>
                     <section className={groupDetailPanelStyles.groupSection}>
                         {isEditingGroupName ? (
