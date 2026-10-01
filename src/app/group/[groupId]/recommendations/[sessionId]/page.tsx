@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { MutableRefObject } from "react";
 import { useSetAtom, useAtomValue } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
@@ -48,10 +47,13 @@ import GroupRecommendationPreparationMemberCard from "@/features/groupRecommenda
 import GroupRecommendationPreparationActions from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationActions";
 import GroupRecommendationFlowSkeleton from "@/features/groupRecommendation/ui/components/GroupRecommendationFlowSkeleton";
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
+import RecommendationLoadingView from "@/ui/components/RecommendationLoadingView";
 
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
 
 import { groupRecommendationPreparationPageStyles } from "@/ui/styles/groupRecommendationPreparationPageStyles";
+
+const MIN_LOADING_TIME_MS = 2000;
 
 export default function GroupRecommendationPreparationPage() {
     return (
@@ -72,12 +74,6 @@ function GroupRecommendationPreparationPageContent() {
     const groupId = Number(params.groupId);
     const sessionId = Number(params.sessionId);
 
-    const isMovingToResultPageRef = useRef(false);
-
-    useEffect(() => {
-        isMovingToResultPageRef.current = false;
-    }, [groupId, sessionId]);
-
     const handleGroupNotFound = useCallback(() => {
         router.replace("/group");
     }, [router]);
@@ -92,6 +88,9 @@ function GroupRecommendationPreparationPageContent() {
     const handleGroupMembersChanged = useCallback(() => {
         return refetchGroupDetail({ showLoading: false });
     }, [refetchGroupDetail]);
+    const handleRecommendationOpened = useCallback(() => {
+        return refetchSessionDetail({ showLoading: false });
+    }, [refetchSessionDetail]);
 
     const groupDetail = useAtomValue(groupDetailAtomValue);
     const isGroupDetailLoading = useAtomValue(isGroupDetailLoadingAtom);
@@ -103,14 +102,18 @@ function GroupRecommendationPreparationPageContent() {
     useEffect(() => {
         if (
             sessionDetail?.sessionId !== sessionId ||
-            sessionDetail.status === "PREPARING" ||
-            isMovingToResultPageRef.current
+            sessionDetail.status === "PREPARING"
         ) {
             return;
         }
 
-        isMovingToResultPageRef.current = true;
-        router.replace(`/group/${groupId}/recommendations/${sessionId}/result`);
+        const timeoutId = window.setTimeout(() => {
+            router.replace(`/group/${groupId}/recommendations/${sessionId}/result`);
+        }, MIN_LOADING_TIME_MS);
+
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
     }, [groupId, router, sessionDetail, sessionId]);
 
     if (
@@ -151,11 +154,17 @@ function GroupRecommendationPreparationPageContent() {
 
     if (sessionDetail.status !== "PREPARING") {
         return (
-            <main className={groupRecommendationPreparationPageStyles.stateContainer}>
-                <p className={groupRecommendationPreparationPageStyles.stateText}>
-                    추천 결과 화면으로 이동하는 중...
-                </p>
-            </main>
+            <RecommendationLoadingView
+                title="그룹 메뉴를 추천하고 있어요"
+                description={
+                    <>
+                        그룹원들의 취향을 바탕으로
+                        <br />
+                        잘 어울리는 메뉴 3가지를 찾고 있어요.
+                    </>
+                }
+                status="그룹 취향을 분석하는 중"
+            />
         );
     }
 
@@ -166,7 +175,7 @@ function GroupRecommendationPreparationPageContent() {
             sessionId={sessionId}
             groupDetail={groupDetail}
             onGroupMembersChanged={handleGroupMembersChanged}
-            isMovingToResultPageRef={isMovingToResultPageRef}
+            onRecommendationOpened={handleRecommendationOpened}
         />
     );
 }
@@ -176,7 +185,7 @@ interface GroupRecommendationPreparationContentProps {
     readonly sessionId: number;
     readonly groupDetail: GroupDetail;
     readonly onGroupMembersChanged: () => Promise<void>;
-    readonly isMovingToResultPageRef: MutableRefObject<boolean>;
+    readonly onRecommendationOpened: () => Promise<void>;
 }
 
 function GroupRecommendationPreparationContent({
@@ -184,7 +193,7 @@ function GroupRecommendationPreparationContent({
     sessionId,
     groupDetail,
     onGroupMembersChanged,
-    isMovingToResultPageRef,
+    onRecommendationOpened,
 }: GroupRecommendationPreparationContentProps) {
     const router = useRouter();
 
@@ -328,25 +337,12 @@ function GroupRecommendationPreparationContent({
                     createdAt: event.occurredAt,
                 },
             });
-
-            // 준비 완료 API 응답으로 이미 결과 화면 이동을 예약한 경우,
-            // SSE 이벤트에서 중복 이동하지 않음
-            if (isMovingToResultPageRef.current) {
-                return;
-            }
-
-            isMovingToResultPageRef.current = true;
-            router.push(
-                `/group/${event.groupId}/recommendations/${event.sessionId}/result`,
-            );
         },
         [
             groupId,
-            router,
             sessionId,
             setReadinessState,
             setSessionDetailState,
-            isMovingToResultPageRef,
         ],
     );
 
@@ -367,12 +363,6 @@ function GroupRecommendationPreparationContent({
 
     const handleClickEditPreference = () => {
         setIsPreferenceModalOpen(true);
-    };
-
-    const moveToResultPage = () => {
-        router.push(
-            `/group/${groupId}/recommendations/${sessionId}/result`,
-        );
     };
 
     const handleClickBack = () => {
@@ -399,14 +389,7 @@ function GroupRecommendationPreparationContent({
             );
 
             if (result.status === "OPEN") {
-                // 방장은 API 응답 기준으로 결과 화면 이동을 예약하므로,
-                // 이후 도착하는 GROUP_RECOMMENDATION_OPENED SSE에서는 중복 이동하지 않도록 표시
-                isMovingToResultPageRef.current = true;
-
-                window.setTimeout(() => {
-                    moveToResultPage();
-                }, 2500);
-
+                await onRecommendationOpened();
                 return;
             }
 
