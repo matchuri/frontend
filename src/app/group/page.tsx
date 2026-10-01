@@ -22,6 +22,7 @@ import {
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
 import GroupManagementHeader from "@/features/group/ui/components/GroupManagementHeader";
+import GroupManagementPageSkeleton from "@/features/group/ui/components/GroupManagementPageSkeleton";
 import GroupCreateButton from "@/features/group/ui/components/GroupCreateButton";
 import GroupCreateModal from "@/features/group/ui/components/GroupCreateModal";
 import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
@@ -105,6 +106,10 @@ function GroupPageContent() {
         router.push(`/group/${groupId}`);
     };
 
+    if (isGroupListLoading) {
+        return <GroupManagementPageSkeleton />;
+    }
+
     return (
         <>
             <main className={groupManagementPageStyles.container}>
@@ -136,20 +141,13 @@ function GroupPageContent() {
                             />
                         </div>
 
-                        {isGroupListLoading && (
-                            <div className={groupManagementPageStyles.stateBox}>
-                                그룹 목록을 불러오는 중...
-                            </div>
-                        )}
-
                         {groupListErrorMessage && (
                             <div className={groupManagementPageStyles.errorBox}>
                                 {groupListErrorMessage}
                             </div>
                         )}
 
-                        {!isGroupListLoading &&
-                            !groupListErrorMessage &&
+                        {!groupListErrorMessage &&
                             (hasGroups ? (
                                 <div className={groupManagementPageStyles.groupList}>
                                     {groups.map((group) => (
