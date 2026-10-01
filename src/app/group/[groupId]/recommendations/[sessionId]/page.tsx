@@ -46,6 +46,7 @@ import GroupRecommendationPreparationStatusCard from "@/features/groupRecommenda
 import GroupRecommendationPreparationInfoCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationInfoCard";
 import GroupRecommendationPreparationMemberCard from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationMemberCard";
 import GroupRecommendationPreparationActions from "@/features/groupRecommendation/ui/components/GroupRecommendationPreparationActions";
+import GroupRecommendationFlowSkeleton from "@/features/groupRecommendation/ui/components/GroupRecommendationFlowSkeleton";
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import type { GroupDetail } from "@/features/group/domain/model/GroupDetail";
@@ -141,11 +142,10 @@ function GroupRecommendationPreparationPageContent() {
         }
 
         return (
-            <main className={groupRecommendationPreparationPageStyles.stateContainer}>
-                <p className={groupRecommendationPreparationPageStyles.stateText}>
-                    그룹 추천 정보를 불러오는 중...
-                </p>
-            </main>
+            <GroupRecommendationFlowSkeleton
+                variant="PREPARATION"
+                onClickBack={() => router.push(`/group/${groupId}`)}
+            />
         );
     }
 
@@ -420,11 +420,10 @@ function GroupRecommendationPreparationContent({
 
     if (isReadinessLoading) {
         return (
-            <main className={groupRecommendationPreparationPageStyles.stateContainer}>
-                <p className={groupRecommendationPreparationPageStyles.stateText}>
-                    준비 상태를 불러오는 중...
-                </p>
-            </main>
+            <GroupRecommendationFlowSkeleton
+                variant="PREPARATION"
+                onClickBack={handleClickBack}
+            />
         );
     }
 
@@ -440,11 +439,10 @@ function GroupRecommendationPreparationContent({
 
     if (!readiness || readiness.sessionId !== sessionId) {
         return (
-            <main className={groupRecommendationPreparationPageStyles.stateContainer}>
-                <p className={groupRecommendationPreparationPageStyles.stateText}>
-                    준비 상태를 불러오는 중...
-                </p>
-            </main>
+            <GroupRecommendationFlowSkeleton
+                variant="PREPARATION"
+                onClickBack={handleClickBack}
+            />
         );
     }
 
