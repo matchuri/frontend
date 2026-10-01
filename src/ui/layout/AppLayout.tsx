@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { jotaiStore } from "@/shared/lib/jotaiStore";
 
 import AuthInitializer from "@/features/auth/ui/components/AuthInitializer";
+import MyRealtimeEventsInitializer from "@/features/realtime/ui/components/MyRealtimeEventsInitializer";
 
 import {
     isAuthenticatedAtom,
@@ -84,6 +85,7 @@ export default function AppLayout({
     return (
         <Provider store={jotaiStore}>
             <AuthInitializer />
+            <MyRealtimeEventsInitializer />
 
             <AppContent>
                 {children}

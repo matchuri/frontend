@@ -1,9 +1,6 @@
 "use client";
 
-import {
-    useCallback,
-    useState,
-} from "react";
+import { useState } from "react";
 import { useAtomValue } from "jotai";
 import { useRouter } from "next/navigation";
 
@@ -12,7 +9,6 @@ import type { LocationSetting } from "@/features/locationSetting/domain/model/Lo
 import { useGroupList } from "@/features/group/application/hooks/useGroupList";
 import { useCreateGroup } from "@/features/group/application/hooks/useCreateGroup";
 import { useRespondGroupInvite } from "@/features/group/application/hooks/useRespondGroupInvite";
-import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useGroupInviteExists } from "@/features/groupInviteNotification/application/hooks/useGroupInviteExists";
 import { useGroupInviteNotifications } from "@/features/groupInviteNotification/application/hooks/useGroupInviteNotifications";
 
@@ -22,7 +18,6 @@ import {
     isGroupListLoadingAtom,
     groupListErrorMessageAtom,
 } from "@/features/group/application/selectors/groupSelectors";
-import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
 
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
@@ -49,8 +44,6 @@ function GroupPageContent() {
     const [isInviteNotificationOpen, setIsInviteNotificationOpen] = useState(false);
     const [groupName, setGroupName] = useState("");
 
-    const accessToken = useAtomValue(accessTokenAtom);
-
     const groups = useAtomValue(groupsAtom);
     const hasGroups = useAtomValue(hasGroupsAtom);
     const isGroupListLoading = useAtomValue(isGroupListLoadingAtom);
@@ -67,20 +60,6 @@ function GroupPageContent() {
         invites,
         refetchInvites,
     } = useGroupInviteNotifications();
-
-    const handleGroupInviteCreated =
-        useCallback(() => {
-            void refetchInvites();
-            void refetchInviteExists();
-        }, [
-            refetchInvites,
-            refetchInviteExists,
-        ]);
-
-    useMyRealtimeEvents({
-        accessToken,
-        onGroupInviteCreated: handleGroupInviteCreated,
-    });
 
     const { isCreating, create } = useCreateGroup({
         onSuccess: () => {

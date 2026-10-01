@@ -12,11 +12,9 @@ import {
     groupDetailErrorMessageAtom,
 } from "@/features/group/application/selectors/groupDetailSelectors";
 
-import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 
 import type { GroupRecommendationVoteUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteUpdatedEvent";
-import type { GroupRecommendationVoteCompletedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteCompletedEvent";
 import type { GroupRecommendationFinalizedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationFinalizedEvent";
 
 import { groupRecommendationSessionDetailAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationSessionDetailAtom";
@@ -62,8 +60,6 @@ function GroupRecommendationResultPageContent() {
 
     // 중복 VOTE_UPDATED 이벤트 처리 방지용 ref
     const handledVoteUpdatedEventIds = useRef<Set<string>>(new Set());
-    // 전원 투표 완료 이벤트 중복 처리 방지
-    const handledVoteCompletedEventIds = useRef<Set<string>>(new Set());
     const handledFinalizedEventIds = useRef<Set<string>>(new Set());
 
     const setSessionDetailState = useSetAtom(groupRecommendationSessionDetailAtom);
@@ -138,25 +134,6 @@ function GroupRecommendationResultPageContent() {
         ],
     );
 
-    const handleRecommendationVoteCompleted = useCallback(
-        async (event: GroupRecommendationVoteCompletedEvent) => {
-            if (handledVoteCompletedEventIds.current.has(event.eventId)) {
-                return;
-            }
-
-            handledVoteCompletedEventIds.current.add(event.eventId);
-
-            if (event.groupId !== groupId || event.sessionId !== sessionId) {
-                return;
-            }
-
-            await refetchSessionDetail({
-                showLoading: false,
-            });
-        },
-        [groupId, refetchSessionDetail, sessionId],
-    );
-
     const handleRecommendationFinalized = useCallback(
         async (event: GroupRecommendationFinalizedEvent) => {
             if (handledFinalizedEventIds.current.has(event.eventId)) {
@@ -226,12 +203,6 @@ function GroupRecommendationResultPageContent() {
         onMemberLeft: handleGroupMembersChanged,
         onRecommendationVoteUpdated: handleRecommendationVoteUpdated,
         onRecommendationFinalized: handleRecommendationFinalized,
-    });
-
-    useMyRealtimeEvents({
-        accessToken,
-        onRecommendationVoteCompleted:
-            handleRecommendationVoteCompleted,
     });
 
     const handleClickBack = () => {

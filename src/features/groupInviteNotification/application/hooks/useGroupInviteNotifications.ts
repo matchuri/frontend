@@ -1,20 +1,14 @@
 "use client";
 
-import {
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
+import { useCallback } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
 
-import type { GroupInviteNotificationItem } from "@/features/groupInviteNotification/domain/model/GroupInviteNotificationItem";
-
+import { groupInviteNotificationListAtom } from "@/features/groupInviteNotification/application/atoms/groupInviteNotificationAtom";
 import { groupInviteNotificationApi } from "@/features/groupInviteNotification/infrastructure/api/groupInviteNotificationApi";
 
 export function useGroupInviteNotifications() {
-    const [invites, setInvites] =
-        useState<
-            readonly GroupInviteNotificationItem[]
-        >([]);
+    const invites = useAtomValue(groupInviteNotificationListAtom);
+    const setInvites = useSetAtom(groupInviteNotificationListAtom);
 
     const refetchInvites =
         useCallback(async () => {
@@ -25,28 +19,7 @@ export function useGroupInviteNotifications() {
             } catch {
                 setInvites([]);
             }
-        }, []);
-
-    useEffect(() => {
-        let cancelled = false;
-
-        groupInviteNotificationApi
-            .fetchInvites()
-            .then((data) => {
-                if (!cancelled) {
-                    setInvites(data);
-                }
-            })
-            .catch(() => {
-                if (!cancelled) {
-                    setInvites([]);
-                }
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, []);
+        }, [setInvites]);
 
     return {
         invites,
