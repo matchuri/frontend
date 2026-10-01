@@ -22,6 +22,7 @@ import {
 import GroupCard from "@/features/group/ui/components/GroupCard";
 import GroupListEmpty from "@/features/group/ui/components/GroupListEmpty";
 import GroupManagementHeader from "@/features/group/ui/components/GroupManagementHeader";
+import GroupManagementPageSkeleton from "@/features/group/ui/components/GroupManagementPageSkeleton";
 import GroupCreateButton from "@/features/group/ui/components/GroupCreateButton";
 import GroupCreateModal from "@/features/group/ui/components/GroupCreateModal";
 import GroupInviteNotification from "@/features/groupInviteNotification/ui/components/GroupInviteNotification";
@@ -124,47 +125,44 @@ function GroupPageContent() {
                     />
                 )}
 
-                <div className={groupManagementPageStyles.content}>
-                    <section className={groupManagementPageStyles.groupSection}>
-                        <div className={groupManagementPageStyles.sectionHeader}>
-                            <h2 className={groupManagementPageStyles.sectionTitle}>
-                                내 그룹
-                            </h2>
+                {isGroupListLoading ? (
+                    <GroupManagementPageSkeleton />
+                ) : (
+                    <div className={groupManagementPageStyles.content}>
+                        <section className={groupManagementPageStyles.groupSection}>
+                            <div className={groupManagementPageStyles.sectionHeader}>
+                                <h2 className={groupManagementPageStyles.sectionTitle}>
+                                    내 그룹
+                                </h2>
 
-                            <GroupCreateButton
-                                onClick={() => setIsCreateModalOpen(true)}
-                            />
-                        </div>
-
-                        {isGroupListLoading && (
-                            <div className={groupManagementPageStyles.stateBox}>
-                                그룹 목록을 불러오는 중...
+                                <GroupCreateButton
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                />
                             </div>
-                        )}
 
-                        {groupListErrorMessage && (
-                            <div className={groupManagementPageStyles.errorBox}>
-                                {groupListErrorMessage}
-                            </div>
-                        )}
-
-                        {!isGroupListLoading &&
-                            !groupListErrorMessage &&
-                            (hasGroups ? (
-                                <div className={groupManagementPageStyles.groupList}>
-                                    {groups.map((group) => (
-                                        <GroupCard
-                                            key={group.id}
-                                            group={group}
-                                            onClick={() => handleClickGroup(group.id)}
-                                        />
-                                    ))}
+                            {groupListErrorMessage && (
+                                <div className={groupManagementPageStyles.errorBox}>
+                                    {groupListErrorMessage}
                                 </div>
-                            ) : (
-                                <GroupListEmpty />
-                            ))}
-                    </section>
-                </div>
+                            )}
+
+                            {!groupListErrorMessage &&
+                                (hasGroups ? (
+                                    <div className={groupManagementPageStyles.groupList}>
+                                        {groups.map((group) => (
+                                            <GroupCard
+                                                key={group.id}
+                                                group={group}
+                                                onClick={() => handleClickGroup(group.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <GroupListEmpty />
+                                ))}
+                        </section>
+                    </div>
+                )}
             </main>
 
             <GroupCreateModal

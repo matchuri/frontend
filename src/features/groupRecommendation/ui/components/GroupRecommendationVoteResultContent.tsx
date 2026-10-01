@@ -18,6 +18,7 @@ import {
 } from "@/features/groupRecommendation/application/selectors/groupRecommendationSessionDetailSelectors";
 
 import GroupRecommendationResultTasteSummary from "@/features/groupRecommendation/ui/components/GroupRecommendationResultTasteSummary";
+import GroupRecommendationFlowSkeleton from "@/features/groupRecommendation/ui/components/GroupRecommendationFlowSkeleton";
 import PersonalRecommendationSelectedRestaurantContent from "@/features/personalRecommendation/ui/components/PersonalRecommendationSelectedRestaurantContent";
 
 import { groupRecommendationVoteResultPageStyles } from "@/ui/styles/groupRecommendationVoteResultPageStyles";
@@ -86,14 +87,10 @@ export default function GroupRecommendationVoteResultContent() {
 
     if (isSessionDetailLoading || sessionDetail?.sessionId !== sessionId) {
         return (
-            <main className={groupRecommendationVoteResultPageStyles.container}>
-                {header}
-                <div className={groupRecommendationVoteResultPageStyles.stateContainer}>
-                    <p className={groupRecommendationVoteResultPageStyles.stateText}>
-                        투표 결과를 불러오는 중...
-                    </p>
-                </div>
-            </main>
+            <GroupRecommendationFlowSkeleton
+                variant="VOTE_RESULT"
+                onClickBack={handleClickBack}
+            />
         );
     }
 

@@ -32,7 +32,9 @@ import {
     memberAtom,
 } from "@/features/auth/application/selectors/authSelectors";
 
+import GroupDetailHeader from "@/features/group/ui/components/GroupDetailHeader";
 import GroupDetailPanel from "@/features/group/ui/components/GroupDetailPanel";
+import GroupDetailPageSkeleton from "@/features/group/ui/components/GroupDetailPageSkeleton";
 import GroupInviteModal from "@/features/group/ui/components/GroupInviteModal";
 import GroupDeleteModal from "@/features/group/ui/components/GroupDeleteModal";
 import GroupLeaveModal from "@/features/group/ui/components/GroupLeaveModal";
@@ -367,52 +369,40 @@ function GroupDetailPageContent() {
         setIsDeleteModalOpen(false);
     };
 
-    if (isGroupDetailLoading) {
-        return (
-            <main className={groupDetailPanelStyles.container}>
-                <div className={groupDetailPanelStyles.detailMessageBox}>
-                    그룹 정보를 불러오는 중...
-                </div>
-            </main>
-        );
-    }
-
-    if (groupDetailErrorMessage) {
-        return (
-            <main className={groupDetailPanelStyles.container}>
-                <div className={groupDetailPanelStyles.detailErrorBox}>
-                    {groupDetailErrorMessage}
-                </div>
-            </main>
-        );
-    }
-
-    if (!groupDetail) {
-        return null;
-    }
-
     return (
         <>
             <main className={groupDetailPanelStyles.container}>
-                <GroupDetailPanel
-                    group={groupDetail}
-                    recommendationHistories={recommendationHistories}
-                    isRecommendationHistoriesLoading={isRecommendationHistoriesLoading}
-                    recommendationHistoriesErrorMessage={recommendationHistoriesErrorMessage}
-                    isUpdatingGroupName={isUpdating}
-                    groupNameUpdateMessage={updateMessage}
-                    isPreparingInviteLink={isPreparingInviteLink}
+                <GroupDetailHeader
+                    showMoreButton={Boolean(groupDetail && !groupDetailErrorMessage)}
                     onClose={handleClickBack}
-                    onClickInvite={() => void openInviteModal()}
-                    onUpdateGroupName={handleUpdateGroupName}
                     onClickEditLocation={openLocationEditModal}
                     onClickDeleteGroup={openDeleteModal}
                     onClickLeaveGroup={() => setIsLeaveModalOpen(true)}
-                    onClickStartRecommendation={handleStartRecommendation}
-                    onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
-                    onClickRecommendationHistory={handleClickRecommendationHistory}
-                    onClickRecommendationHistoryViewAll={handleClickRecommendationHistoryViewAll}
                 />
+
+                {isGroupDetailLoading ? (
+                    <GroupDetailPageSkeleton />
+                ) : groupDetailErrorMessage ? (
+                    <div className={groupDetailPanelStyles.detailErrorBox}>
+                        {groupDetailErrorMessage}
+                    </div>
+                ) : groupDetail ? (
+                    <GroupDetailPanel
+                        group={groupDetail}
+                        recommendationHistories={recommendationHistories}
+                        isRecommendationHistoriesLoading={isRecommendationHistoriesLoading}
+                        recommendationHistoriesErrorMessage={recommendationHistoriesErrorMessage}
+                        isUpdatingGroupName={isUpdating}
+                        groupNameUpdateMessage={updateMessage}
+                        isPreparingInviteLink={isPreparingInviteLink}
+                        onClickInvite={() => void openInviteModal()}
+                        onUpdateGroupName={handleUpdateGroupName}
+                        onClickStartRecommendation={handleStartRecommendation}
+                        onClickMoveActiveRecommendation={handleMoveActiveRecommendation}
+                        onClickRecommendationHistory={handleClickRecommendationHistory}
+                        onClickRecommendationHistoryViewAll={handleClickRecommendationHistoryViewAll}
+                    />
+                ) : null}
             </main>
 
             <GroupInviteModal

@@ -34,6 +34,7 @@ import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendat
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
 import GroupRecommendationResultCandidateCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultCandidateCard";
 import GroupRecommendationResultTasteSummary from "@/features/groupRecommendation/ui/components/GroupRecommendationResultTasteSummary";
+import GroupRecommendationFlowSkeleton from "@/features/groupRecommendation/ui/components/GroupRecommendationFlowSkeleton";
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
@@ -265,11 +266,10 @@ function GroupRecommendationResultPageContent() {
 
     if (isSessionDetailLoading || isGroupDetailLoading || sessionDetail?.sessionId !== sessionId) {
         return (
-            <main className={groupRecommendationResultPageStyles.stateContainer}>
-                <p className={groupRecommendationResultPageStyles.stateText}>
-                    그룹 추천 결과를 불러오는 중...
-                </p>
-            </main>
+            <GroupRecommendationFlowSkeleton
+                variant="RESULT"
+                onClickBack={handleClickBack}
+            />
         );
     }
 
