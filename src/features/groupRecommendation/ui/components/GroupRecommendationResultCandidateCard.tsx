@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Check } from "lucide-react";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
@@ -7,11 +8,8 @@ interface GroupRecommendationResultCandidateCardProps {
     readonly matchPercent: number;
     readonly selected: boolean;
     readonly isVoteClosed: boolean;
-    // 투표 API 요청 중인지 여부
-    readonly isVoting: boolean;
     readonly thumbnailUrl: string | null;
-
-    readonly onClickVote: () => void;
+    readonly onSelect: () => void;
 }
 
 export default function GroupRecommendationResultCandidateCard({
@@ -19,12 +17,9 @@ export default function GroupRecommendationResultCandidateCard({
     matchPercent,
     selected,
     isVoteClosed,
-    isVoting,
     thumbnailUrl,
-    onClickVote,
+    onSelect,
 }: GroupRecommendationResultCandidateCardProps) {
-    const isVoteButtonDisabled = isVoteClosed || isVoting;
-
     return (
         <article
             className={
@@ -33,46 +28,49 @@ export default function GroupRecommendationResultCandidateCard({
                     : groupRecommendationResultPageStyles.candidateCard
             }
         >
-            <div className={groupRecommendationResultPageStyles.candidateImagePlaceholder}>
-                {thumbnailUrl ? (
-                    <Image
-                        src={thumbnailUrl}
-                        alt={`${menuName} 이미지`}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className={groupRecommendationResultPageStyles.candidateImage}
-                    />
-                ) : (
-                    <span className={groupRecommendationResultPageStyles.candidateImageFallbackText}>
-                        이미지 준비중입니다
-                    </span>
-                )}
+            <button
+                type="button"
+                onClick={onSelect}
+                disabled={isVoteClosed}
+                aria-pressed={selected}
+                aria-label={`${menuName}, 매칭률 ${matchPercent}%, ${selected ? "선택됨" : "선택하기"}`}
+                className={groupRecommendationResultPageStyles.candidateSelectButton}
+            >
+                <div className={groupRecommendationResultPageStyles.candidateImageWrapper}>
+                    {thumbnailUrl ? (
+                        <Image
+                            src={thumbnailUrl}
+                            alt={`${menuName} 이미지`}
+                            fill
+                            sizes="(max-width: 480px) 100vw, 480px"
+                            className={groupRecommendationResultPageStyles.candidateImage}
+                        />
+                    ) : (
+                        <div className={groupRecommendationResultPageStyles.candidateImageFallback}>
+                            이미지 준비중입니다
+                        </div>
+                    )}
 
-                <span className={groupRecommendationResultPageStyles.matchBadge}>
-                    {matchPercent}% Match
-                </span>
-            </div>
+                    <div className={groupRecommendationResultPageStyles.candidateBadges}>
+                        <span className={groupRecommendationResultPageStyles.matchBadge}>
+                            {matchPercent}% 매치
+                        </span>
+                    </div>
 
-            <div className={groupRecommendationResultPageStyles.candidateBody}>
-                <h3 className={groupRecommendationResultPageStyles.candidateName}>
-                    {menuName}
-                </h3>
+                    {selected && (
+                        <span className={groupRecommendationResultPageStyles.selectedBadge}>
+                            <Check size={13} strokeWidth={2.5} aria-hidden="true" />
+                            선택됨
+                        </span>
+                    )}
+                </div>
 
-                <button
-                    type="button"
-                    onClick={onClickVote}
-
-                    // 투표 종료 또는 투표 요청 중이면 버튼 비활성화
-                    disabled={isVoteButtonDisabled}
-                    className={
-                        isVoteButtonDisabled
-                            ? groupRecommendationResultPageStyles.disabledVoteButton
-                            : groupRecommendationResultPageStyles.voteButton
-                    }
-                >
-                    {isVoting ? "투표 중..." : "투표하기"}
-                </button>
-            </div>
+                <div className={groupRecommendationResultPageStyles.candidateBody}>
+                    <h3 className={groupRecommendationResultPageStyles.candidateName}>
+                        {menuName}
+                    </h3>
+                </div>
+            </button>
         </article>
     );
 }

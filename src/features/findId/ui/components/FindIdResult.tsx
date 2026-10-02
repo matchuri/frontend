@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { findIdPageStyles } from "@/ui/styles/findIdPageStyles";
+import { Check, CircleAlert } from "lucide-react";
+
+import { authPageStyles } from "@/ui/styles/authPageStyles";
 import type { FindIdState } from "@/features/findId/domain/state/FindIdState";
 
 interface FindIdResultProps {
@@ -11,39 +13,57 @@ interface FindIdResultProps {
 export default function FindIdResult({ result }: FindIdResultProps) {
     const isFound = result.status === "FOUND";
 
-    const handlePreparePasswordPage = () => {
-        alert("비밀번호 찾기 기능은 준비 중입니다.");
-    };
-
     return (
-        <div className={findIdPageStyles.resultBox}>
+        <div className={authPageStyles.completionContainer}>
+            <div
+                className={
+                    isFound
+                        ? authPageStyles.completionIcon
+                        : authPageStyles.completionErrorIcon
+                }
+            >
+                {isFound ? (
+                    <Check size={42} strokeWidth={2.2} aria-hidden="true" />
+                ) : (
+                    <CircleAlert size={42} strokeWidth={2} aria-hidden="true" />
+                )}
+            </div>
+
+            <h1 className={authPageStyles.completionTitle}>
+                {isFound ? "아이디 찾기 완료" : "아이디를 찾지 못했어요"}
+            </h1>
+
             {isFound ? (
                 <>
-                    <p className={findIdPageStyles.resultLabel}>
-                        아이디 찾기가 완료되었습니다.
+                    <p className={authPageStyles.completionDescription}>
+                        가입한 아이디를 확인해 주세요.
                     </p>
-                    <p className={findIdPageStyles.resultValue}>
-                        {result.loginId}
-                    </p>
+
+                    <div className={authPageStyles.completionValueBox}>
+                        <p className={authPageStyles.completionValue}>
+                            {result.loginId}
+                        </p>
+                    </div>
                 </>
             ) : (
-                <p className={findIdPageStyles.resultLabel}>
+                <p className={authPageStyles.completionDescription}>
                     조회 결과가 없습니다.
                 </p>
             )}
 
-            <div className={findIdPageStyles.resultButtonGroup}>
-                <Link href="/login" className={findIdPageStyles.resultButton}>
+            <div className={authPageStyles.completionButtonGroup}>
+                <Link href="/login" className={authPageStyles.primaryButton}>
                     로그인
                 </Link>
 
-                <button
-                    type="button"
-                    onClick={handlePreparePasswordPage}
-                    className={findIdPageStyles.secondaryResultButton}
-                >
-                    비밀번호 찾기
-                </button>
+                {isFound && (
+                    <Link
+                        href="/auth/find-password"
+                        className={authPageStyles.secondaryButton}
+                    >
+                        비밀번호 찾기
+                    </Link>
+                )}
             </div>
         </div>
     );

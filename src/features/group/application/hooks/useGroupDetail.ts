@@ -3,13 +3,15 @@
 import { useCallback, useEffect } from "react";
 import { useSetAtom } from "jotai";
 
-import { logger } from "@/shared/lib/logger";
-
 import { groupDetailAtom } from "@/features/group/application/atoms/groupDetailAtom";
 import { fetchGroupDetail } from "@/features/group/application/usecase/fetchGroupDetail";
 
 interface UseGroupDetailParams {
     readonly onGroupNotFound?: () => void;
+}
+
+interface FetchGroupDetailOptions {
+    readonly showLoading?: boolean;
 }
 
 function isGroupNotFoundError(error: unknown) {
@@ -34,14 +36,16 @@ export function useGroupDetail(
 ) {
     const setGroupDetailState = useSetAtom(groupDetailAtom);
 
-    const refetchGroupDetail = useCallback(async () => {
+    const refetchGroupDetail = useCallback(async ({ showLoading = true }: FetchGroupDetailOptions = {}) => {
         if (groupId === null) return;
 
         try {
-            setGroupDetailState({ status: "LOADING" });
+            if (showLoading) {
+                setGroupDetailState({ status: "LOADING" });
+            }
 
             const groupDetail = await fetchGroupDetail(groupId);
-            logger.log("그룹 상세 패널 열림:", groupDetail);
+            console.log("그룹 상세 패널 열림:", groupDetail);
 
             setGroupDetailState({
                 status: "SUCCESS",

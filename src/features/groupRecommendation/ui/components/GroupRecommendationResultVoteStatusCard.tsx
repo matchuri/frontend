@@ -22,7 +22,7 @@ export default function GroupRecommendationResultVoteStatusCard({
     const progressPercent =
         totalMemberCount === 0
             ? 0
-            : (votedMemberCount / totalMemberCount) * 100;
+            : Math.min(100, (votedMemberCount / totalMemberCount) * 100);
 
     const allVoted =
         totalMemberCount > 0 && totalMemberCount === votedMemberCount;
@@ -39,12 +39,27 @@ export default function GroupRecommendationResultVoteStatusCard({
                 </span>
             </div>
 
-            <div className={groupRecommendationResultPageStyles.progressTrack}>
+            <div
+                className={groupRecommendationResultPageStyles.progressTrack}
+                role="progressbar"
+                aria-label="그룹 투표 진행률"
+                aria-valuemin={0}
+                aria-valuemax={totalMemberCount}
+                aria-valuenow={votedMemberCount}
+            >
                 <div
                     className={groupRecommendationResultPageStyles.progressFill}
                     style={{ width: `${progressPercent}%` }}
                 />
             </div>
+
+            <p className={groupRecommendationResultPageStyles.voteStatusDescription}>
+                {isVoteClosed
+                    ? "투표가 종료되었어요."
+                    : allVoted
+                        ? "모든 그룹원이 투표를 완료했어요."
+                        : `${totalMemberCount - votedMemberCount}명의 투표를 기다리고 있어요.`}
+            </p>
 
             {isVoteClosed && (
                 <button
@@ -60,6 +75,7 @@ export default function GroupRecommendationResultVoteStatusCard({
                 <button
                     type="button"
                     onClick={onClickCloseVote}
+                    disabled={isFinalizing}
                     className={groupRecommendationResultPageStyles.voteActionButton}
                 >
                     {isFinalizing ? "투표 종료 중..." : "투표 종료"}

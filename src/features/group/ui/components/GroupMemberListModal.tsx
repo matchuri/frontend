@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, User } from "lucide-react";
+import Image from "next/image";
+import { Crown, UserRound, X } from "lucide-react";
 
 import type { GroupDetailMember } from "@/features/group/domain/model/GroupDetailMember";
 
@@ -21,49 +22,109 @@ export default function GroupMemberListModal({
         return null;
     }
 
+    const sortedMembers = [...members].sort((a, b) => {
+        if (a.role === "OWNER" && b.role !== "OWNER") {
+            return -1;
+        }
+
+        if (a.role !== "OWNER" && b.role === "OWNER") {
+            return 1;
+        }
+
+        if (a.isMe && !b.isMe) {
+            return -1;
+        }
+
+        if (!a.isMe && b.isMe) {
+            return 1;
+        }
+
+        return 0;
+    });
+
     return (
-        <div className={groupMemberListModalStyles.overlay}>
-            <div className={groupMemberListModalStyles.modal}>
-                <button
-                    type="button"
-                    onClick={onClose}
-                    className={groupMemberListModalStyles.backButton}
-                >
-                    <ArrowLeft size={22} />
-                </button>
+        <div
+            className={groupMemberListModalStyles.overlay}
+            onClick={onClose}
+        >
+            <div
+                className={groupMemberListModalStyles.modal}
+                onClick={(event) => event.stopPropagation()}
+            >
+                <header className={groupMemberListModalStyles.header}>
+                    <div>
+                        <h2 className={groupMemberListModalStyles.title}>
+                            참여 그룹원
+                        </h2>
 
-                <div className={groupMemberListModalStyles.content}>
-                    <h2 className={groupMemberListModalStyles.title}>
-                        모든 멤버
-                    </h2>
-
-                    <div className={groupMemberListModalStyles.memberList}>
-                        {members.map((member) => (
-                            <div
-                                key={member.memberId}
-                                className={groupMemberListModalStyles.memberCard}
-                            >
-                                <div className={groupMemberListModalStyles.avatar}>
-                                    <User size={32} />
-                                </div>
-
-                                <span className={groupMemberListModalStyles.nickname}>
-                                    {member.nickname}
-                                    {member.isMe && " (나)"}
-                                </span>
-
-                                <span
-                                    className={
-                                        member.role === "OWNER"
-                                            ? groupMemberListModalStyles.ownerRoleBadge
-                                            : groupMemberListModalStyles.memberRoleBadge
-                                    }
-                                >
-                                    {member.role === "OWNER" ? "방장" : "멤버"}
-                                </span>
-                            </div>
-                        ))}
+                        <p className={groupMemberListModalStyles.memberCount}>
+                            총 {members.length}명
+                        </p>
                     </div>
+
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className={groupMemberListModalStyles.closeButton}
+                        aria-label="참여 그룹원 목록 닫기"
+                    >
+                        <X
+                            size={20}
+                            aria-hidden="true"
+                        />
+                    </button>
+                </header>
+
+                <div className={groupMemberListModalStyles.memberList}>
+                    {sortedMembers.map((member) => (
+                        <div
+                            key={member.memberId}
+                            className={groupMemberListModalStyles.memberItem}
+                        >
+                            <div className={groupMemberListModalStyles.memberAvatar}>
+                                {member.memberProfileImageUrl ? (
+                                    <Image
+                                        src={member.memberProfileImageUrl}
+                                        alt={`${member.nickname} 프로필`}
+                                        fill
+                                        sizes="40px"
+                                        className={groupMemberListModalStyles.memberImage}
+                                    />
+                                ) : (
+                                    <UserRound
+                                        size={22}
+                                        strokeWidth={1.8}
+                                        aria-hidden="true"
+                                    />
+                                )}
+                            </div>
+
+                            <div className={groupMemberListModalStyles.memberInfo}>
+                                <div className={groupMemberListModalStyles.memberNicknameRow}>
+                                    <span className={groupMemberListModalStyles.memberNickname}>
+                                        {member.nickname}
+                                    </span>
+
+                                    {member.isMe && (
+                                        <span className={groupMemberListModalStyles.meBadge}>
+                                            나
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {member.role === "OWNER" && (
+                                <span className={groupMemberListModalStyles.ownerBadge}>
+                                    <Crown
+                                        size={13}
+                                        strokeWidth={2}
+                                        aria-hidden="true"
+                                    />
+                                    방장
+                                </span>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

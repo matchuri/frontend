@@ -1,72 +1,39 @@
-import { CalendarDays, MapPin, Users } from "lucide-react";
+import { MapPin } from "lucide-react";
+
+import { formatLocationRadius } from "@/features/locationSetting/domain/config/locationRadiusPolicy";
 
 import { groupRecommendationPreparationPageStyles } from "@/ui/styles/groupRecommendationPreparationPageStyles";
 
 interface GroupRecommendationPreparationInfoCardProps {
     readonly name: string;
-    readonly createdAt: string;
     readonly address: string;
-    readonly memberCount: number;
+    readonly radiusMeters: number;
 }
 
 export default function GroupRecommendationPreparationInfoCard({
     name,
-    createdAt,
     address,
-    memberCount,
+    radiusMeters,
 }: GroupRecommendationPreparationInfoCardProps) {
     return (
-        <aside className={groupRecommendationPreparationPageStyles.infoCard}>
+        <section className={groupRecommendationPreparationPageStyles.infoCard}>
+            <p className={groupRecommendationPreparationPageStyles.infoLabel}>
+                함께 메뉴를 고를 그룹
+            </p>
+
             <h2 className={groupRecommendationPreparationPageStyles.infoTitle}>
                 {name}
             </h2>
 
-            <div className={groupRecommendationPreparationPageStyles.infoList}>
-                <div className={groupRecommendationPreparationPageStyles.infoItem}>
-                    <div className={groupRecommendationPreparationPageStyles.infoIcon}>
-                        <CalendarDays size={20} />
-                    </div>
-
-                    <div>
-                        <p className={groupRecommendationPreparationPageStyles.infoLabel}>
-                            생성일
-                        </p>
-                        <p className={groupRecommendationPreparationPageStyles.infoValue}>
-                            {createdAt}
-                        </p>
-                    </div>
-                </div>
-
-                <div className={groupRecommendationPreparationPageStyles.infoItem}>
-                    <div className={groupRecommendationPreparationPageStyles.infoIcon}>
-                        <MapPin size={20} />
-                    </div>
-
-                    <div>
-                        <p className={groupRecommendationPreparationPageStyles.infoLabel}>
-                            위치
-                        </p>
-                        <p className={groupRecommendationPreparationPageStyles.infoValue}>
-                            {address}
-                        </p>
-                    </div>
-                </div>
-
-                <div className={groupRecommendationPreparationPageStyles.infoItem}>
-                    <div className={groupRecommendationPreparationPageStyles.infoIcon}>
-                        <Users size={20} />
-                    </div>
-
-                    <div>
-                        <p className={groupRecommendationPreparationPageStyles.infoLabel}>
-                            참여 인원
-                        </p>
-                        <p className={groupRecommendationPreparationPageStyles.infoValue}>
-                            {memberCount}명
-                        </p>
-                    </div>
-                </div>
+            <div className={groupRecommendationPreparationPageStyles.infoLocation}>
+                <MapPin size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+                <span className={groupRecommendationPreparationPageStyles.infoAddress}>
+                    {address}
+                </span>
+                <span className={groupRecommendationPreparationPageStyles.infoRadius}>
+                    반경 {formatLocationRadius(radiusMeters)}
+                </span>
             </div>
-        </aside>
+        </section>
     );
 }

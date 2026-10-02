@@ -9,6 +9,7 @@ import {
     isAuthenticatedAtom,
     onboardingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
+import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export function useRootRedirectGuard() {
     const router = useRouter();
@@ -24,21 +25,13 @@ export function useRootRedirectGuard() {
 
         if (!onboarding) return;
 
-        if (onboarding.nextStep === "REQUIRED_AGREEMENTS") {
-            router.replace("/terms");
-            return;
-        }
-
-        if (onboarding.nextStep === "REQUIRED_NICKNAME") {
-            router.replace("/signup/nickname");
-            return;
-        }
-
-        if (onboarding.nextStep === "READY") {
-            router.replace("/home");
-            return;
-        }
-    }, [isAuthLoading, isAuthenticated, onboarding, router]);
+        router.replace(getOnboardingRoute(onboarding.nextStep));
+    }, [
+        isAuthLoading,
+        isAuthenticated,
+        onboarding,
+        router,
+    ]);
 
     return {
         isAuthLoading,

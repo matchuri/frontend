@@ -1,5 +1,7 @@
 "use client";
 
+import { Trash2 } from "lucide-react";
+
 import { groupDeleteModalStyles } from "@/ui/styles/groupDeleteModalStyles";
 
 interface GroupDeleteModalProps {
@@ -22,8 +24,20 @@ export default function GroupDeleteModal({
 
     return (
         <div className={groupDeleteModalStyles.overlay}>
-            <div className={groupDeleteModalStyles.modal}>
-                <h2 className={groupDeleteModalStyles.title}>
+            <section
+                className={groupDeleteModalStyles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="group-delete-modal-title"
+            >
+                <div className={groupDeleteModalStyles.icon}>
+                    <Trash2 size={26} aria-hidden="true" />
+                </div>
+
+                <h2
+                    id="group-delete-modal-title"
+                    className={groupDeleteModalStyles.title}
+                >
                     그룹을 삭제하시겠습니까?
                 </h2>
 
@@ -35,6 +49,7 @@ export default function GroupDeleteModal({
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={isDeleting}
                         className={groupDeleteModalStyles.cancelButton}
                     >
                         취소
@@ -51,7 +66,7 @@ export default function GroupDeleteModal({
                             : "삭제"}
                     </button>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }

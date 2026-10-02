@@ -1,81 +1,64 @@
-import { Check, Hourglass, User } from "lucide-react";
+import Image from "next/image";
+import { Check, Clock3, UserRound } from "lucide-react";
 
 import { groupRecommendationPreparationPageStyles } from "@/ui/styles/groupRecommendationPreparationPageStyles";
 
 interface GroupRecommendationPreparationMemberCardProps {
     readonly nickname: string;
+    readonly profileImageUrl?: string | null;
     readonly isMe: boolean;
     readonly isReady: boolean;
-    readonly hasPreference: boolean;
-    readonly isCompletingPreparation?: boolean;
-    readonly onClickEditPreference?: () => void;
-    readonly onClickCompletePreparation?: () => void;
 }
 
 export default function GroupRecommendationPreparationMemberCard({
     nickname,
+    profileImageUrl,
     isMe,
     isReady,
-    hasPreference,
-    isCompletingPreparation = false,
-    onClickEditPreference,
-    onClickCompletePreparation,
 }: GroupRecommendationPreparationMemberCardProps) {
     return (
-        <article
-            className={
-                isMe
-                    ? groupRecommendationPreparationPageStyles.myMemberCard
-                    : groupRecommendationPreparationPageStyles.memberCard
-            }
-        >
+        <article className={groupRecommendationPreparationPageStyles.memberCard}>
             <div className={groupRecommendationPreparationPageStyles.memberInfo}>
                 <div className={groupRecommendationPreparationPageStyles.memberAvatar}>
-                    <User size={42} />
+                    {profileImageUrl ? (
+                        <Image
+                            src={profileImageUrl}
+                            alt={`${nickname} 프로필`}
+                            fill
+                            sizes="48px"
+                            className={groupRecommendationPreparationPageStyles.memberAvatarImage}
+                        />
+                    ) : (
+                        <UserRound size={24} strokeWidth={1.8} aria-hidden="true" />
+                    )}
                 </div>
 
-                <strong className={groupRecommendationPreparationPageStyles.memberName}>
-                    {nickname}
-                    {isMe && " (나)"}
-                </strong>
+                <div className={groupRecommendationPreparationPageStyles.memberNameRow}>
+                    {isMe && (
+                        <span className={groupRecommendationPreparationPageStyles.myLabel}>
+                            나
+                        </span>
+                    )}
+                    <strong
+                        className={groupRecommendationPreparationPageStyles.memberName}
+                        title={nickname}
+                    >
+                        {nickname}
+                    </strong>
+                </div>
             </div>
 
-            <div className={groupRecommendationPreparationPageStyles.memberActionArea}>
-                {isMe && !isReady && (
-                    <>
-                        <button
-                            type="button"
-                            onClick={onClickEditPreference}
-                            className={groupRecommendationPreparationPageStyles.preferenceEditButton}
-                        >
-                            {hasPreference ? "취향 수정" : "취향 등록"}
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={onClickCompletePreparation}
-                            disabled={isCompletingPreparation}
-                            className={groupRecommendationPreparationPageStyles.readyButton}
-                        >
-                            {isCompletingPreparation
-                                ? "처리 중"
-                                : "준비 완료"}
-                        </button>
-                    </>
-                )}
-
-                {isReady && (
-                    <span className={groupRecommendationPreparationPageStyles.readyIcon}>
-                        <Check size={18} />
-                    </span>
-                )}
-
-                {!isMe && !isReady && (
-                    <span className={groupRecommendationPreparationPageStyles.waitingIcon}>
-                        <Hourglass size={18} />
-                    </span>
-                )}
-            </div>
+            {isReady ? (
+                <span className={groupRecommendationPreparationPageStyles.readyBadge}>
+                    <Check size={14} aria-hidden="true" />
+                    준비 완료
+                </span>
+            ) : (
+                <span className={groupRecommendationPreparationPageStyles.waitingBadge}>
+                    <Clock3 size={14} aria-hidden="true" />
+                    준비 대기
+                </span>
+            )}
         </article>
     );
 }

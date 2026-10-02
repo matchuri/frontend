@@ -1,4 +1,5 @@
-import { UserPlus } from "lucide-react";
+import { Plus } from "lucide-react";
+
 import { groupManagementPageStyles } from "@/ui/styles/groupManagementPageStyles";
 
 interface GroupCreateButtonProps {
@@ -14,7 +15,7 @@ export default function GroupCreateButton({
             onClick={onClick}
             className={groupManagementPageStyles.createButton}
         >
-            <UserPlus size={22} />
+            <Plus size={16} strokeWidth={2.2} />
             그룹 생성
         </button>
     );

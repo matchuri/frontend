@@ -1,30 +1,52 @@
 "use client";
 
-import { useEffect } from "react";
-import { useSetAtom } from "jotai";
+import { useEffect, useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useRouter } from "next/navigation";
+
 import ResetPasswordForm from "@/features/resetPassword/ui/components/ResetPasswordForm";
 import {
     initialResetPasswordState,
     resetPasswordAtom,
 } from "@/features/resetPassword/application/atoms/resetPasswordAtom";
-import { resetPasswordPageStyles } from "@/ui/styles/resetPasswordPageStyles";
-import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
+import AuthPageHeader from "@/ui/components/AuthPageHeader";
+import { authPageStyles } from "@/ui/styles/authPageStyles";
 
 export default function FindPasswordPage() {
+    const router = useRouter();
+    const resetPasswordState = useAtomValue(resetPasswordAtom);
     const setResetPasswordState = useSetAtom(resetPasswordAtom);
+    const [formKey, setFormKey] = useState(0);
 
     useEffect(() => {
         setResetPasswordState(initialResetPasswordState);
     }, [setResetPasswordState]);
 
-    return (
-        <main className={resetPasswordPageStyles.page}>
-            <HomeNavigationButton />
+    const handleBack = () => {
+        if (resetPasswordState.status === "COMPLETE") {
+            setResetPasswordState(initialResetPasswordState);
+            setFormKey((prev) => prev + 1);
+            return;
+        }
 
-            <section className={resetPasswordPageStyles.card}>
-                <h1 className={resetPasswordPageStyles.title}>비밀번호 찾기</h1>
-                <ResetPasswordForm />
-            </section>
+        router.push("/login");
+    };
+
+    return (
+        <main className={authPageStyles.page}>
+            <AuthPageHeader
+                backHref="/login"
+                backLabel={
+                    resetPasswordState.status === "COMPLETE"
+                        ? "비밀번호 찾기 화면으로 돌아가기"
+                        : "로그인 화면으로 돌아가기"
+                }
+                onBack={handleBack}
+            />
+
+            <div className={authPageStyles.flowContent}>
+                <ResetPasswordForm key={formKey} />
+            </div>
         </main>
     );
 }

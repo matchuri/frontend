@@ -6,7 +6,10 @@ interface RequestPasswordVerificationParams {
 }
 
 type RequestPasswordVerificationResult =
-    | { readonly success: true }
+    | {
+        readonly success: true;
+        readonly resendAvailableAfterSeconds: number;
+    }
     | { readonly success: false; readonly message: string };
 
 export async function requestPasswordVerification({
@@ -32,5 +35,6 @@ export async function requestPasswordVerification({
 
     return {
         success: true,
+        resendAvailableAfterSeconds: result.resendAvailableAfterSeconds,
     };
 }

@@ -5,7 +5,8 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { logger } from "@/shared/lib/logger";
 import { AuthProviderMap } from "@/features/auth/domain/model/AuthProviderMap";
 import { exchangeOAuthCode } from "@/features/auth/application/usecase/exchangeOAuthCode";
-import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
+import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
 
 const OAUTH_PROCESSING_CODE_KEY = "oauth_processing_code";
 
@@ -76,7 +77,16 @@ export function useOAuthCallback() {
 
                 // 6. onboarding 기준으로 분기
                 const nextStep = response.data.onboarding.nextStep;
-                router.replace(getOnboardingRoute(nextStep));
+
+                if (nextStep === "READY") {
+                    signupOnboardingModeStorage.clear();
+                } else {
+                    signupOnboardingModeStorage.save("SOCIAL");
+                }
+
+                router.replace(
+                    getPostAuthenticationRoute(nextStep),
+                );
             } catch (error) {
                 logger.error("🚫OAuth exchange 실패:", error);
 

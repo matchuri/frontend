@@ -1,12 +1,13 @@
 # Frontend Agent Router
 
-프론트엔드 작업 전에는 루트 `AGENTS.md`를 확인한 뒤 아래 기준 문서만 필요한 만큼 엽니다.
+프론트엔드 작업 전에는 루트 `../../AGENTS.md`를 확인한 뒤 아래 기준 문서만 필요한 만큼 엽니다.
 
-- 프론트엔드 기준: `../docs/frontend/index.md`
-- 구현 가이드: `../docs/frontend/guide.md`
-- API 기준: `../docs/api/index.md`
-- API 상태표: `../docs/api/api-status.md`
-- FE/BE API 계약 동기화 스킬: `../.agents/skills/matchuri-api-contract-sync/SKILL.md`
+`app/frontend/`는 워크스페이스 루트와 분리된 독립 Git 저장소입니다. 프론트엔드의 최신 커밋, 상태, diff를 확인할 때는 이 디렉터리에서 Git 명령을 실행하며 루트 저장소 이력으로 대신 판단하지 않습니다.
+
+- 프론트엔드 기준: `../../docs/frontend/index.md`
+- 구현 가이드: `../../docs/frontend/guide.md`
+- API 기준: `../../docs/api/index.md`
+- FE/BE API 계약 동기화 스킬: `../../.agents/skills/matchuri-api-contract-sync/SKILL.md`
 
 ## Source Of Truth
 

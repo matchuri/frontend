@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import RecommendationRestaurantCard from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantCard";
+import RecommendationRestaurantContent from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantContent";
 import RecommendationRestaurantMap from "@/features/recommendationRestaurant/ui/components/RecommendationRestaurantMap";
 import { useRecommendationRestaurants } from "@/features/recommendationRestaurant/application/hooks/useRecommendationRestaurants";
 
@@ -104,6 +105,7 @@ export default function RecommendationRestaurantPageContent() {
         hasNoRestaurants,
         hasReachedMaximumRadius,
         selectRestaurant,
+        clearRestaurantSelection,
     } = useRecommendationRestaurants({
         menuName,
         latitude: currentLocation.latitude,
@@ -134,7 +136,6 @@ export default function RecommendationRestaurantPageContent() {
                 requestId,
                 candidateId,
             );
-
             return;
         }
 
@@ -225,6 +226,44 @@ export default function RecommendationRestaurantPageContent() {
         );
     }
 
+    if (!isGroupRecommendation) {
+        return (
+            <>
+                <RecommendationRestaurantContent
+                    menuName={menuName}
+                    location={currentLocation}
+                    restaurants={restaurants}
+                    selectedRestaurant={selectedRestaurant}
+                    selectedRestaurantId={selectedRestaurantId}
+                    searchContext={searchContext}
+                    isLoading={isLoading}
+                    errorMessage={errorMessage}
+                    isExpandedSearch={isExpandedSearch}
+                    hasNoRestaurants={hasNoRestaurants}
+                    hasReachedMaximumRadius={hasReachedMaximumRadius}
+                    selectRestaurant={selectRestaurant}
+                    clearRestaurantSelection={clearRestaurantSelection}
+                    onBack={() => router.back()}
+                    onClickChangeLocation={handleOpenLocationModal}
+                />
+
+                <LocationModal
+                    isOpen={isLocationModalOpen}
+                    initialLocation={currentLocation}
+                    isSaving={
+                        isPersonalLocationSaving
+                    }
+                    onClose={() =>
+                        setIsLocationModalOpen(false)
+                    }
+                    onSave={
+                        handleSavePersonalLocation
+                    }
+                />
+            </>
+        );
+    }
+
     return (
         <>
             <main className={recommendationRestaurantPageStyles.container}>
@@ -239,20 +278,16 @@ export default function RecommendationRestaurantPageContent() {
 
                     <div className={recommendationRestaurantPageStyles.titleSection}>
                         <h1 className={recommendationRestaurantPageStyles.title}>
-                            {isGroupRecommendation
-                                ? "투표 결과"
-                                : `${menuName} 맛집`}
+                            투표 결과
                         </h1>
 
-                        {isGroupRecommendation && (
-                            <p
-                                className={
-                                    recommendationRestaurantPageStyles.selectedMenuText
-                                }
-                            >
-                                선정 메뉴: {menuName}
-                            </p>
-                        )}
+                        <p
+                            className={
+                                recommendationRestaurantPageStyles.selectedMenuText
+                            }
+                        >
+                            선정 메뉴: {menuName}
+                        </p>
 
                         <p
                             className={
@@ -376,37 +411,20 @@ export default function RecommendationRestaurantPageContent() {
                 />
             </main>
 
-            {!isGroupRecommendation && (
-                <LocationModal
-                    isOpen={isLocationModalOpen}
-                    initialLocation={currentLocation}
-                    isSaving={
-                        isPersonalLocationSaving
+            {isLocationModalOpen && (
+                <GroupLocationEditModal
+                    location={currentLocation}
+                    isUpdating={
+                        isGroupLocationUpdating
                     }
                     onClose={() =>
                         setIsLocationModalOpen(false)
                     }
-                    onSave={
-                        handleSavePersonalLocation
+                    onSubmit={
+                        handleSaveGroupLocation
                     }
                 />
             )}
-
-            {isGroupRecommendation &&
-                isLocationModalOpen && (
-                    <GroupLocationEditModal
-                        location={currentLocation}
-                        isUpdating={
-                            isGroupLocationUpdating
-                        }
-                        onClose={() =>
-                            setIsLocationModalOpen(false)
-                        }
-                        onSubmit={
-                            handleSaveGroupLocation
-                        }
-                    />
-                )}
         </>
     );
 }

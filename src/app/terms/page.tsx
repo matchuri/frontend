@@ -3,28 +3,47 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
+import { Check } from "lucide-react";
 
 import { getTerms } from "@/features/terms/domain/model/getTerms";
 import TermGroupItem from "@/features/terms/ui/components/TermGroupItem";
-import { termsPageStyles } from "@/ui/styles/termsPageStyles";
 import { termsStorage } from "@/features/terms/infrastructure/storage/termsStorage";
 
 import { onboardingAtom } from "@/features/auth/application/selectors/authSelectors";
 import { useSubmitRequiredAgreements } from "@/features/auth/application/hooks/useSubmitRequiredAgreements";
+import { logout } from "@/features/auth/application/usecase/logout";
 import { useTermsGuard } from "@/features/routeGuard/application/hooks/useTermsGuard";
 
-import HomeNavigationButton from "@/ui/components/HomeNavigationButton";
+import { clearSignupData } from "@/features/signup/application/usecase/clearSignupData";
+import { signupOnboardingModeStorage } from "@/features/signup/infrastructure/storage/signupOnboardingModeStorage";
+
+import SignupProgress from "@/features/signup/ui/components/SignupProgress";
+import SignupExitConfirmModal from "@/features/signup/ui/components/SignupExitConfirmModal";
+import AuthPageHeader from "@/ui/components/AuthPageHeader";
+import AuthPageSkeleton from "@/features/auth/ui/components/AuthPageSkeleton";
+
+import { authPageStyles } from "@/ui/styles/authPageStyles";
+import { signupOnboardingStyles } from "@/ui/styles/signupOnboardingStyles";
 
 export default function TermsPage() {
     const router = useRouter();
     const terms = getTerms();
 
-    const { canAccess } = useTermsGuard();
+    const [isExitConfirmOpen, setIsExitConfirmOpen] = useState(false);
+    const [isExiting, setIsExiting] = useState(false);
+
+    const { isAuthLoading, canAccess } = useTermsGuard({
+        skipRedirect: isExiting,
+    });
 
     const onboarding = useAtomValue(onboardingAtom);
     const { submit, isSubmitting } = useSubmitRequiredAgreements();
 
+    const signupMode = signupOnboardingModeStorage.load();
+    const isSocialSignup = signupMode === "SOCIAL";
+
     const shouldSubmitAgreementsToServer =
+        isSocialSignup &&
         onboarding?.nextStep === "REQUIRED_AGREEMENTS";
 
     const [checkedMap, setCheckedMap] = useState<Record<string, boolean>>(() =>
@@ -47,6 +66,34 @@ export default function TermsPage() {
         setCheckedMap(Object.fromEntries(terms.map((t) => [t.name, next])));
     };
 
+    const handleBack = () => {
+        setIsExitConfirmOpen(true);
+    };
+
+    const handleCloseExitConfirm = () => {
+        if (isExiting) return;
+
+        setIsExitConfirmOpen(false);
+    };
+
+    const handleConfirmExit = async () => {
+        if (isExiting) return;
+
+        setIsExiting(true);
+
+        try {
+            if (isSocialSignup) {
+                await logout();
+            }
+
+            clearSignupData();
+            router.replace("/");
+        } catch {
+            clearSignupData();
+            router.replace("/");
+        }
+    };
+
     const handleSubmit = async () => {
         const agreements = terms.map((term) => ({
             agreementType: term.type,
@@ -54,8 +101,13 @@ export default function TermsPage() {
             agreed: checkedMap[term.name],
         }));
 
-        if (!shouldSubmitAgreementsToServer) {
+        if (!isSocialSignup) {
             termsStorage.save(agreements);
+            router.push("/signup/nickname");
+            return;
+        }
+
+        if (!shouldSubmitAgreementsToServer) {
             router.push("/signup/nickname");
             return;
         }
@@ -70,58 +122,102 @@ export default function TermsPage() {
         );
     };
 
+    if (isAuthLoading) {
+        return <AuthPageSkeleton variant="TERMS" />;
+    }
+
     if (!canAccess) {
         return null;
     }
 
     return (
-        <div className={termsPageStyles.container}>
-            <HomeNavigationButton />
+        <main className={authPageStyles.page}>
+            <AuthPageHeader
+                backHref="/"
+                backLabel="회원가입 중단하기"
+                onBack={handleBack}
+            />
 
-            <div className={termsPageStyles.card}>
-                <div className="flex flex-col items-center gap-2">
-                    <h1 className={termsPageStyles.title}>약관 동의</h1>
-                    <p className={termsPageStyles.description}>
-                        서비스 이용을 위해 약관에 동의해주세요
+            <div className={signupOnboardingStyles.content}>
+                <SignupProgress
+                    label="회원가입 마무리"
+                    step={1}
+                    totalSteps={3}
+                />
+
+                <div className={signupOnboardingStyles.intro}>
+                    <h1 className={signupOnboardingStyles.title}>
+                        약관에 동의해주세요
+                    </h1>
+
+                    <p className={signupOnboardingStyles.description}>
+                        맛추리 이용을 위해 필수 약관을 확인하고 동의해주세요.
                     </p>
                 </div>
 
-                <div className={termsPageStyles.termList}>
-                    <label className={termsPageStyles.allAgreeRow}>
-                        <input
-                            type="checkbox"
-                            checked={allChecked}
-                            onChange={handleToggleAll}
-                            className={termsPageStyles.allAgreeCheckbox}
-                        />
-                        <span className={termsPageStyles.allAgreeLabel}>
-                            전체 동의
-                        </span>
-                    </label>
+                <form
+                    onSubmit={(event) => {
+                        event.preventDefault();
 
-                    {terms.map((termGroup) => (
-                        <TermGroupItem
-                            key={termGroup.name}
-                            termGroup={termGroup}
-                            checked={checkedMap[termGroup.name]}
-                            onToggle={() => handleToggle(termGroup.name)}
-                        />
-                    ))}
-                </div>
+                        if (!requiredAllChecked || isSubmitting) {
+                            return;
+                        }
 
-                <button
-                    type="button"
-                    disabled={!requiredAllChecked || isSubmitting}
-                    onClick={handleSubmit}
-                    className={
-                        requiredAllChecked && !isSubmitting
-                            ? termsPageStyles.submitButton
-                            : termsPageStyles.submitButtonDisabled
-                    }
+                        void handleSubmit();
+                    }}
                 >
-                    {isSubmitting ? "처리 중..." : "동의하고 계속하기"}
-                </button>
+                    <div className={signupOnboardingStyles.termList}>
+                        <label className={signupOnboardingStyles.allAgreeRow}>
+                            <input
+                                type="checkbox"
+                                checked={allChecked}
+                                onChange={handleToggleAll}
+                                className={signupOnboardingStyles.checkboxInput}
+                            />
+
+                            <span className={signupOnboardingStyles.checkboxVisual}>
+                                <Check
+                                    size={14}
+                                    strokeWidth={3}
+                                    aria-hidden="true"
+                                />
+                            </span>
+
+                            <span className={signupOnboardingStyles.allAgreeLabel}>
+                                전체 동의
+                            </span>
+                        </label>
+
+                        {terms.map((termGroup) => (
+                            <TermGroupItem
+                                key={termGroup.name}
+                                termGroup={termGroup}
+                                checked={checkedMap[termGroup.name]}
+                                onToggle={() => handleToggle(termGroup.name)}
+                            />
+                        ))}
+                    </div>
+
+                    <p className={signupOnboardingStyles.termGuide}>
+                        필수 약관에 동의해야 회원가입을 계속할 수 있습니다.
+                    </p>
+
+                    <button
+                        type="submit"
+                        disabled={!requiredAllChecked || isSubmitting}
+                        className={signupOnboardingStyles.primaryButton}
+                    >
+                        {isSubmitting ? "처리 중..." : "동의하고 계속"}
+                    </button>
+                </form>
             </div>
-        </div>
+
+            <SignupExitConfirmModal
+                isOpen={isExitConfirmOpen}
+                isExiting={isExiting}
+                onClose={handleCloseExitConfirm}
+                onConfirm={() => void handleConfirmExit()}
+            />
+        </main>
     );
 }

@@ -9,7 +9,13 @@ import { requiredPreferenceGroupMeta } from "@/features/preference/ui/config/pre
 import { mapUserPreferenceToUpdateRequest } from "@/features/preference/infrastructure/api/mapper/preferenceUpdateRequestMapper";
 import { isSamePreference } from "@/features/preference/application/utils/preferenceCompare";
 
-export function useSavePreference() {
+interface UseSavePreferenceParams {
+    readonly onSuccess?: () => void;
+}
+
+export function useSavePreference({
+    onSuccess,
+}: UseSavePreferenceParams = {}) {
     const preferenceState = useAtomValue(preferenceAtom);
     const originalPreference = useAtomValue(originalPreferenceAtom);
     const setOriginalPreference = useSetAtom(originalPreferenceAtom);
@@ -57,16 +63,20 @@ export function useSavePreference() {
 
             setOriginalPreference(preferenceState.data);
 
+            onSuccess?.();
+
             alert("취향 정보가 저장되었습니다.");
         } catch {
             alert("취향 정보 저장에 실패했습니다.");
         } finally {
             setIsSaving(false);
         }
-    }, [preferenceState,
+    }, [
+        preferenceState,
         originalPreference,
         validateRequiredSelections,
         setOriginalPreference,
+        onSuccess,
     ]);
 
     return {

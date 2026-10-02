@@ -1,3 +1,5 @@
+import { CircleAlert } from "lucide-react";
+
 import { personalRecommendationStartAlertModalStyles } from "@/ui/styles/personalRecommendationStartAlertModalStyles";
 
 interface PersonalRecommendationStartAlertModalProps {
@@ -13,13 +15,29 @@ export default function PersonalRecommendationStartAlertModal({
 
     return (
         <div className={personalRecommendationStartAlertModalStyles.overlay}>
-            <div className={personalRecommendationStartAlertModalStyles.modal}>
-                <h2 className={personalRecommendationStartAlertModalStyles.title}>
-                    메뉴 추천을 위해 취향과 위치 설정이 필요해요
+            <div
+                className={personalRecommendationStartAlertModalStyles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="personal-recommendation-start-alert-title"
+            >
+                <div className={personalRecommendationStartAlertModalStyles.icon}>
+                    <CircleAlert
+                        size={28}
+                        strokeWidth={2}
+                        aria-hidden="true"
+                    />
+                </div>
+
+                <h2
+                    id="personal-recommendation-start-alert-title"
+                    className={personalRecommendationStartAlertModalStyles.title}
+                >
+                    메뉴 추천을 위해 위치 설정이 필요해요
                 </h2>
 
                 <p className={personalRecommendationStartAlertModalStyles.description}>
-                    취향과 위치를 모두 등록한 뒤 메뉴 추천을 시작할 수 있어요.
+                    위치를 등록한 뒤 메뉴 추천을 시작할 수 있어요.
                 </p>
 
                 <button

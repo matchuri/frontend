@@ -1,10 +1,12 @@
-import { Check, User } from "lucide-react";
+import Image from "next/image";
+import { Check, UserRound } from "lucide-react";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
 
 interface GroupRecommendationResultMember {
     readonly memberId: number;
     readonly nickname: string;
+    readonly profileImageUrl: string | null;
     readonly isMe: boolean;
     readonly voted: boolean;
 }
@@ -16,55 +18,79 @@ interface GroupRecommendationResultMemberListProps {
 export default function GroupRecommendationResultMemberList({
     members,
 }: GroupRecommendationResultMemberListProps) {
-    // 멤버가 6명 이상이면 가로 스크롤 영역으로 렌더링
-    const isScrollable = members.length >= 5;
-
     return (
-        <section className={groupRecommendationResultPageStyles.memberStatusCard}>
-            <h2 className={groupRecommendationResultPageStyles.memberStatusTitle}>
-                멤버 목록
-            </h2>
+        <section className={groupRecommendationResultPageStyles.memberSection}>
+            <div className={groupRecommendationResultPageStyles.memberSectionHeader}>
+                <h2 className={groupRecommendationResultPageStyles.memberStatusTitle}>
+                    그룹원
+                </h2>
+                <span className={groupRecommendationResultPageStyles.memberSectionCount}>
+                    총 {members.length}명
+                </span>
+            </div>
 
             <div
-                // 5명 이하는 가운데 정렬, 6명 이상은 가로 스크롤
-                className={
-                    isScrollable
-                        ? groupRecommendationResultPageStyles.memberListScrollable
-                        : groupRecommendationResultPageStyles.memberList
-                }
+                className={groupRecommendationResultPageStyles.memberList}
+                role="region"
+                aria-label="그룹원 목록, 가로 스크롤 가능"
+                tabIndex={0}
             >
                 {members.map((member) => (
-                    <div
+                    <article
                         key={member.memberId}
                         className={groupRecommendationResultPageStyles.memberItem}
                     >
                         <div className={groupRecommendationResultPageStyles.memberAvatarWrapper}>
                             <div className={groupRecommendationResultPageStyles.memberAvatar}>
-                                <User size={36} />
+                                {member.profileImageUrl ? (
+                                    <Image
+                                        src={member.profileImageUrl}
+                                        alt={`${member.nickname} 프로필`}
+                                        fill
+                                        sizes="80px"
+                                        className={groupRecommendationResultPageStyles.memberAvatarImage}
+                                    />
+                                ) : (
+                                    <UserRound size={32} strokeWidth={1.8} aria-hidden="true" />
+                                )}
                             </div>
 
                             {member.voted && (
-                                <span className={groupRecommendationResultPageStyles.memberCheckIcon}>
-                                    <Check size={14} />
+                                <span
+                                    className={groupRecommendationResultPageStyles.memberVoteCheck}
+                                    aria-label="투표 완료"
+                                >
+                                    <Check size={14} strokeWidth={2.5} aria-hidden="true" />
                                 </span>
                             )}
                         </div>
 
-                        <strong className={groupRecommendationResultPageStyles.memberNickname}>
-                            {member.nickname}
-                            {member.isMe && " (나)"}
-                        </strong>
+                        <div className={groupRecommendationResultPageStyles.memberInfo}>
+                            <div className={groupRecommendationResultPageStyles.memberNameRow}>
+                                <strong
+                                    className={groupRecommendationResultPageStyles.memberNickname}
+                                    title={member.nickname}
+                                >
+                                    {member.nickname}
+                                </strong>
+                                {member.isMe && (
+                                    <span className={groupRecommendationResultPageStyles.myLabel}>
+                                        (나)
+                                    </span>
+                                )}
+                            </div>
 
-                        <span
-                            className={
-                                member.voted
-                                    ? groupRecommendationResultPageStyles.memberStatusReady
-                                    : groupRecommendationResultPageStyles.memberStatusWaiting
-                            }
-                        >
-                            {member.voted ? "투표 완료" : "투표 중"}
-                        </span>
-                    </div>
+                            <span
+                                className={
+                                    member.voted
+                                        ? groupRecommendationResultPageStyles.memberStatusReady
+                                        : groupRecommendationResultPageStyles.memberStatusWaiting
+                                }
+                            >
+                                {member.voted ? "투표 완료" : "투표 중"}
+                            </span>
+                        </div>
+                    </article>
                 ))}
             </div>
         </section>

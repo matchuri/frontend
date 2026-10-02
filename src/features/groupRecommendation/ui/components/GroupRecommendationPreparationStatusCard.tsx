@@ -34,17 +34,22 @@ export default function GroupRecommendationPreparationStatusCard({
         <section className={groupRecommendationPreparationPageStyles.preferenceStatusCard}>
             <div className={groupRecommendationPreparationPageStyles.preferenceStatusHeader}>
                 <h2 className={groupRecommendationPreparationPageStyles.preferenceStatusTitle}>
-                    {isAnalyzing
-                        ? "취향을 분석하는 중..."
-                        : "취향을 등록하는 중..."}
+                    {isAnalyzing ? "메뉴를 추천하고 있어요" : "그룹원 준비 현황"}
                 </h2>
 
                 <span className={groupRecommendationPreparationPageStyles.preferenceStatusCount}>
-                    {safeReadyMemberCount}/{totalMemberCount}
+                    {safeReadyMemberCount}/{totalMemberCount}명
                 </span>
             </div>
 
-            <div className={groupRecommendationPreparationPageStyles.progressTrack}>
+            <div
+                className={groupRecommendationPreparationPageStyles.progressTrack}
+                role="progressbar"
+                aria-label="그룹원 준비 진행률"
+                aria-valuemin={0}
+                aria-valuemax={totalMemberCount}
+                aria-valuenow={safeReadyMemberCount}
+            >
                 <div
                     className={groupRecommendationPreparationPageStyles.progressFill}
                     style={{ width: `${progressPercent}%` }}
@@ -52,19 +57,9 @@ export default function GroupRecommendationPreparationStatusCard({
             </div>
 
             <p className={groupRecommendationPreparationPageStyles.preferenceStatusDescription}>
-                {isAnalyzing ? (
-                    <>
-                        취향 분석이 완료되면 자동으로 결과 화면으로 이동합니다.
-                        <br />
-                        잠시만 기다려주세요..
-                    </>
-                ) : (
-                    <>
-                        그룹원 모두가 취향을 입력하면,
-                        <br />
-                        모두가 만족할 수 있는 메뉴를 추천해드릴게요.
-                    </>
-                )}
+                {isAnalyzing
+                    ? "취향 분석이 완료되면 자동으로 결과 화면으로 이동합니다."
+                    : "그룹원 모두가 준비를 완료하면 메뉴 추천이 시작돼요."}
             </p>
         </section>
     );

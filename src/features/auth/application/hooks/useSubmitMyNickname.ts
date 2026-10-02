@@ -10,9 +10,15 @@ import {
     updateMemberNickname,
     updateOnboarding,
 } from "@/features/auth/application/store/authStore";
-import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
+import { getPostAuthenticationRoute } from "@/features/auth/application/onboarding/getPostAuthenticationRoute";
 
-export function useSubmitMyNickname() {
+interface UseSubmitMyNicknameParams {
+    readonly nextRoute?: string;
+}
+
+export function useSubmitMyNickname({
+    nextRoute,
+}: UseSubmitMyNicknameParams = {}) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,22 +36,32 @@ export function useSubmitMyNickname() {
                 });
 
                 logger.log("닉네임 완료 응답:", response.data.onboarding);
-                logger.log(
-                    "이동 경로:",
-                    getOnboardingRoute(response.data.onboarding.nextStep),
-                );
 
                 updateOnboarding(response.data.onboarding);
                 updateMemberNickname(trimmedNickname);
 
+                if (nextRoute) {
+                    router.replace(nextRoute);
+                    return;
+                }
+
+                logger.log(
+                    "이동 경로:",
+                    getPostAuthenticationRoute(
+                        response.data.onboarding.nextStep,
+                    ),
+                );
+
                 router.replace(
-                    getOnboardingRoute(response.data.onboarding.nextStep),
+                    getPostAuthenticationRoute(
+                        response.data.onboarding.nextStep,
+                    ),
                 );
             } finally {
                 setIsSubmitting(false);
             }
         },
-        [isSubmitting, router],
+        [isSubmitting, nextRoute, router],
     );
 
     return {

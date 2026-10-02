@@ -1,19 +1,20 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { isGroupOwnerAtom } from "@/features/group/application/selectors/groupDetailSelectors";
 import { accessTokenAtom } from "@/features/auth/application/selectors/authSelectors";
-import { groupDetailAtomValue } from "@/features/group/application/selectors/groupDetailSelectors";
+import {
+    groupDetailAtomValue,
+    isGroupDetailLoadingAtom,
+    groupDetailErrorMessageAtom,
+} from "@/features/group/application/selectors/groupDetailSelectors";
 
-import { useMyRealtimeEvents } from "@/features/group/application/hooks/useMyRealtimeEvents";
 import { useGroupRealtimeEvents } from "@/features/group/application/hooks/useGroupRealtimeEvents";
 
 import type { GroupRecommendationVoteUpdatedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteUpdatedEvent";
-import type { GroupRecommendationVoteCompletedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationVoteCompletedEvent";
 import type { GroupRecommendationFinalizedEvent } from "@/features/group/infrastructure/sse/dto/GroupRecommendationFinalizedEvent";
 
 import { groupRecommendationSessionDetailAtom } from "@/features/groupRecommendation/application/atoms/groupRecommendationSessionDetailAtom";
@@ -32,6 +33,8 @@ import {
 import GroupRecommendationResultVoteStatusCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultVoteStatusCard";
 import GroupRecommendationResultMemberList from "@/features/groupRecommendation/ui/components/GroupRecommendationResultMemberList";
 import GroupRecommendationResultCandidateCard from "@/features/groupRecommendation/ui/components/GroupRecommendationResultCandidateCard";
+import GroupRecommendationResultTasteSummary from "@/features/groupRecommendation/ui/components/GroupRecommendationResultTasteSummary";
+import GroupRecommendationFlowSkeleton from "@/features/groupRecommendation/ui/components/GroupRecommendationFlowSkeleton";
 import AuthRequiredGuard from "@/features/routeGuard/ui/components/AuthRequiredGuard";
 
 import { groupRecommendationResultPageStyles } from "@/ui/styles/groupRecommendationResultPageStyles";
@@ -52,18 +55,17 @@ function GroupRecommendationResultPageContent() {
     const sessionId = Number(params.sessionId);
     const accessToken = useAtomValue(accessTokenAtom);
     const groupDetail = useAtomValue(groupDetailAtomValue);
+    const isGroupDetailLoading = useAtomValue(isGroupDetailLoadingAtom);
+    const groupDetailErrorMessage = useAtomValue(groupDetailErrorMessageAtom);
+    const [selectedVote, setSelectedVote] = useState<{ sessionId: number; candidateId: number | null } | null>(null);
 
     // 중복 VOTE_UPDATED 이벤트 처리 방지용 ref
     const handledVoteUpdatedEventIds = useRef<Set<string>>(new Set());
-    // 전원 투표 완료 이벤트 중복 처리 방지
-    const handledVoteCompletedEventIds = useRef<Set<string>>(new Set());
     const handledFinalizedEventIds = useRef<Set<string>>(new Set());
 
     const setSessionDetailState = useSetAtom(groupRecommendationSessionDetailAtom);
 
     const { refetchGroupDetail } = useGroupDetail(groupId);
-
-    const isOwner = useAtomValue(isGroupOwnerAtom);
 
     const { refetchSessionDetail } = useGroupRecommendationSessionDetail(groupId, sessionId);
 
@@ -83,7 +85,7 @@ function GroupRecommendationResultPageContent() {
     const isSessionDetailLoading = useAtomValue(isGroupRecommendationSessionDetailLoadingAtom);
     const sessionDetailErrorMessage = useAtomValue(groupRecommendationSessionDetailErrorMessageAtom);
 
-    // OUP_RECOMMENDATION_VOTE_UPDATED 이벤트 수신 시 투표 진행률 갱신
+    // GROUP_RECOMMENDATION_VOTE_UPDATED 이벤트 수신 시 투표 진행률 갱신
     const handleRecommendationVoteUpdated = useCallback(
         async (event: GroupRecommendationVoteUpdatedEvent) => {
             if (handledVoteUpdatedEventIds.current.has(event.eventId)) {
@@ -116,13 +118,13 @@ function GroupRecommendationResultPageContent() {
                 };
             });
 
-            //  VOTE_UPDATED 이벤트에는 누가 투표했는지 정보가 없기 때문에
+            // VOTE_UPDATED 이벤트에는 누가 투표했는지 정보가 없기 때문에
             // 멤버별 투표 완료 표시를 갱신하려면 세션 상세를 다시 조회해야 함
             await refetchSessionDetail({
                 showLoading: false,
             });
 
-            await refetchGroupDetail();
+            await refetchGroupDetail({ showLoading: false });
         },
         [
             groupId,
@@ -131,25 +133,6 @@ function GroupRecommendationResultPageContent() {
             sessionId,
             setSessionDetailState,
         ],
-    );
-
-    const handleRecommendationVoteCompleted = useCallback(
-        async (event: GroupRecommendationVoteCompletedEvent) => {
-            if (handledVoteCompletedEventIds.current.has(event.eventId)) {
-                return;
-            }
-
-            handledVoteCompletedEventIds.current.add(event.eventId);
-
-            if (event.groupId !== groupId || event.sessionId !== sessionId) {
-                return;
-            }
-
-            await refetchSessionDetail({
-                showLoading: false,
-            });
-        },
-        [groupId, refetchSessionDetail, sessionId],
     );
 
     const handleRecommendationFinalized = useCallback(
@@ -199,7 +182,7 @@ function GroupRecommendationResultPageContent() {
                 };
             });
 
-            await refetchGroupDetail();
+            await refetchGroupDetail({ showLoading: false });
         },
         [
             groupId,
@@ -209,36 +192,40 @@ function GroupRecommendationResultPageContent() {
         ],
     );
 
+    const handleGroupMembersChanged = useCallback(() => {
+        void refetchGroupDetail({ showLoading: false });
+        void refetchSessionDetail({ showLoading: false });
+    }, [refetchGroupDetail, refetchSessionDetail]);
+
     useGroupRealtimeEvents({
         accessToken,
         groupId,
+        onMemberJoined: handleGroupMembersChanged,
+        onMemberLeft: handleGroupMembersChanged,
         onRecommendationVoteUpdated: handleRecommendationVoteUpdated,
         onRecommendationFinalized: handleRecommendationFinalized,
     });
 
-    useMyRealtimeEvents({
-        accessToken,
-        onRecommendationVoteCompleted:
-            handleRecommendationVoteCompleted,
-    });
-
     const handleClickBack = () => {
-        router.push(`/group?selectedGroupId=${groupId}`);
-    };
-
-    const handleClickVote = async (candidateId: number) => {
-        if (sessionDetail?.status === "FINALIZED") return;
-
-        try {
-            await vote(groupId, sessionId, candidateId);
-        } catch {
-            alert("투표에 실패했습니다.");
-        }
+        router.push(`/group/${groupId}`);
     };
 
     const handleClickCloseVote = async () => {
-        if (!groupDetail) {
-            alert("그룹 위치 정보를 불러오는 중입니다.");
+        if (
+            !sessionDetail ||
+            sessionDetail.sessionId !== sessionId ||
+            sessionDetail.status !== "OPEN" ||
+            isFinalizing
+        ) {
+            return;
+        }
+
+        const locationSnapshot =
+            sessionDetail.locationSnapshot ??
+            (groupDetail?.id === groupId ? groupDetail.location : null);
+
+        if (!locationSnapshot || !locationSnapshot.address) {
+            alert("그룹 위치 정보를 확인할 수 없습니다.");
             return;
         }
 
@@ -246,7 +233,7 @@ function GroupRecommendationResultPageContent() {
             await finalize(
                 groupId,
                 sessionId,
-                groupDetail.location,
+                locationSnapshot,
             );
         } catch {
             alert("투표 종료에 실패했습니다.");
@@ -254,66 +241,91 @@ function GroupRecommendationResultPageContent() {
     };
 
     const handleClickMoveVoteResult = () => {
-        const finalCandidate = sessionDetail?.finalCandidate;
-
-        if (!finalCandidate || !groupDetail) {
-            alert("최종 추천 메뉴 정보를 불러오는 중입니다.");
-            return;
-        }
-
-        const searchParams = new URLSearchParams({
-            menuName: finalCandidate.menuName,
-            latitude: String(groupDetail.location.latitude),
-            longitude: String(groupDetail.location.longitude),
-            radiusMeters: String(groupDetail.location.radiusMeters),
-            level: "4",
-            source: "group",
-        });
-
-        router.push(`/recommendation-restaurants?${searchParams.toString()}`);
+        router.push(`/group/${groupId}/recommendations/${sessionId}/vote-result`);
     };
 
-    if (isSessionDetailLoading) {
+    if (sessionDetailErrorMessage || groupDetailErrorMessage) {
         return (
-            <main className={groupRecommendationResultPageStyles.container}>
-                <div className={groupRecommendationResultPageStyles.content}>
-                    그룹 추천 결과를 불러오는 중...
-                </div>
+            <main className={groupRecommendationResultPageStyles.stateContainer}>
+                <p className={groupRecommendationResultPageStyles.errorText}>
+                    {sessionDetailErrorMessage ?? groupDetailErrorMessage}
+                </p>
+                <button
+                    type="button"
+                    onClick={() => {
+                        void refetchSessionDetail();
+                        void refetchGroupDetail();
+                    }}
+                    className={groupRecommendationResultPageStyles.retryButton}
+                >
+                    다시 시도
+                </button>
             </main>
         );
     }
 
-    if (sessionDetailErrorMessage) {
+    if (isSessionDetailLoading || isGroupDetailLoading || sessionDetail?.sessionId !== sessionId) {
         return (
-            <main className={groupRecommendationResultPageStyles.container}>
-                <div className={groupRecommendationResultPageStyles.content}>
-                    {sessionDetailErrorMessage}
-                </div>
-            </main>
+            <GroupRecommendationFlowSkeleton
+                variant="RESULT"
+                onClickBack={handleClickBack}
+            />
         );
     }
 
     if (!sessionDetail) return null;
 
+    const myVote = sessionDetail.memberVotes.find((memberVote) => memberVote.isMe);
+    const selectedCandidateId = selectedVote?.sessionId === sessionId
+        ? selectedVote.candidateId
+        : myVote?.candidateId ?? null;
+    const hasVoted = myVote?.voted ?? false;
+    const isVoteUnchanged = hasVoted && selectedCandidateId === myVote?.candidateId;
+    const isVoteDisabled = selectedCandidateId === null || isVoting || isVoteUnchanged;
+
+    const handleClickSelectCandidate = (candidateId: number) => {
+        setSelectedVote({
+            sessionId,
+            candidateId: selectedCandidateId === candidateId ? null : candidateId,
+        });
+    };
+
+    const handleClickVote = async () => {
+        if (sessionDetail.status !== "OPEN" || isVoteDisabled) return;
+
+        try {
+            await vote(groupId, sessionId, selectedCandidateId);
+        } catch {
+            alert("투표에 실패했습니다.");
+        }
+    };
+
     if (sessionDetail.status === "PREPARING") {
         return (
             <main className={groupRecommendationResultPageStyles.container}>
-                <div className={groupRecommendationResultPageStyles.content}>
-                    <button type="button" onClick={handleClickBack} className={groupRecommendationResultPageStyles.backButton}>
-                        <ArrowLeft size={30} strokeWidth={2.5} />
+                <header className={groupRecommendationResultPageStyles.header}>
+                    <button
+                        type="button" onClick={handleClickBack}
+                        className={groupRecommendationResultPageStyles.backButton}
+                        aria-label="그룹 상세 페이지로 돌아가기"
+                    >
+                        <ArrowLeft size={22} aria-hidden="true" />
                     </button>
-
-                    <h1 className={groupRecommendationResultPageStyles.title}>
-                        아직 추천 후보를 생성하는 중입니다.
+                    <h1 className={groupRecommendationResultPageStyles.headerTitle}>
+                        그룹 메뉴 추천 결과
                     </h1>
+                    <div className={groupRecommendationResultPageStyles.headerSpacer} aria-hidden="true" />
+                </header>
+                <div className={groupRecommendationResultPageStyles.stateContainer}>
+                    <p className={groupRecommendationResultPageStyles.stateText}>
+                        아직 추천 후보를 생성하는 중입니다.
+                    </p>
                 </div>
             </main>
         );
     }
 
     const isFinalized = sessionDetail.status === "FINALIZED";
-    const myVote = sessionDetail.memberVotes.find((memberVote) => memberVote.isMe);
-    const selectedCandidateId = myVote?.candidateId ?? null;
 
     const votedMemberCount = sessionDetail.voteProgress?.votedMemberCount ?? 0;
     const totalMemberCount = sessionDetail.voteProgress?.totalMemberCount ?? 0;
@@ -323,59 +335,110 @@ function GroupRecommendationResultPageContent() {
         selected: candidate.candidateId === selectedCandidateId,
     }));
 
+    const groupMembersById = new Map(
+        (groupDetail?.id === groupId ? groupDetail.members : [])
+            .filter((groupMember) => groupMember.status === "ACTIVE")
+            .map((groupMember) => [groupMember.memberId, groupMember] as const),
+    );
+
     const members = sessionDetail.memberVotes.map((memberVote) => ({
         memberId: memberVote.memberId,
-        nickname: memberVote.nickname,
+        nickname: groupMembersById.get(memberVote.memberId)?.nickname ?? memberVote.nickname,
+        profileImageUrl: groupMembersById.get(memberVote.memberId)?.memberProfileImageUrl ?? null,
         isMe: memberVote.isMe,
         voted: memberVote.voted,
-    }));
+    })).sort((a, b) => {
+        if (a.isMe !== b.isMe) return a.isMe ? -1 : 1;
+        if (a.voted !== b.voted) return a.voted ? 1 : -1;
+        return 0;
+    });
+
+    const isOwner = sessionDetail.memberVotes.some(
+        (memberVote) => memberVote.isMe && memberVote.role === "OWNER",
+    );
 
     return (
         <main className={groupRecommendationResultPageStyles.container}>
-            <div className={groupRecommendationResultPageStyles.content}>
-                <button type="button" onClick={handleClickBack} className={groupRecommendationResultPageStyles.backButton}>
-                    <ArrowLeft size={30} strokeWidth={2.5} />
+            <header className={groupRecommendationResultPageStyles.header}>
+                <button
+                    type="button" onClick={handleClickBack}
+                    className={groupRecommendationResultPageStyles.backButton}
+                    aria-label="그룹 상세 페이지로 돌아가기"
+                >
+                    <ArrowLeft size={22} aria-hidden="true" />
                 </button>
+                <h1 className={groupRecommendationResultPageStyles.headerTitle}>
+                    그룹 메뉴 추천 결과
+                </h1>
+                <div className={groupRecommendationResultPageStyles.headerSpacer} aria-hidden="true" />
+            </header>
 
-                <header className={groupRecommendationResultPageStyles.titleSection}>
-                    <h1 className={groupRecommendationResultPageStyles.title}>
-                        그룹 메뉴 추천 결과
-                    </h1>
+            <div
+                className={`${groupRecommendationResultPageStyles.content} ${
+                    !isFinalized
+                        ? groupRecommendationResultPageStyles.contentWithVoteAction
+                        : ""
+                }`}
+            >
+                <GroupRecommendationResultVoteStatusCard
+                    totalMemberCount={totalMemberCount}
+                    votedMemberCount={votedMemberCount}
+                    isOwner={isOwner}
+                    isVoteClosed={isFinalized}
+                    isFinalizing={isFinalizing}
+                    onClickCloseVote={handleClickCloseVote}
+                    onClickMoveVoteResult={handleClickMoveVoteResult}
+                />
 
-                    <p className={groupRecommendationResultPageStyles.description}>
-                        먹고 싶은 메뉴에 투표하세요.
-                    </p>
-                </header>
+                <GroupRecommendationResultMemberList members={members} />
 
-                <div className={groupRecommendationResultPageStyles.topSection}>
-                    <GroupRecommendationResultVoteStatusCard
-                        totalMemberCount={totalMemberCount}
-                        votedMemberCount={votedMemberCount}
-                        isOwner={isOwner}
-                        isVoteClosed={isFinalized}
-                        isFinalizing={isFinalizing}
-                        onClickCloseVote={handleClickCloseVote}
-                        onClickMoveVoteResult={handleClickMoveVoteResult}
-                    />
+                <GroupRecommendationResultTasteSummary
+                    categories={sessionDetail.recommendationCategories}
+                />
 
-                    <GroupRecommendationResultMemberList members={members} />
-                </div>
+                <section className={groupRecommendationResultPageStyles.resultSection}>
+                    <div className={groupRecommendationResultPageStyles.resultHeader}>
+                        <div>
+                            <span className={groupRecommendationResultPageStyles.resultEyebrow}>
+                                MATCHURI PICK
+                            </span>
+                            <h2 className={groupRecommendationResultPageStyles.resultTitle}>
+                                추천 메뉴
+                            </h2>
+                        </div>
+                        <span className={groupRecommendationResultPageStyles.selectionGuide}>
+                            {hasVoted ? "변경할 메뉴를 선택해 주세요" : "마음에 드는 메뉴를 선택해 주세요"}
+                        </span>
+                    </div>
 
-                <section className={groupRecommendationResultPageStyles.candidateGrid}>
-                    {candidates.map((candidate) => (
-                        <GroupRecommendationResultCandidateCard
-                            key={candidate.candidateId}
-                            menuName={candidate.menuName}
-                            matchPercent={Math.round(candidate.score)}
-                            thumbnailUrl={candidate.thumbnailUrl}
-                            selected={candidate.selected}
-                            isVoteClosed={isFinalized}
-                            isVoting={isVoting}
-                            onClickVote={() => handleClickVote(candidate.candidateId)}
-                        />
-                    ))}
+                    <div className={groupRecommendationResultPageStyles.candidateGrid}>
+                        {candidates.map((candidate) => (
+                            <GroupRecommendationResultCandidateCard
+                                key={candidate.candidateId}
+                                menuName={candidate.menuName}
+                                matchPercent={Math.round(candidate.score)}
+                                thumbnailUrl={candidate.thumbnailUrl}
+                                selected={candidate.selected}
+                                isVoteClosed={isFinalized}
+                                onSelect={() => handleClickSelectCandidate(candidate.candidateId)}
+                            />
+                        ))}
+                    </div>
                 </section>
             </div>
+
+            {!isFinalized && (
+                <div className={groupRecommendationResultPageStyles.bottomAction}>
+                    <button
+                        type="button"
+                        onClick={handleClickVote}
+                        disabled={isVoteDisabled}
+                        className={groupRecommendationResultPageStyles.voteButton}
+                    >
+                        {isVoting ? (hasVoted ? "투표 변경 중..." : "투표 중...") : hasVoted ? "투표 변경하기" : "투표하기"}
+                    </button>
+                </div>
+            )}
         </main>
     );
 }

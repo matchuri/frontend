@@ -1,5 +1,7 @@
 "use client";
 
+import { LogOut } from "lucide-react";
+
 import { groupLeaveModalStyles } from "@/ui/styles/groupLeaveModalStyles";
 
 interface GroupLeaveModalProps {
@@ -19,8 +21,20 @@ export default function GroupLeaveModal({
 
     return (
         <div className={groupLeaveModalStyles.overlay}>
-            <div className={groupLeaveModalStyles.modal}>
-                <h2 className={groupLeaveModalStyles.title}>
+            <section
+                className={groupLeaveModalStyles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="group-leave-modal-title"
+            >
+                <div className={groupLeaveModalStyles.icon}>
+                    <LogOut size={26} aria-hidden="true" />
+                </div>
+
+                <h2
+                    id="group-leave-modal-title"
+                    className={groupLeaveModalStyles.title}
+                >
                     그룹에서 나가시겠습니까?
                 </h2>
 
@@ -32,6 +46,7 @@ export default function GroupLeaveModal({
                     <button
                         type="button"
                         onClick={onClose}
+                        disabled={isLeaving}
                         className={groupLeaveModalStyles.cancelButton}
                     >
                         취소
@@ -46,7 +61,7 @@ export default function GroupLeaveModal({
                         {isLeaving ? "나가는 중..." : "나가기"}
                     </button>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }

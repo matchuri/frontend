@@ -5,24 +5,44 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { jotaiStore } from "@/shared/lib/jotaiStore";
+
 import AuthInitializer from "@/features/auth/ui/components/AuthInitializer";
+import MyRealtimeEventsInitializer from "@/features/realtime/ui/components/MyRealtimeEventsInitializer";
+
 import {
     isAuthenticatedAtom,
     isAuthLoadingAtom,
     isOnboardingReadyAtom,
 } from "@/features/auth/application/selectors/authSelectors";
+import { isPersonalRecommendationLoadingAtom } from "@/features/personalRecommendation/application/selectors/personalRecommendationSelectors";
 
-import Navbar from "@/ui/components/Navbar";
-import Sidebar from "@/ui/components/Sidebar";
+import BottomNavigation from "@/ui/components/BottomNavigation";
 
-const authNavigationHiddenPaths = [
-    "/login",
-    "/signup",
-    "/terms",
-    "/signup/nickname",
-    "/auth/find-id",
-    "/auth/find-password",
-];
+import { appLayoutStyles } from "@/ui/styles/appLayoutStyles";
+
+function shouldHideBottomNavigation(pathname: string) {
+    if (pathname.startsWith("/personal-recommendation")) {
+        return true;
+    }
+
+    if (pathname.startsWith("/recommendation-restaurants")) {
+        return true;
+    }
+
+    if (pathname.startsWith("/preference")) {
+        return true;
+    }
+
+    if (/^\/group\/\d+(?:\/|$)/.test(pathname)) {
+        return true;
+    }
+
+    if (pathname.startsWith("/group/invite-links/preview")) {
+        return true;
+    }
+
+    return false;
+}
 
 function AppContent({ children }: { children: ReactNode }) {
     const pathname = usePathname();
@@ -30,30 +50,34 @@ function AppContent({ children }: { children: ReactNode }) {
     const isAuthenticated = useAtomValue(isAuthenticatedAtom);
     const isAuthLoading = useAtomValue(isAuthLoadingAtom);
     const isOnboardingReady = useAtomValue(isOnboardingReadyAtom);
+    const isPersonalRecommendationLoading = useAtomValue(isPersonalRecommendationLoadingAtom);
 
-    const showMemberLayout =
-        !isAuthLoading && isAuthenticated && isOnboardingReady;
+    const isMemberReady =
+        !isAuthLoading &&
+        isAuthenticated &&
+        isOnboardingReady;
 
-    const hideNavbar = authNavigationHiddenPaths.includes(pathname);
-
-    if (isAuthLoading) {
-        return null;
-    }
+    const showBottomNavigation =
+        isMemberReady &&
+        !isPersonalRecommendationLoading &&
+        !shouldHideBottomNavigation(pathname);
 
     return (
-        <>
-            {!hideNavbar && <Navbar />}
-            {showMemberLayout && <Sidebar />}
+        <div className={appLayoutStyles.pageBackground}>
+            <div className={appLayoutStyles.appContainer}>
+                <main
+                    className={
+                        showBottomNavigation
+                            ? appLayoutStyles.contentWithBottomNavigation
+                            : appLayoutStyles.content
+                    }
+                >
+                    {children}
+                </main>
 
-            <main
-                className={[
-                    "h-screen overflow-y-auto",
-                    showMemberLayout ? "ml-[280px]" : "",
-                ].join(" ")}
-            >
-                {children}
-            </main>
-        </>
+                {showBottomNavigation && <BottomNavigation />}
+            </div>
+        </div>
     );
 }
 
@@ -65,7 +89,11 @@ export default function AppLayout({
     return (
         <Provider store={jotaiStore}>
             <AuthInitializer />
-            <AppContent>{children}</AppContent>
+            <MyRealtimeEventsInitializer />
+
+            <AppContent>
+                {children}
+            </AppContent>
         </Provider>
     );
 }

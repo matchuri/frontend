@@ -1,9 +1,17 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
+import type { SignupTasteProfile } from "@/features/signup/domain/model/SignupTasteProfile";
+
+interface ApiErrorDetail {
+    readonly source: string;
+    readonly field: string;
+    readonly reason: string;
+}
 
 interface ApiError {
     readonly status: number;
     readonly code: string;
     readonly message: string;
+    readonly details: readonly ApiErrorDetail[];
 }
 
 interface LoginIdExistsData {
@@ -27,6 +35,7 @@ interface SignupRequest {
         readonly agreementType: string;
         readonly agreementVersion: string;
     }[];
+    readonly tasteProfile: SignupTasteProfile;
 }
 
 interface SignupData {
@@ -54,7 +63,7 @@ export const signupApi = {
 
     signup(payload: SignupRequest) {
         return httpClient.post<SignupResponse>(
-            "/api/v1/members/signup",
+            "/api/v2/members/signup",
             payload,
         );
     },

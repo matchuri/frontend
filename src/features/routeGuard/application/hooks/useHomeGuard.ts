@@ -9,6 +9,7 @@ import {
     isAuthenticatedAtom,
     onboardingAtom,
 } from "@/features/auth/application/selectors/authSelectors";
+import { getOnboardingRoute } from "@/features/auth/application/onboarding/getOnboardingRoute";
 
 export function useHomeGuard() {
     const router = useRouter();
@@ -30,21 +31,15 @@ export function useHomeGuard() {
         // onboarding 정보 없음 → 대기
         if (!onboarding) return;
 
-        const nextStep = onboarding.nextStep;
-
-        // 온보딩 미완료 → 해당 단계로 이동
-        if (nextStep === "REQUIRED_AGREEMENTS") {
-            router.replace("/terms");
-            return;
+        if (onboarding.nextStep !== "READY") {
+            router.replace(getOnboardingRoute(onboarding.nextStep));
         }
-
-        if (nextStep === "REQUIRED_NICKNAME") {
-            router.replace("/signup/nickname");
-            return;
-        }
-
-        // READY만 정상 접근 허용
-    }, [isAuthLoading, isAuthenticated, onboarding, router]);
+    }, [
+        isAuthLoading,
+        isAuthenticated,
+        onboarding,
+        router,
+    ]);
 
     return {
         isAuthLoading,
