@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 
 import type { LocationSetting } from "@/features/locationSetting/domain/model/LocationSetting";
@@ -52,6 +52,13 @@ export default function PersonalRecommendationResultContent({
         (candidate) =>
             candidate.id === recommendation.selectedCandidateId,
     );
+
+    useEffect(() => {
+        document.title =
+            isClosed && selectedCandidate
+                ? "개인 메뉴 추천: 메뉴 선택 완료 | 맛추리"
+                : "개인 메뉴 추천: 메뉴 추천 결과 | 맛추리";
+    }, [isClosed, selectedCandidate]);
 
     const handleSelectCandidate = (candidateId: number) => {
         setSelectedCandidateId((currentCandidateId) =>

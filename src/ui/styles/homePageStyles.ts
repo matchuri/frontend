@@ -4,7 +4,7 @@ export const homePageStyles = {
     // Header
     header: "flex h-[72px] items-center justify-between px-5",
     logo: "flex items-center gap-2",
-    logoIcon: "flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-[#FB6F00]",
+    logoImage: "h-9 w-9 object-contain",
     logoText: "text-[20px] font-bold tracking-[-0.03em] text-gray-900",
     loginButton:
         "flex h-9 items-center justify-center rounded-xl px-3 text-[14px] font-bold text-gray-600 transition-colors hover:bg-gray-50 hover:text-[#FB6F00]",
