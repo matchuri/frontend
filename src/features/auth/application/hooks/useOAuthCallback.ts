@@ -34,27 +34,27 @@ export function useOAuthCallback() {
 
             // 1. provider 유효성 체크
             if (!normalizedProvider) {
-                router.replace("/auth/login?error=invalid_provider");
+                router.replace("/login?error=invalid_provider");
                 return;
             }
 
             // 2. OAuth 실패 케이스
             if (loginResult === "failed") {
                 router.replace(
-                    `/auth/login?error=${encodeURIComponent(errorCode ?? "oauth_failed")}`,
+                    `/login?error=${encodeURIComponent(errorCode ?? "oauth_failed")}`,
                 );
                 return;
             }
 
             // 3. 잘못된 콜백 접근
             if (loginResult !== "success") {
-                router.replace("/auth/login?error=invalid_callback");
+                router.replace("/login?error=invalid_callback");
                 return;
             }
 
             // 4. code 없음
             if (!code) {
-                router.replace("/auth/login?error=missing_code");
+                router.replace("/login?error=missing_code");
                 return;
             }
 
@@ -91,7 +91,7 @@ export function useOAuthCallback() {
                 logger.error("🚫OAuth exchange 실패:", error);
 
                 // 디버깅 중에는 이동 막기
-//                 router.replace("/auth/login?error=exchange_failed");
+//                 router.replace("/login?error=exchange_failed");
             }
         };
 
