@@ -1,8 +1,11 @@
 import type { DislikedFood } from "@/features/preference/domain/model/UserPreference";
 import { dislikedFoodSearchStyles } from "@/ui/styles/dislikedFoodSearchStyles";
 
+type DislikedFoodSearchHeadingLevel = "h3" | "h4";
+
 interface DislikedFoodSearchProps {
     readonly keyword: string;
+    readonly headingLevel?: DislikedFoodSearchHeadingLevel;
     readonly results: readonly DislikedFood[];
     readonly selectedFoods: readonly DislikedFood[];
     readonly isSearching: boolean;
@@ -14,6 +17,7 @@ interface DislikedFoodSearchProps {
 
 export default function DislikedFoodSearch({
     keyword,
+    headingLevel = "h3",
     results,
     selectedFoods,
     isSearching,
@@ -22,6 +26,7 @@ export default function DislikedFoodSearch({
     onSelect,
     onRemove,
 }: DislikedFoodSearchProps) {
+    const Heading = headingLevel;
     const hasKeyword = keyword.trim().length > 0;
     const showEmptyMessage =
         hasKeyword && !isSearching && !searchErrorMessage && results.length === 0;
@@ -29,20 +34,32 @@ export default function DislikedFoodSearch({
     return (
         <section className={dislikedFoodSearchStyles.container}>
             <div className={dislikedFoodSearchStyles.header}>
-                <h3 className={dislikedFoodSearchStyles.title}>
+                <Heading className={dislikedFoodSearchStyles.title}>
                     알레르기 / 비선호 음식
-                </h3>
-                <p className={dislikedFoodSearchStyles.description}>
+                </Heading>
+                <p
+                    id="disliked-food-search-description"
+                    className={dislikedFoodSearchStyles.description}
+                >
                     피하고 싶은 음식을 검색 후 선택해 주세요.
                 </p>
             </div>
 
             <div className={dislikedFoodSearchStyles.searchWrapper}>
+                <label
+                    htmlFor="disliked-food-search"
+                    className="sr-only"
+                >
+                    알레르기 또는 비선호 음식 검색
+                </label>
+
                 <input
+                    id="disliked-food-search"
                     type="text"
                     value={keyword}
                     onChange={(e) => onSearch(e.target.value)}
                     placeholder="예: 땅콩, 우유, 돈까스"
+                    aria-describedby="disliked-food-search-description"
                     className={dislikedFoodSearchStyles.input}
                 />
 
@@ -94,6 +111,7 @@ export default function DislikedFoodSearch({
                                 type="button"
                                 onClick={() => onRemove(food)}
                                 className={dislikedFoodSearchStyles.removeButton}
+                                aria-label={`${food.name} 제거`}
                             >
                                 ×
                             </button>

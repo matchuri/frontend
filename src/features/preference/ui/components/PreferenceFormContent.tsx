@@ -81,6 +81,7 @@ export default function PreferenceFormContent({
                         <PreferenceSection
                             key={group.category}
                             title={group.title}
+                            headingLevel="h4"
                             description={group.description}
                             category={group.category}
                             options={group.options}
@@ -113,6 +114,7 @@ export default function PreferenceFormContent({
                         <PreferenceSection
                             key={group.category}
                             title={group.title}
+                            headingLevel="h4"
                             description={group.description}
                             category={group.category}
                             options={group.options}
@@ -123,6 +125,7 @@ export default function PreferenceFormContent({
 
                     <DislikedFoodSearch
                         keyword={searchKeyword}
+                        headingLevel="h4"
                         results={searchResults}
                         selectedFoods={preference.dislikedFoods}
                         isSearching={isSearching}
