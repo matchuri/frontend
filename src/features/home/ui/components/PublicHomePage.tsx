@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -12,10 +10,7 @@ import {
     UsersRound,
 } from "lucide-react";
 
-import { useRootRedirectGuard } from "@/features/routeGuard/application/hooks/useRootRedirectGuard";
-import { usePublicHomeScrollReveal } from "@/features/home/application/hooks/usePublicHomeScrollReveal";
-
-import PublicHomeSkeleton from "@/features/home/ui/components/PublicHomeSkeleton";
+import PublicHomeClientEffects from "@/features/home/ui/components/PublicHomeClientEffects";
 
 import { homePageStyles } from "@/ui/styles/homePageStyles";
 
@@ -41,227 +36,219 @@ const recommendationSteps = [
 ] as const;
 
 export default function PublicHomePage() {
-    const { isAuthLoading, shouldShowPublicHome } = useRootRedirectGuard();
-
-    usePublicHomeScrollReveal(shouldShowPublicHome);
-
-    if (isAuthLoading) {
-        return <PublicHomeSkeleton />;
-    }
-
-    if (!shouldShowPublicHome) {
-        return null;
-    }
-
     return (
-        <main className={homePageStyles.container}>
-            <header className={homePageStyles.header}>
-                <Link
-                    href="/"
-                    className={homePageStyles.logo}
-                    aria-label="맛추리 홈"
-                >
-                    <Image
-                        src="/images/logo.png"
-                        alt=""
-                        width={36}
-                        height={36}
-                        className={homePageStyles.logoImage}
-                        priority
-                    />
+        <>
+            <PublicHomeClientEffects />
 
-                    <span className={homePageStyles.logoText}>
-                        Matchuri
-                    </span>
-                </Link>
-
-                <Link
-                    href="/login"
-                    className={homePageStyles.loginButton}
-                >
-                    로그인
-                </Link>
-            </header>
-
-            <div className={homePageStyles.content}>
-                <section className={homePageStyles.hero}>
-                    <div className={homePageStyles.heroDecorationTop} />
-
-                    <div className={homePageStyles.heroContent}>
-                        <div className={homePageStyles.heroBadge}>
-                            <Sparkles
-                                size={13}
-                                aria-hidden="true"
-                            />
-                            오늘의 메뉴 고민 해결사
-                        </div>
-
-                        <h1 className={homePageStyles.heroTitle}>
-                            오늘 뭐 먹지?
-                            <br />
-                            <span className={homePageStyles.heroTitleHighlight}>
-                                고민은 이제 그만!
-                            </span>
-                        </h1>
-
-                        <p className={homePageStyles.heroDescription}>
-                            취향과 위치만 알려주세요.
-                            <br />
-                            지금 먹기 좋은 메뉴를 추천해드릴게요.
-                        </p>
-
-                        <Link
-                            href="/guest-recommendation"
-                            className={homePageStyles.startButton}
-                        >
-                            지금 시작하기
-
-                            <ArrowRight
-                                size={18}
-                                aria-hidden="true"
-                            />
-                        </Link>
-                    </div>
-                </section>
-
-                <section className={homePageStyles.introSection}>
-                    <div
-                        data-scroll-reveal
-                        className={`${homePageStyles.sectionHeader} ${homePageStyles.scrollReveal}`}
-                    >
-                        <span className={homePageStyles.sectionEyebrow}>
-                            MATCHURI
-                        </span>
-
-                        <h2 className={homePageStyles.sectionTitle}>
-                            이렇게 사용하세요
-                        </h2>
-                    </div>
-
-                    <div className={homePageStyles.stepList}>
-                        {recommendationSteps.map((step, index) => {
-                            const Icon = step.icon;
-
-                            return (
-                                <article
-                                    key={step.id}
-                                    data-scroll-reveal
-                                    className={`${homePageStyles.stepCard} ${homePageStyles.scrollReveal}`}
-                                    style={{
-                                        transitionDelay: `${index * 200}ms`,
-                                    }}
-                                >
-                                    <div className={homePageStyles.stepIcon}>
-                                        <Icon
-                                            size={21}
-                                            strokeWidth={2}
-                                            aria-hidden="true"
-                                        />
-                                    </div>
-
-                                    <div className={homePageStyles.stepContent}>
-                                        <div className={homePageStyles.stepTitleRow}>
-                                            <span className={homePageStyles.stepNumber}>
-                                                {step.id}
-                                            </span>
-
-                                            <h3 className={homePageStyles.stepTitle}>
-                                                {step.title}
-                                            </h3>
-                                        </div>
-
-                                        <p className={homePageStyles.stepDescription}>
-                                            {step.description}
-                                        </p>
-                                    </div>
-                                </article>
-                            );
-                        })}
-                    </div>
-                </section>
-
-                <section className={homePageStyles.featureSection}>
-                    <div
-                        data-scroll-reveal
-                        className={`${homePageStyles.featureCard} ${homePageStyles.revealFromLeft}`}
-                    >
-                        <div className={homePageStyles.featureIcon}>
-                            <MapPin
-                                size={22}
-                                strokeWidth={2}
-                                aria-hidden="true"
-                            />
-                        </div>
-
-                        <div>
-                            <strong className={homePageStyles.featureTitle}>
-                                내 주변 맛집까지 한 번에
-                            </strong>
-
-                            <p className={homePageStyles.featureDescription}>
-                                추천 메뉴를 정한 뒤 현재 위치 주변의 맛집도 바로 찾아볼 수 있어요.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div
-                        data-scroll-reveal
-                        className={`${homePageStyles.featureCard} ${homePageStyles.revealFromRight}`}
-                    >
-                        <div className={homePageStyles.featureIcon}>
-                            <UsersRound
-                                size={22}
-                                strokeWidth={2}
-                                aria-hidden="true"
-                            />
-                        </div>
-
-                        <div>
-                            <strong className={homePageStyles.featureTitle}>
-                                함께 고르는 메뉴
-                            </strong>
-
-                            <p className={homePageStyles.featureDescription}>
-                                회원가입하면 친구들과 취향을 모아 그룹 메뉴 추천도 받을 수 있어요.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                <section
-                    data-scroll-reveal
-                    className={`${homePageStyles.signupSection} ${homePageStyles.signupReveal}`}
-                >
-                    <div>
-                        <h2 className={homePageStyles.signupTitle}>
-                            Matchuri를 더 편리하게 이용해보세요
-                        </h2>
-
-                        <p className={homePageStyles.signupDescription}>
-                            가입하면 취향과 추천 기록을 관리하고
-                            <br />
-                            그룹 메뉴 추천도 이용할 수 있어요.
-                        </p>
-                    </div>
-
+            <main className={homePageStyles.container}>
+                <header className={homePageStyles.header}>
                     <Link
-                        href="/signup"
-                        className={homePageStyles.signupButton}
+                        href="/"
+                        className={homePageStyles.logo}
+                        aria-label="맛추리 홈"
                     >
-                        회원가입
+                        <Image
+                            src="/images/logo.png"
+                            alt=""
+                            width={36}
+                            height={36}
+                            className={homePageStyles.logoImage}
+                            priority
+                        />
+
+                        <span className={homePageStyles.logoText}>
+                            Matchuri
+                        </span>
                     </Link>
 
-                    <p className={homePageStyles.loginGuide}>
-                        이미 계정이 있나요?{" "}
-                        <Link
-                            href="/login"
-                            className={homePageStyles.loginLink}
+                    <Link
+                        href="/login"
+                        className={homePageStyles.loginButton}
+                    >
+                        로그인
+                    </Link>
+                </header>
+
+                <div className={homePageStyles.content}>
+                    <section className={homePageStyles.hero}>
+                        <div className={homePageStyles.heroDecorationTop} />
+
+                        <div className={homePageStyles.heroContent}>
+                            <div className={homePageStyles.heroBadge}>
+                                <Sparkles
+                                    size={13}
+                                    aria-hidden="true"
+                                />
+                                오늘의 메뉴 고민 해결사
+                            </div>
+
+                            <h1 className={homePageStyles.heroTitle}>
+                                오늘 뭐 먹지?
+                                <br />
+                                <span className={homePageStyles.heroTitleHighlight}>
+                                    고민은 이제 그만!
+                                </span>
+                            </h1>
+
+                            <p className={homePageStyles.heroDescription}>
+                                취향과 위치만 알려주세요.
+                                <br />
+                                지금 먹기 좋은 메뉴를 추천해드릴게요.
+                            </p>
+
+                            <Link
+                                href="/guest-recommendation"
+                                className={homePageStyles.startButton}
+                            >
+                                지금 시작하기
+
+                                <ArrowRight
+                                    size={18}
+                                    aria-hidden="true"
+                                />
+                            </Link>
+                        </div>
+                    </section>
+
+                    <section className={homePageStyles.introSection}>
+                        <div
+                            data-scroll-reveal
+                            className={`${homePageStyles.sectionHeader} ${homePageStyles.scrollReveal}`}
                         >
-                            로그인
+                            <span className={homePageStyles.sectionEyebrow}>
+                                MATCHURI
+                            </span>
+
+                            <h2 className={homePageStyles.sectionTitle}>
+                                이렇게 사용하세요
+                            </h2>
+                        </div>
+
+                        <div className={homePageStyles.stepList}>
+                            {recommendationSteps.map((step, index) => {
+                                const Icon = step.icon;
+
+                                return (
+                                    <article
+                                        key={step.id}
+                                        data-scroll-reveal
+                                        className={`${homePageStyles.stepCard} ${homePageStyles.scrollReveal}`}
+                                        style={{
+                                            transitionDelay: `${index * 200}ms`,
+                                        }}
+                                    >
+                                        <div className={homePageStyles.stepIcon}>
+                                            <Icon
+                                                size={21}
+                                                strokeWidth={2}
+                                                aria-hidden="true"
+                                            />
+                                        </div>
+
+                                        <div className={homePageStyles.stepContent}>
+                                            <div className={homePageStyles.stepTitleRow}>
+                                                <span className={homePageStyles.stepNumber}>
+                                                    {step.id}
+                                                </span>
+
+                                                <h3 className={homePageStyles.stepTitle}>
+                                                    {step.title}
+                                                </h3>
+                                            </div>
+
+                                            <p className={homePageStyles.stepDescription}>
+                                                {step.description}
+                                            </p>
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    </section>
+
+                    <section className={homePageStyles.featureSection}>
+                        <div
+                            data-scroll-reveal
+                            className={`${homePageStyles.featureCard} ${homePageStyles.revealFromLeft}`}
+                        >
+                            <div className={homePageStyles.featureIcon}>
+                                <MapPin
+                                    size={22}
+                                    strokeWidth={2}
+                                    aria-hidden="true"
+                                />
+                            </div>
+
+                            <div>
+                                <strong className={homePageStyles.featureTitle}>
+                                    내 주변 맛집까지 한 번에
+                                </strong>
+
+                                <p className={homePageStyles.featureDescription}>
+                                    추천 메뉴를 정한 뒤 현재 위치 주변의 맛집도 바로 찾아볼 수 있어요.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div
+                            data-scroll-reveal
+                            className={`${homePageStyles.featureCard} ${homePageStyles.revealFromRight}`}
+                        >
+                            <div className={homePageStyles.featureIcon}>
+                                <UsersRound
+                                    size={22}
+                                    strokeWidth={2}
+                                    aria-hidden="true"
+                                />
+                            </div>
+
+                            <div>
+                                <strong className={homePageStyles.featureTitle}>
+                                    함께 고르는 메뉴
+                                </strong>
+
+                                <p className={homePageStyles.featureDescription}>
+                                    회원가입하면 친구들과 취향을 모아 그룹 메뉴 추천도 받을 수 있어요.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section
+                        data-scroll-reveal
+                        className={`${homePageStyles.signupSection} ${homePageStyles.signupReveal}`}
+                    >
+                        <div>
+                            <h2 className={homePageStyles.signupTitle}>
+                                Matchuri를 더 편리하게 이용해보세요
+                            </h2>
+
+                            <p className={homePageStyles.signupDescription}>
+                                가입하면 취향과 추천 기록을 관리하고
+                                <br />
+                                그룹 메뉴 추천도 이용할 수 있어요.
+                            </p>
+                        </div>
+
+                        <Link
+                            href="/signup"
+                            className={homePageStyles.signupButton}
+                        >
+                            회원가입
                         </Link>
-                    </p>
-                </section>
-            </div>
-        </main>
+
+                        <p className={homePageStyles.loginGuide}>
+                            이미 계정이 있나요?{" "}
+                            <Link
+                                href="/login"
+                                className={homePageStyles.loginLink}
+                            >
+                                로그인
+                            </Link>
+                        </p>
+                    </section>
+                </div>
+            </main>
+        </>
     );
 }
