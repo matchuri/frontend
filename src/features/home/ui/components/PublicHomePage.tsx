@@ -166,8 +166,18 @@ export default function PublicHomePage() {
                         </div>
                     </section>
 
-                    <section className={homePageStyles.featureSection}>
-                        <div
+                    <section
+                        className={homePageStyles.featureSection}
+                        aria-labelledby="public-home-features-title"
+                    >
+                        <h2
+                            id="public-home-features-title"
+                            className="sr-only"
+                        >
+                            맛추리 주요 기능
+                        </h2>
+
+                        <article
                             data-scroll-reveal
                             className={`${homePageStyles.featureCard} ${homePageStyles.revealFromLeft}`}
                         >
@@ -180,17 +190,17 @@ export default function PublicHomePage() {
                             </div>
 
                             <div>
-                                <strong className={homePageStyles.featureTitle}>
+                                <h3 className={homePageStyles.featureTitle}>
                                     내 주변 맛집까지 한 번에
-                                </strong>
+                                </h3>
 
                                 <p className={homePageStyles.featureDescription}>
                                     추천 메뉴를 정한 뒤 현재 위치 주변의 맛집도 바로 찾아볼 수 있어요.
                                 </p>
                             </div>
-                        </div>
+                        </article>
 
-                        <div
+                        <article
                             data-scroll-reveal
                             className={`${homePageStyles.featureCard} ${homePageStyles.revealFromRight}`}
                         >
@@ -203,15 +213,15 @@ export default function PublicHomePage() {
                             </div>
 
                             <div>
-                                <strong className={homePageStyles.featureTitle}>
+                                <h3 className={homePageStyles.featureTitle}>
                                     함께 고르는 메뉴
-                                </strong>
+                                </h3>
 
                                 <p className={homePageStyles.featureDescription}>
                                     회원가입하면 친구들과 취향을 모아 그룹 메뉴 추천도 받을 수 있어요.
                                 </p>
                             </div>
-                        </div>
+                        </article>
                     </section>
 
                     <section

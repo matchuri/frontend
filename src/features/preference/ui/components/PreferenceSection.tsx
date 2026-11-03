@@ -2,8 +2,11 @@ import type { PreferenceCategory } from "@/features/preference/domain/model/Pref
 import type { PreferenceOption } from "@/features/preference/domain/model/UserPreference";
 import { preferenceSectionStyles } from "@/ui/styles/preferenceSectionStyles";
 
+type PreferenceSectionHeadingLevel = "h3" | "h4";
+
 interface PreferenceSectionProps {
     readonly title: string;
+    readonly headingLevel?: PreferenceSectionHeadingLevel;
     readonly description?: string;
     readonly category: PreferenceCategory;
     readonly options: readonly PreferenceOption[];
@@ -16,16 +19,19 @@ interface PreferenceSectionProps {
 
 export default function PreferenceSection({
     title,
+    headingLevel = "h3",
     description,
     category,
     options,
     selectedValues,
     onToggle,
 }: PreferenceSectionProps) {
+    const Heading = headingLevel;
+
     return (
         <section className={preferenceSectionStyles.container}>
             <div className={preferenceSectionStyles.header}>
-                <h3 className={preferenceSectionStyles.title}>{title}</h3>
+                <Heading className={preferenceSectionStyles.title}>{title}</Heading>
                 {description && (
                     <p className={preferenceSectionStyles.description}>
                         {description}
@@ -44,6 +50,7 @@ export default function PreferenceSection({
                             key={option.code}
                             type="button"
                             onClick={() => onToggle(category, option)}
+                            aria-pressed={selected}
                             className={
                                 selected
                                     ? preferenceSectionStyles.selectedChip

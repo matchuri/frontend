@@ -90,11 +90,25 @@ export default function LocationSettingForm({
                         aria-hidden="true"
                     />
 
+                    <label
+                        htmlFor="location-search"
+                        className="sr-only"
+                    >
+                        주소 또는 장소 검색
+                    </label>
+
                     <input
+                        id="location-search"
                         type="text"
                         value={inputKeyword}
                         onChange={(event) => setInputKeyword(event.target.value)}
                         placeholder="주소 또는 장소 이름 검색"
+                        aria-describedby={
+                            searchErrorMessage
+                                ? "location-search-error"
+                                : undefined
+                        }
+                        aria-invalid={searchErrorMessage ? true : undefined}
                         disabled={disabled}
                         className={locationModalStyles.searchInput}
                     />
@@ -113,7 +127,10 @@ export default function LocationSettingForm({
                 </form>
 
                 {searchErrorMessage && (
-                    <p className={locationModalStyles.searchErrorMessage}>
+                    <p
+                        id="location-search-error"
+                        className={locationModalStyles.searchErrorMessage}
+                    >
                         {searchErrorMessage}
                     </p>
                 )}
@@ -192,6 +209,7 @@ export default function LocationSettingForm({
                                 type="button"
                                 onClick={() => handleChangeRadius(option)}
                                 disabled={disabled}
+                                aria-pressed={isSelected}
                                 className={
                                     isSelected
                                         ? locationModalStyles.selectedRadiusButton
