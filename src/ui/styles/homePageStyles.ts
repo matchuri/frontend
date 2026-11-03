@@ -4,7 +4,7 @@ export const homePageStyles = {
     // Header
     header: "flex h-[72px] items-center justify-between px-5",
     logo: "flex items-center gap-2",
-    logoIcon: "flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-[#FB6F00]",
+    logoImage: "h-9 w-9 object-contain",
     logoText: "text-[20px] font-bold tracking-[-0.03em] text-gray-900",
     loginButton:
         "flex h-9 items-center justify-center rounded-xl px-3 text-[14px] font-bold text-gray-600 transition-colors hover:bg-gray-50 hover:text-[#FB6F00]",
@@ -65,26 +65,30 @@ export const homePageStyles = {
 
     // Scroll Reveal
     scrollReveal:
-        "translate-y-[14px] scale-[0.985] opacity-0 " +
+        "translate-y-0 scale-100 opacity-100 " +
         "transition-[opacity,transform] duration-750 ease-out " +
-        "data-[revealed=true]:translate-y-0 data-[revealed=true]:scale-100 data-[revealed=true]:opacity-100 " +
+        "data-[reveal-state=hidden]:translate-y-[14px] data-[reveal-state=hidden]:scale-[0.985] data-[reveal-state=hidden]:opacity-0 " +
+        "data-[reveal-state=visible]:translate-y-0 data-[reveal-state=visible]:scale-100 data-[reveal-state=visible]:opacity-100 " +
         "motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 motion-reduce:transition-none",
 
     revealFromLeft:
-        "-translate-x-[14px] opacity-0 " +
+        "translate-x-0 opacity-100 " +
         "transition-[opacity,transform] duration-750 ease-out " +
-        "data-[revealed=true]:translate-x-0 data-[revealed=true]:opacity-100 " +
+        "data-[reveal-state=hidden]:-translate-x-[14px] data-[reveal-state=hidden]:opacity-0 " +
+        "data-[reveal-state=visible]:translate-x-0 data-[reveal-state=visible]:opacity-100 " +
         "motion-reduce:translate-x-0 motion-reduce:opacity-100 motion-reduce:transition-none",
 
     revealFromRight:
-        "translate-x-[14px] opacity-0 " +
+        "translate-x-0 opacity-100 " +
         "transition-[opacity,transform] duration-750 ease-out " +
-        "data-[revealed=true]:translate-x-0 data-[revealed=true]:opacity-100 " +
+        "data-[reveal-state=hidden]:translate-x-[14px] data-[reveal-state=hidden]:opacity-0 " +
+        "data-[reveal-state=visible]:translate-x-0 data-[reveal-state=visible]:opacity-100 " +
         "motion-reduce:translate-x-0 motion-reduce:opacity-100 motion-reduce:transition-none",
 
     signupReveal:
-        "translate-y-[14px] scale-[0.985] opacity-0 " +
+        "translate-y-0 scale-100 opacity-100 " +
         "transition-[opacity,transform] duration-750 ease-out " +
-        "data-[revealed=true]:translate-y-0 data-[revealed=true]:scale-100 data-[revealed=true]:opacity-100 " +
+        "data-[reveal-state=hidden]:translate-y-[14px] data-[reveal-state=hidden]:scale-[0.985] data-[reveal-state=hidden]:opacity-0 " +
+        "data-[reveal-state=visible]:translate-y-0 data-[reveal-state=visible]:scale-100 data-[reveal-state=visible]:opacity-100 " +
         "motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 motion-reduce:transition-none",
 } as const;

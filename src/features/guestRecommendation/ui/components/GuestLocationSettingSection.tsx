@@ -81,11 +81,25 @@ export default function GuestLocationSettingSection({
                         aria-hidden="true"
                     />
 
+                    <label
+                        htmlFor="guest-location-search"
+                        className="sr-only"
+                    >
+                        주소 또는 장소 검색
+                    </label>
+
                     <input
+                        id="guest-location-search"
                         type="text"
                         value={inputKeyword}
                         onChange={(event) => onInputKeywordChange(event.target.value)}
                         placeholder="주소 또는 장소 이름 검색"
+                        aria-describedby={
+                            searchErrorMessage
+                                ? "guest-location-search-error"
+                                : undefined
+                        }
+                        aria-invalid={searchErrorMessage ? true : undefined}
                         className={guestRecommendationPageStyles.searchInput}
                     />
 
@@ -99,7 +113,10 @@ export default function GuestLocationSettingSection({
                 </form>
 
                 {searchErrorMessage && (
-                    <p className={guestRecommendationPageStyles.searchError}>
+                    <p
+                        id="guest-location-search-error"
+                        className={guestRecommendationPageStyles.searchError}
+                    >
                         {searchErrorMessage}
                     </p>
                 )}

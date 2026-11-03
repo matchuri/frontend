@@ -51,9 +51,9 @@ export default function GuestRecommendationResultCard({
             </div>
 
             <div className={guestRecommendationResultPageStyles.cardContent}>
-                <h2 className={guestRecommendationResultPageStyles.menuName}>
+                <h3 className={guestRecommendationResultPageStyles.menuName}>
                     {candidate.menuName}
-                </h2>
+                </h3>
 
                 <button
                     type="button"

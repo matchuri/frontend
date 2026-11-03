@@ -24,7 +24,7 @@ export function usePublicHomeScrollReveal(
             ).matches
         ) {
             elements.forEach((element) => {
-                element.dataset.revealed = "true";
+                element.dataset.revealState = "visible";
             });
 
             return;
@@ -39,7 +39,7 @@ export function usePublicHomeScrollReveal(
 
                     const element = entry.target as HTMLElement;
 
-                    element.dataset.revealed = "true";
+                    element.dataset.revealState = "visible";
 
                     observer.unobserve(element);
                 });
@@ -51,6 +51,14 @@ export function usePublicHomeScrollReveal(
         );
 
         elements.forEach((element) => {
+            const { top } = element.getBoundingClientRect();
+
+            if (top < window.innerHeight) {
+                element.dataset.revealState = "visible";
+                return;
+            }
+
+            element.dataset.revealState = "hidden";
             observer.observe(element);
         });
 

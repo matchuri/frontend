@@ -65,7 +65,7 @@ function AppContent({ children }: { children: ReactNode }) {
     return (
         <div className={appLayoutStyles.pageBackground}>
             <div className={appLayoutStyles.appContainer}>
-                <main
+                <div
                     className={
                         showBottomNavigation
                             ? appLayoutStyles.contentWithBottomNavigation
@@ -73,7 +73,7 @@ function AppContent({ children }: { children: ReactNode }) {
                     }
                 >
                     {children}
-                </main>
+                </div>
 
                 {showBottomNavigation && <BottomNavigation />}
             </div>
