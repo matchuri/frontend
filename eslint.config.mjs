@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Rule 설정으로 일시적 허용
+  // {
+  //   rules: {
+  //     "react-hooks/set-state-in-effect": "off",
+  //   }
+  // },
 ]);
 
 export default eslintConfig;
